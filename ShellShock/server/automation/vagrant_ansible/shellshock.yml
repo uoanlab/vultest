@@ -1,0 +1,22 @@
+---
+- name: Configure server for shellshock
+  hosts: ShellShock
+  become: True
+  vars:
+    cgi_file: /var/www/cgi-bin
+  tasks:
+    - name: httpdのインストール
+      yum: 
+        name=httpd
+
+    - name: cgiファイルをserverにコピー
+      copy:
+        src=files/test.cgi
+        dest={{cgi_file}}
+        owner=root
+        mode=0777
+
+    - name: apache server の起動
+      service:
+        name=httpd
+        state=restarted
