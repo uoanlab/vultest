@@ -1,0 +1,5 @@
+---
+src_dir: /usr/local/src
+apr_version: 1.6.3
+apr_util_version: 1.6.1
+httpd_version: 2.4.29

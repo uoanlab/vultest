@@ -1,0 +1,7 @@
+---
+- hosts: vagrant
+  connection: local
+  become: yes
+  roles:
+    - ../roles/common
+    - ../roles/shellshock

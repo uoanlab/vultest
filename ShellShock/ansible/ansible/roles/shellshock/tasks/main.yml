@@ -1,0 +1,52 @@
+---
+- name: apacheに必要なツールのインストール 
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - gcc
+    - make
+    - pcre
+    - pcre-devel
+    - wget
+    - zlib-devel
+    - openssl-devel
+    - expat-devel
+
+- name: httpdをダウンロード
+  get_url:
+    url: "{{httpd_download_url}}"
+    dest: "{{src_dir}}/httpd-{{httpd_version}}.tar.gz"
+- name: httpdのファイルを展開
+  unarchive:
+    src: "{{src_dir}}/httpd-{{httpd_version}}.tar.gz"
+    dest: "{{src_dir}}"
+    remote_src: yes
+- name: httpdのconfigfileを実行
+  command:
+    ./configure --prefix=/opt/httpd/httpd-{{httpd_version}} --enable-so --enable-mods-shared="all" --with-openssl 
+  args:
+    chdir: "{{src_dir}}/httpd-{{httpd_version}}"
+- name: httpdのmakeを実行
+  make:
+    chdir: "{{src_dir}}/httpd-{{httpd_version}}"
+- name: httpdのmake installを実行
+  make:
+    chdir: "{{src_dir}}/httpd-{{httpd_version}}"
+    target: install
+
+- name: httpd.confのコピー
+  copy:
+    src: ../files/apache/conf/httpd.conf
+    dest: /opt/httpd/httpd-{{httpd_version}}/conf/httpd.conf
+    owner: root
+    mode: 0755
+- name: shellshockの実行条件のファイルをコピー
+  copy:
+    src: ../files/shellshock/shellshock.cgi
+    dest: "{{cgi_dir}}"
+    owner: root
+    mode: 0755
+- name: apacheのサービスを起動
+  shell: "{{apachectl_dir}} start"
+
