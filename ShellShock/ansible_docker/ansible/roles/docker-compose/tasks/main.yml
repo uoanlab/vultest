@@ -1,0 +1,14 @@
+---
+- name: /usr/local/bin/docker-compose down
+  command: /usr/local/bin/docker-compose down
+  args:
+    chdir: "{{src_dir}}/docker"
+- name: /usr/local/bin/docker-compose build
+  command: /usr/local/bin/docker-compose build
+  args:
+    chdir: "{{src_dir}}/docker"
+- name: /usr/local/bin/docker-compose up -d
+  command: /usr/local/bin/docker-compose up -d
+  args:
+    chdir: "{{src_dir}}/docker"
+
