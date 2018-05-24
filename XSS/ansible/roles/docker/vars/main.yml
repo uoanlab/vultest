@@ -1,0 +1,5 @@
+---
+src_dir: /usr/local/src
+docker_compose_path: /usr/local/bin
+download_docker_script_url: https://get.docker.com
+docker_compose_version: 1.21.1
