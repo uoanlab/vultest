@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  apache_server:
+    build: ./apache
+    container_name: apache_server
+    image: akasaka/apache
+    ports: 
+      - "80:80"
