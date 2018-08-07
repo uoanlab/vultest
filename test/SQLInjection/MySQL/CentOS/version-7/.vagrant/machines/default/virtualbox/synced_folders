@@ -1,1 +1,0 @@
-{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/Users/redslope/vultest/SQLInjection/MySQL/CentOS/version-7","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}},"virtualbox":{"/Docker":{"guestpath":"/Docker","hostpath":"/Users/redslope/vultest/SQLInjection/MySQL/CentOS/version-7/docker","disabled":false,"__vagrantfile":true}}}

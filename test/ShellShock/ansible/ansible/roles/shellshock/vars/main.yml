@@ -1,8 +1,0 @@
----
-src_dir: /usr/local/src
-
-httpd_version: 2.2.15
-
-cgi_dir: /opt/httpd/httpd-{{httpd_version}}/cgi-bin
-apachectl_dir: /opt/httpd/httpd-{{httpd_version}}/bin/apachectl
-httpd_download_url: https://archive.apache.org/dist/httpd/httpd-{{httpd_version}}.tar.gz

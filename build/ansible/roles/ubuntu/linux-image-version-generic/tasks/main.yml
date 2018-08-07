@@ -1,0 +1,17 @@
+---
+- name: apt-get install "{{linux_image_version}}}"
+  apt:
+    name: "{{item}}"
+    state: present
+    update_cache: no
+  with_items:
+    - "{{linux_image_version}}"
+
+- name: uname -r
+  shell: uname -r
+  register: linux_image_version_default
+
+- name: apt-get purge 
+  apt:
+    name: "linux-image-{{linux_image_version_default.stdout}}"
+    purge: yes

@@ -1,8 +1,0 @@
----
-- name: SELINUXを無効にするために必要なツールをダウンロード
-  yum:
-    name: libselinux-python
-    state: latest
-- name: SELINUXを無効にする
-  selinux:
-    state: disabled
