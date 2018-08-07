@@ -1,11 +1,11 @@
 ---
-- name: apt-get install "{{linux_image_version}}}"
+- name: apt-get install "{{linux_image_version_generic}}}"
   apt:
     name: "{{item}}"
     state: present
     update_cache: no
   with_items:
-    - "{{linux_image_version}}"
+    - "linux-image-{{linux_image_version_generic}}"
 
 - name: uname -r
   shell: uname -r
@@ -15,3 +15,7 @@
   apt:
     name: "linux-image-{{linux_image_version_default.stdout}}"
     purge: yes
+  register: result
+
+- name: update-grub
+  shell: bash -lc "update-grub"
