@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
    config.vm.provision "ansible_local", run: "always" do |ansible|
        ansible.playbook = "./ansible/playbook/main.yml"
        ansible.inventory_path = "./ansible/hosts/hosts.yml"
-       ansible.config_file = "./ansible/config/ansible.cfg"
+       ansible.config_file = "./ansible/ansible.cfg"
        ansible.limit = "all"
    end
 end
