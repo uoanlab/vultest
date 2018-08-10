@@ -120,7 +120,7 @@ db.results_as_hash = true
 
 cnt = 0
 db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
-  vulenv = CreateEnv.new("./#{config['config_path']}", "#{cnt.next}")
+  vulenv = CreateEnv.new("./#{config['config_path']}", "#{cnt}")
   vulenv.create_vagrantfile
   vulenv.create_ansible_dir
   vulenv.create_ansible_config
@@ -128,4 +128,5 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
   vulenv.create_ansible_role
   vulenv.create_ansible_playbook
   vulenv.creat_start_script
+  cnt += 1
 end
