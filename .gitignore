@@ -1,6 +1,3 @@
 #.vagrant
 .vagrant
 
-# test env 
-develop/
-./vultest.py
