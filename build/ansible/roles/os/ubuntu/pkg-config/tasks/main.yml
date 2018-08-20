@@ -1,0 +1,6 @@
+---
+- name: apt-get install pkg-config
+  apt:
+    name: pkg-config
+    state: present
+    update_cache: no

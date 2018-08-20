@@ -7,18 +7,22 @@
   with_items:
     - "linux-image-{{linux_image_version_generic}}"
 
-- name: uname -r
-  shell: uname -r
-  register: linux_image_version_default
-
-- name: apt-get purge 
+- name: apt-get purge linux-image-4.4.0-31-generic
   apt:
-    name: "linux-image-{{linux_image_version_default.stdout}}"
+    name: linux-image-4.4.0-31-generic
     purge: yes
     state: absent
     update_cache: no
     install_recommends: no
-  register: result
+
+- name: apt-get purge linux-image-4.4.0-133-generic
+  apt:
+    name: linux-image-4.4.0-133-generic
+    purge: yes
+    state: absent
+    update_cache: no
+    install_recommends: no
 
 - name: update-grub
   shell: bash -lc "update-grub"
+

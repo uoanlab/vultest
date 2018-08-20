@@ -1,0 +1,7 @@
+---
+- name: apt-get install libfuse-dev
+  apt:
+    name: libfuse-dev
+    state: present
+    update_cache: no
+
