@@ -1,3 +1,5 @@
+require 'open3'
+require 'pp'
 require 'sqlite3'
 require 'yaml'
 
@@ -22,13 +24,20 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
   vulenv.create_ansible_hosts
   vulenv.create_ansible_role
   vulenv.create_ansible_playbook
-  vulenv.creat_start_script
 
   puts "攻撃対象の環境: ./vultest/vulenv_#{cnt}"
-  puts '---------------------環境を作成するコマンド----------------------'
-  puts "$ cd ./vultest/vulenv_#{cnt}"
-  puts '$ ./start.sh'
-  puts '-----------------------------------------------------------------'
+
+  puts '仮想環境の作成'
+=begin
+  Dir.chdir("./vultest/vulenv_#{cnt}") do
+    stdout, stderr, status = Open3.capture3('vagrant up')
+
+    if status.exitstatus != 0
+      Open3.capture3('vagrant reload')
+    end
+    stdout, stderr, status = Open3.capture3('vagrant reload')
+  end
+=end
   print "\n"
   puts '------------------------攻撃の準備を作成-------------------------'
   puts '$ vagrant ssh'
@@ -61,8 +70,32 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
       msf_module_option[option['name']] = option['var']
     end
 
-    msf_moudle_info = msf_api.module_execute_module(msf_module_type, msf_module_name, msf_module_option)
-    sleep(msf_module['proces_time'])
+    msf_module_info = msf_api.module_execute_module(msf_module_type, msf_module_name, msf_module_option)
+
+    puts "#{msf_module['module_name']}を実行中"
+    i = 0
+    loop do
+      sleep(1)
+      session_connection_flag = false
+      msf_session_list = msf_api.module_session_list
+      msf_session_list.each do |session_info_key, session_info_value|
+        if msf_module_info['uuid'] == session_info_value['exploit_uuid'] then
+          session_connection_flag = true
+          break
+        end
+      end
+      if session_connection_flag then
+        break
+      else
+        if i > 1200 then
+          puts '攻撃が失敗しました'
+          print "\n"
+          exit
+        else 
+          i += 1
+        end
+      end
+    end
 
   end
 
@@ -76,13 +109,10 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
   end
   print "\n"
 
-  puts '---------------------環境を削除するコマンド----------------------'
-  puts '$ exit -y'
-  puts '$ exit'
-  puts '$ exit'
-  puts '$ vagrant destory'
-  puts '-----------------------------------------------------------------'
-  print "\n"
+  puts '仮想環境の削除'
+  Dir.chdir("./vultest/vulenv_#{cnt}") do
+    stdout, stderr, status = Open3.capture3('vagrant destroy')
+  end
 
   cnt += 1
 end

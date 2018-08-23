@@ -68,4 +68,6 @@ class MetasploitAPI
     return res = self.msf_api_module(params)
   end
 
+
+
 end

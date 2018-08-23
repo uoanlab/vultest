@@ -110,14 +110,4 @@ class CreateEnv
   end
  end
 
- def creat_start_script
-  File.open("#{@vultest_dir}/start.sh", "w") do |start_file|
-    start_file.puts("#!/bin/sh")
-    start_file.puts("vagrant up")
-    start_file.puts("vagrant reload")
-    start_file.puts("vagrant ssh")
-  end
-  FileUtils.chmod(0755, "#{@vultest_dir}/start.sh")
- end
-
 end
