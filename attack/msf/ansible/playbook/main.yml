@@ -1,0 +1,6 @@
+---
+- hosts: vagrant
+  connection: local
+  become: yes
+  roles:
+    - ../roles/metasploit
