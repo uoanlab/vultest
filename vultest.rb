@@ -1,10 +1,9 @@
 require 'open3'
-require 'pp'
 require 'sqlite3'
 require 'yaml'
 
-require_relative 'create_env'
-require_relative 'msf'
+require_relative 'lib/create_env'
+require_relative 'lib/metasploit/msf'
 
 puts 'CVEを入力してください'
 puts '例　CVE-2016-4557'
@@ -28,7 +27,6 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
   puts "攻撃対象の環境: ./vultest/vulenv_#{cnt}"
 
   puts '仮想環境の作成'
-=begin
   Dir.chdir("./vultest/vulenv_#{cnt}") do
     stdout, stderr, status = Open3.capture3('vagrant up')
 
@@ -37,7 +35,7 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
     end
     stdout, stderr, status = Open3.capture3('vagrant reload')
   end
-=end
+
   print "\n"
   puts '------------------------攻撃の準備を作成-------------------------'
   puts '$ vagrant ssh'
