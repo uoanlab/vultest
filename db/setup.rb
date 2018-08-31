@@ -14,4 +14,8 @@ db.execute(sql)
 
 db.execute('INSERT INTO configs (cve_name, config_path, module_path) values (?, ?, ?)', 'CVE-2016-4557', 'config/env/cve-2016-4557.yml', 'config/attack/cve-2016-4557-module.yml')
 
+db.execute('INSERT INTO configs (cve_name, config_path, module_path) values (?, ?, ?)', 'CVE-2015-1328', 'config/env/cve-2015-1328.yml', 'config/attack/cve-2015-1328-module.yml')
+
+db.execute('INSERT INTO configs (cve_name, config_path, module_path) values (?, ?, ?)', 'CVE-2017-16995', 'config/env/cve-2017-16995.yml', 'config/attack/cve-2017-16995-module.yml')
+
 db.close

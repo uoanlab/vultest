@@ -30,9 +30,12 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
   Dir.chdir("./vultest/vulenv_#{cnt}") do
     stdout, stderr, status = Open3.capture3('vagrant up')
 
+    # 念のため、仮想環境を再起動させる
     if status.exitstatus != 0
+      Open3.capture3('vagrant reload')
       Open3.capture3('vagrant provision')
     end
+
     stdout, stderr, status = Open3.capture3('vagrant reload')
   end
 

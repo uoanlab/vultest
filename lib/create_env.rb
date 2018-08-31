@@ -61,12 +61,7 @@ class CreateEnv
       # tasksを作成
       FileUtils.mkdir_p("#{vultest_ansible_role_software_dir}/tasks")
       if software['os_depend'] then
-        if software['version_depend'] then
-          # OSのバージョンに影響がある場合
-          ansible_role_dir = "./build/ansible/roles/os/#{@vulconfig['os']['name']}/#{@vulconfig['os']['version']}/#{software['name']}"
-        else
-          ansible_role_dir = "./build/ansible/roles/os/#{@vulconfig['os']['name']}/#{software['name']}"
-        end
+        ansible_role_dir = "./build/ansible/roles/os/#{@vulconfig['os']['name']}/#{software['name']}"
       else
         ansible_role_dir = "./build/ansible/roles/#{software['name']}"
       end
