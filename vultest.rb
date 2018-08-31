@@ -31,7 +31,7 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
     stdout, stderr, status = Open3.capture3('vagrant up')
 
     if status.exitstatus != 0
-      Open3.capture3('vagrant reload')
+      Open3.capture3('vagrant provision')
     end
     stdout, stderr, status = Open3.capture3('vagrant reload')
   end
