@@ -1,65 +1,84 @@
 require 'open3'
+require 'pastel'
 require 'sqlite3'
+require 'tty-command'
+require 'tty-font'
+require 'tty-prompt'
+require 'tty-table'
+require 'tty-spinner'
 require 'yaml'
 
 require_relative 'lib/create_env'
 require_relative 'lib/metasploit/msf'
 
-puts 'CVEを入力してください'
-puts '例　CVE-2016-4557'
-cve = gets
-cve = cve.chomp!
+def create_vulenv_dir(cve)
+  # create database
+  db = SQLite3::Database.new("./db/vultest.db")
+  db.results_as_hash = true
 
-db = SQLite3::Database.new("./db/vultest.db")
-db.results_as_hash = true
+  attack_vector_list = []
+  vul_env_config_list = []
+  attack_config_file_path_list = []
 
-cnt = 0
-db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
-  # 環境作成
-  vulenv = CreateEnv.new("./#{config['config_path']}", "#{cnt}")
-  vulenv.create_vagrantfile
-  vulenv.create_ansible_dir
-  vulenv.create_ansible_config
-  vulenv.create_ansible_hosts
-  vulenv.create_ansible_role
-  vulenv.create_ansible_playbook
+  cnt = 0
+  db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
+    # create environment
+    vulenv = CreateEnv.new("./#{config['config_path']}", "#{cnt}")
+    vulenv.create_vagrantfile
+    vulenv.create_ansible_dir
+    vulenv.create_ansible_config
+    vulenv.create_ansible_hosts
+    vulenv.create_ansible_role
+    vulenv.create_ansible_playbook
+    attack_vector = vulenv.get_attack_vector
 
-  puts "攻撃対象の環境: ./vultest/vulenv_#{cnt}"
+    attack_vector_list.push(attack_vector)
+    vul_env_config_list.push([cnt, "./vultest/vulenv_#{cnt}"])
+    attack_config_file_path_list.push(config['module_path'])
 
-  puts '仮想環境の作成'
-  Dir.chdir("./vultest/vulenv_#{cnt}") do
-    stdout, stderr, status = Open3.capture3('vagrant up')
-
-    # 念のため、仮想環境を再起動させる
-    if status.exitstatus != 0
-      Open3.capture3('vagrant reload')
-      Open3.capture3('vagrant provision')
-    end
-
-    stdout, stderr, status = Open3.capture3('vagrant reload')
+    cnt += 1
   end
 
-  print "\n"
-  puts '------------------------攻撃の準備を作成-------------------------'
-  puts '$ vagrant ssh'
-  puts '$ sudo su - msf'
-  puts '$ cd metasploit-framework'
-  puts '$ ./msfconsole'
-  puts '$ load msgrpc ServerHost=192.168.33.10 ServerPort=55553 User=msf Pass=metasploit '
-  puts '-----------------------------------------------------------------'
-  print "\n"
+  return attack_vector_list, vul_env_config_list, attack_config_file_path_list
+end
 
-  puts '攻撃を行う時は、attackと入力してください'
-  print "command >> "
-  attack = gets
+def create_vulenv(id)
+  puts "[*] create vulnerability environment"
+  Dir.chdir("./vultest/vulenv_#{id}") do
+    vagrant_up_spinner = TTY::Spinner.new("[:spinner] vagrant up", success_mark: '+', error_mark: 'x')
+    vagrant_up_spinner.auto_spin
+    stdout, stderr, status = Open3.capture3('vagrant up')
 
+    # when vagrant up is fail
+    if status.exitstatus != 0 then
+      vagrant_up_spinner.error
+
+      vagrant_reload_spinner = TTY::Spinner.new("[:spinner] vagrant reload", success_mark: '+', error_mark: 'x')
+      vagrant_reload_spinner.auto_spin
+      Open3.capture3('vagrant reload')
+      vagrant_reload_spinner.success
+    else
+      vagrant_up_spinner.success
+    end
+
+    puts '[*] restart vulnerability environment'
+    vagrant_reload_spinner = TTY::Spinner.new("[:spinner] vagrant reload", success_mark: '+', error_mark: 'x')
+    vagrant_reload_spinner.auto_spin
+    Open3.capture3('vagrant reload')
+    vagrant_reload_spinner.success
+  end
+end
+
+def attack(host, config_file_path)
   # Metasploit APIと接続
-  msf_api = MetasploitAPI.new()
+  msf_api = MetasploitAPI.new(host)
   msf_api.auth_login_module
   msf_api.console_create_module
 
-  msf_module_config = YAML.load_file("./#{config['module_path']}")
+  #yamlファイルを読み込む
+  msf_module_config = YAML.load_file("./#{config_file_path}")
   msf_modules = msf_module_config['metasploit_module']
+  puts '[*] exploit attack'
 
   msf_modules.each do |msf_module|
     msf_module_type = msf_module['module_type']
@@ -73,11 +92,13 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
 
     msf_module_info = msf_api.module_execute_module(msf_module_type, msf_module_name, msf_module_option)
 
-    puts "#{msf_module['module_name']}を実行中"
     i = 0
+    session_connection_flag = false
+
+    module_spinner = TTY::Spinner.new("[:spinner] #{msf_module['module_name']}", success_mark: '+', error_mark: 'x')
+    module_spinner.auto_spin
     loop do
       sleep(1)
-      session_connection_flag = false
       msf_session_list = msf_api.module_session_list
       msf_session_list.each do |session_info_key, session_info_value|
         if msf_module_info['uuid'] == session_info_value['exploit_uuid'] then
@@ -85,35 +106,89 @@ db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
           break
         end
       end
-      if session_connection_flag then
-        break
-      else
-        if i > 1200 then
-          puts '攻撃が失敗しました'
-          print "\n"
-          exit
-        else 
-          i += 1
-        end
+      break if i > 1200 || session_connection_flag
+      i += 1
+    end
+
+    if session_connection_flag then
+      module_spinner.success
+    else
+      module_spinner.error
+    end
+  end
+
+end
+
+if __FILE__ == $0
+  font = TTY::Font.new(:"3d")
+  pastel = Pastel.new
+  puts pastel.red(font.write("VULTEST"))
+
+  loop do
+    print 'vultest >'
+    command = gets
+    command = command.chomp!
+
+    command_line = command.split(" ")
+
+    # test command
+    if command_line[0] == 'test' then
+      attack_vector_list, vul_env_config_list, attack_config_file_path_list = create_vulenv_dir(command_line[1])
+
+      header = ['id', 'vulnerability environment path']
+      table = TTY::Table.new header, vul_env_config_list
+
+      puts '[l] vulnerability environment list'
+      table.render(:ascii).each_line do |line|
+        puts line.chomp
       end
+      print "\n"
+
+      id_list = []
+      vul_env_config_list.each do |id, vul_env_path|
+        id_list.push(id.to_s)
+      end
+      prompt = TTY::Prompt.new
+      id = prompt.enum_select('[!] Select an id for testing vulnerability envrionment?', id_list)
+
+      create_vulenv(id)
+
+      if attack_vector_list[id.to_i] == 'local' then
+        puts '[!] attack vector is local'
+        puts '[!] following execute command'
+        puts '[1] vagrant ssh'
+        puts '[2] sudo su - msf'
+        puts '[3] cd metasploit-framework'
+        puts '[4] ./msfconsole'
+        puts '[5] load msgrpc ServerHost=192.168.33.10 ServerPort=55553 User=msf Pass=metasploit '
+
+        host = '192.168.33.10'
+      else 
+        host = '192.168.33.77'
+      end
+
+      loop do
+        print "#{command_line[1]}> "
+        exploit_command = gets
+        exploit_command = exploit_command.chomp!
+
+        if exploit_command == 'exploit' then
+          attack(host, attack_config_file_path_list[id.to_i])
+        elsif exploit_command == 'exit' then
+          break
+        end
+
+      end
+
+    # exit command
+    elsif command_line[0] == 'exit' then
+      break
+    # command (ls, echo etc)
+    else
+      cmd = TTY::Command.new
+      cmd.run(command)
     end
 
   end
 
-  puts '攻撃が完了しました'
-  print "\n"
-
-  puts '攻撃の情報'
-  console_read_res = msf_api.console_read_module
-  for data in console_read_res['data'].split(/\R/)
-    puts data
-  end
-  print "\n"
-
-  puts '仮想環境の削除'
-  Dir.chdir("./vultest/vulenv_#{cnt}") do
-    stdout, stderr, status = Open3.capture3('vagrant destroy')
-  end
-
-  cnt += 1
 end

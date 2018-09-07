@@ -1,0 +1,12 @@
+cve: CVE-2014-6271
+attack_vector: remote
+
+os:
+  name: centos
+  version: 6.5
+software:
+  - name: apache_httpd
+    version: 2.2.15
+    configure_command: "./configure --prefix=/opt/httpd"
+    os_depend: false
+setting: setting/CVE-2014-6271/shellshock

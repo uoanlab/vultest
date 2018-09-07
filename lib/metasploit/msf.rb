@@ -5,9 +5,9 @@ require 'uri'
 # Metasploit APIの接続
 class MetasploitAPI
 
-  def initialize
+  def initialize(host)
     # Metasploitの接続情報
-    @host = '192.168.33.10'
+    @host = host
     @port = 55553
     @uri = '/api/'
 
@@ -67,7 +67,5 @@ class MetasploitAPI
     params = ['session.list', @token]
     return res = self.msf_api_module(params)
   end
-
-
 
 end

@@ -18,4 +18,6 @@ db.execute('INSERT INTO configs (cve_name, config_path, module_path) values (?, 
 
 db.execute('INSERT INTO configs (cve_name, config_path, module_path) values (?, ?, ?)', 'CVE-2017-16995', 'config/env/cve-2017-16995.yml', 'config/attack/cve-2017-16995-module.yml')
 
+db.execute('INSERT INTO configs (cve_name, config_path, module_path) values (?, ?, ?)', 'CVE-2014-6271', 'config/env/shellshock.yml', 'config/attack/shellshock.yml')
+
 db.close
