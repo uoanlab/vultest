@@ -1,5 +1,6 @@
 require 'open3'
 require 'pastel'
+require 'rainbow'
 require 'sqlite3'
 require 'tty-command'
 require 'tty-font'
@@ -43,30 +44,36 @@ def create_vulenv_dir(cve)
 end
 
 def create_vulenv(id)
-  puts "[*] create vulnerability environment"
+  execute_symbol = Rainbow('[*]').blue
+  parenthesis_symbol = Rainbow('[').cyan
+  parenthesis_end_symbol = Rainbow(']').cyan
+  success_symbol = Rainbow('+').cyan
+  error_symbol = Rainbow('-').red
+
+  puts "#{execute_symbol} create vulnerability environment"
   Dir.chdir("./vultest/vulenv_#{id}") do
-    vagrant_up_spinner = TTY::Spinner.new("[:spinner] vagrant up", success_mark: '+', error_mark: 'x')
-    vagrant_up_spinner.auto_spin
+    start_up_spinner = TTY::Spinner.new("#{parenthesis_symbol}:spinner#{parenthesis_end_symbol} start up", success_mark: "#{success_symbol}", error_mark: "#{error_symbol}")
+    start_up_spinner.auto_spin
     stdout, stderr, status = Open3.capture3('vagrant up')
 
     # when vagrant up is fail
     if status.exitstatus != 0 then
-      vagrant_up_spinner.error
-
-      vagrant_reload_spinner = TTY::Spinner.new("[:spinner] vagrant reload", success_mark: '+', error_mark: 'x')
-      vagrant_reload_spinner.auto_spin
-      Open3.capture3('vagrant reload')
-      vagrant_reload_spinner.success
-    else
-      vagrant_up_spinner.success
+      reload_stdout, reload_stderr, reload_status = Open3.capture3('vagrant reload')
+      if reload_status != 0 then
+        start_up_spinner.error
+        exit!
+      end
     end
 
-    puts '[*] restart vulnerability environment'
-    vagrant_reload_spinner = TTY::Spinner.new("[:spinner] vagrant reload", success_mark: '+', error_mark: 'x')
-    vagrant_reload_spinner.auto_spin
-    Open3.capture3('vagrant reload')
-    vagrant_reload_spinner.success
+    reload_status, reload_stderr, reload_status = Open3.capture3('vagrant reload')
+    if reload_status != 0 then
+      start_up_spinner.error
+      exit!
+    end
+
+    start_up_spinner.success
   end
+
 end
 
 def attack(host, config_file_path)
@@ -78,7 +85,9 @@ def attack(host, config_file_path)
   #yamlファイルを読み込む
   msf_module_config = YAML.load_file("./#{config_file_path}")
   msf_modules = msf_module_config['metasploit_module']
-  puts '[*] exploit attack'
+
+  execute_symbol = Rainbow('[*]').blue
+  puts "#{execute_symbol} exploit attack"
 
   msf_modules.each do |msf_module|
     msf_module_type = msf_module['module_type']
@@ -89,13 +98,19 @@ def attack(host, config_file_path)
     options.each do |option|
       msf_module_option[option['name']] = option['var']
     end
+    msf_module_option['LHOST'] = host
 
     msf_module_info = msf_api.module_execute_module(msf_module_type, msf_module_name, msf_module_option)
 
     i = 0
     session_connection_flag = false
 
-    module_spinner = TTY::Spinner.new("[:spinner] #{msf_module['module_name']}", success_mark: '+', error_mark: 'x')
+    parenthesis_symbol = Rainbow('[').cyan
+    parenthesis_end_symbol = Rainbow(']').cyan
+    success_symbol = Rainbow('+').cyan
+    error_symbol = Rainbow('-').red
+
+    module_spinner = TTY::Spinner.new("#{parenthesis_symbol}:spinner#{parenthesis_end_symbol} #{msf_module['module_name']}", success_mark: "#{success_symbol}", error_mark: "#{error_symbol}")
     module_spinner.auto_spin
     loop do
       sleep(1)
@@ -124,6 +139,8 @@ if __FILE__ == $0
   pastel = Pastel.new
   puts pastel.red(font.write("VULTEST"))
 
+  caution_symbol = Rainbow('[!]').red
+  list_symbol = Rainbow('[l]').yellow
   loop do
     print 'vultest >'
     command = gets
@@ -138,7 +155,7 @@ if __FILE__ == $0
       header = ['id', 'vulnerability environment path']
       table = TTY::Table.new header, vul_env_config_list
 
-      puts '[l] vulnerability environment list'
+      puts "#{list_symbol} vulnerability environment list"
       table.render(:ascii).each_line do |line|
         puts line.chomp
       end
@@ -149,13 +166,15 @@ if __FILE__ == $0
         id_list.push(id.to_s)
       end
       prompt = TTY::Prompt.new
-      id = prompt.enum_select('[!] Select an id for testing vulnerability envrionment?', id_list)
+      id = prompt.enum_select("#{caution_symbol} Select an id for testing vulnerability envrionment?", id_list)
 
       create_vulenv(id)
 
       if attack_vector_list[id.to_i] == 'local' then
-        puts '[!] attack vector is local'
-        puts '[!] following execute command'
+        message = Rainbow('attack vector is local').green
+        puts "#{caution_symbol} #{message}"
+        message = Rainbow('following execute command').green
+        puts "#{caution_symbol} #{message}"
         puts '[1] vagrant ssh'
         puts '[2] sudo su - msf'
         puts '[3] cd metasploit-framework'
@@ -164,7 +183,11 @@ if __FILE__ == $0
 
         host = '192.168.33.10'
       else 
-        host = '192.168.33.77'
+        puts "#{caution_symbol} input ip address of machine for attack"
+        puts "#{caution_symbol} start up kali linux"
+        print "#{command_line[1]}> "
+        host = gets
+        host = host.chomp!
       end
 
       loop do
