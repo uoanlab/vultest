@@ -1,6 +1,4 @@
-require 'net/http'
-require 'msgpack'
-require 'uri'
+require_relative '../../global/setting'
 
 # Metasploit APIの接続
 class MetasploitAPI

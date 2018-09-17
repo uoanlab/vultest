@@ -1,5 +1,4 @@
-require 'fileutils'
-require 'yaml'
+require_relative '../global/setting'
 
 class CreateEnv
 
