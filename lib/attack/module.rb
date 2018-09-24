@@ -52,4 +52,3 @@ def attack_module(host, config_file_path)
   end
 
 end
-

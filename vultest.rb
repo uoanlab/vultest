@@ -54,9 +54,17 @@ loop do
     else 
       puts "#{$caution_symbol} input ip address of machine for attack"
       puts "#{$caution_symbol} start up kali linux"
-      print "ip address> "
-      host = gets
-      host = host.chomp!
+      loop do
+        print "#{command_line[1]}> "
+        command = gets
+        command = command.chomp!
+        command_line_ip = command.split(" ")
+
+        if command_line_ip[0] == 'rhost' then
+          host = command_line_ip[1]
+          break
+        end
+      end
     end
 
     loop do

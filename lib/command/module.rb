@@ -25,5 +25,3 @@ def create_vulenv_module(id)
     start_up_spinner.success
   end
 end
-
-
