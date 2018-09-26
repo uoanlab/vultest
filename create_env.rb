@@ -1,9 +1,10 @@
-require_relative '../global/setting'
+require 'fileutils'
+require 'yaml'
 
 class CreateEnv
 
   def initialize(vulconfig_file, cnt)
-    @vultest_dir = "./vultest/vulenv_#{cnt}"
+    @vultest_dir = "./test/vulenv_#{cnt}"
     FileUtils.mkdir_p("#{@vultest_dir}")
 
     @vulconfig = YAML.load_file("#{vulconfig_file}")
@@ -83,27 +84,36 @@ class CreateEnv
 
   end
 
- def create_ansible_playbook
-  File.open("#{@vultest_ansible_playbook_dir}/main.yml", "w") do |playbook_file|
-    playbook_file.puts("---")
-    playbook_file.puts("- hosts: vagrant")
-    playbook_file.puts("  connection: local ")
-    playbook_file.puts("  become: yes ")
-    playbook_file.puts("  roles: ")
+  def create_ansible_playbook
+    File.open("#{@vultest_ansible_playbook_dir}/main.yml", "w") do |playbook_file|
+      playbook_file.puts("---")
+      playbook_file.puts("- hosts: vagrant")
+      playbook_file.puts("  connection: local ")
+      playbook_file.puts("  become: yes ")
+      playbook_file.puts("  roles: ")
 
-    # add roles in playbook
-    softwares = @vulconfig['software']
-    softwares.each do |software|
-      playbook_file.puts("    - ../roles/#{software['name']} ")
+      # add roles in playbook
+      softwares = @vulconfig['software']
+      softwares.each do |software|
+        playbook_file.puts("    - ../roles/#{software['name']} ")
+      end
+
+      if @vulconfig['setting'] then
+        playbook_file.puts("    - ../roles/#{@vulconfig['cve']} ")
+      end
+
+      playbook_file.puts("    - ../roles/metasploit") if @vulconfig['attack_vector'] == 'local' 
     end
-
-    if @vulconfig['setting'] then
-      playbook_file.puts("    - ../roles/#{@vulconfig['cve']} ")
-    end
-
-    playbook_file.puts("    - ../roles/metasploit") if @vulconfig['attack_vector'] == 'local' 
   end
- end
+
+  def create_vagrant_ansible_dir
+    self.create_vagrantfile
+    self.create_ansible_dir
+    self.create_ansible_config
+    self.create_ansible_hosts
+    self.create_ansible_role
+    self.create_ansible_playbook
+  end
 
   def get_attack_vector
     return @vulconfig['attack_vector']

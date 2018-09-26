@@ -1,16 +1,18 @@
-require_relative '../../global/setting'
+require 'net/http'
+require 'msgpack'
+require 'uri'
 
 # Metasploit APIの接続
 class MetasploitAPI
 
-  def initialize(host)
+  def initialize(rhost)
     # Metasploitの接続情報
-    @host = host
+    @rhost = rhost
     @port = 55553
     @uri = '/api/'
 
     # Metasploitに接続
-    @client = Net::HTTP.new(@host, @port)
+    @client = Net::HTTP.new(@rhost, @port)
 
     # Metasploit APIのユーザ
     @user = 'msf'
