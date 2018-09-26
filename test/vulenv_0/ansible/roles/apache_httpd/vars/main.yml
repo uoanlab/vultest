@@ -1,3 +1,0 @@
----
-apache_httpd: 2.2.15
-configure_command: ./configure --prefix=/opt/httpd

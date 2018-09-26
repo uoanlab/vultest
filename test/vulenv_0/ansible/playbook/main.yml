@@ -1,7 +1,0 @@
----
-- hosts: vagrant
-  connection: local 
-  become: yes 
-  roles: 
-    - ../roles/apache_httpd 
-    - ../roles/CVE-2014-6271 
