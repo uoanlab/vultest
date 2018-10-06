@@ -1,6 +1,6 @@
 ---
 - name: apt-get install pkg-config
   apt:
-    name: pkg-config
+    name: "{{name_and_version}}"
     state: present
     update_cache: no

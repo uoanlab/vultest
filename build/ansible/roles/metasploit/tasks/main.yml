@@ -102,9 +102,9 @@
   become_user: postgres
 
 # Install metasploit
-- name: git clone --depth 1 https://github.com/redsloop/metasploit-framework.git
+- name: git clone --depth 1 https://github.com/rapid7/metasploit-framework.git
   git:
-    repo: https://github.com/redsloop/metasploit-framework.git
+    repo: https://github.com/rapid7/metasploit-framework.git
     dest: "{{user_dir}}/metasploit-framework"
     depth: 1
   become_user: "{{user}}"

@@ -1,5 +1,5 @@
 ---
-- name: apt-get install network-manager-vpnc
+- name: apt-get install "{{name_and_version}}"
   apt:
     name: "{{name_and_version}}"
     state: present

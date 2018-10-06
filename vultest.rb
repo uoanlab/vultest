@@ -6,7 +6,7 @@ require_relative './attack/msf'
 require_relative './create_env'
 require_relative './utility'
 
-module  Vultest
+module Vultest
 
   def attack
     # Connection Metasploit API
@@ -14,15 +14,16 @@ module  Vultest
       @rhost = '192.168.33.10'
     end
     msf_api = MetasploitAPI.new(@rhost)
-    msf_api.auth_login_module
-    msf_api.console_create_module
+    msf_api.auth_login
+    msf_api.console_create
 
-    #yamlファイルを読み込む
+    # Lead yaml file
     msf_module_config = YAML.load_file("./#{@attack_config_file_path}")
     msf_modules = msf_module_config['metasploit_module']
 
     Utility.print_message('execute', 'exploit attack')
 
+    execute_session_count = 0
     msf_modules.each do |msf_module|
       msf_module_type = msf_module['module_type']
       msf_module_name = msf_module['module_name']
@@ -32,9 +33,9 @@ module  Vultest
       options.each do |option|
         msf_module_option[option['name']] = option['var']
       end
-      msf_module_option['LHOST'] = @rhost
 
-      msf_module_info = msf_api.module_execute_module(msf_module_type, msf_module_name, msf_module_option)
+      msf_module_option['LHOST'] = @rhost
+      msf_module_info = msf_api.module_execute(msf_module_type, msf_module_name, msf_module_option)
 
       i = 0
       session_connection_flag = false
@@ -50,7 +51,27 @@ module  Vultest
         i += 1
       end
       session_connection_flag ? Utility.tty_spinner_end('success') : Utility.tty_spinner_end('error')
+      execute_session_count += 1
     end
+
+    # Execute demo
+    Utility.print_message('execute', 'execute demo')
+    # Meterpreter is used by last session.
+    # execute_session_count is last session.
+
+    # If there isn't next code, any commnand is "command not found"
+    sleep(30)
+
+    # Execute command
+    msf_api.meterpreter_write(execute_session_count.to_i, 'getuid')
+    meterpreter_res = msf_api.meterpreter_read(execute_session_count.to_i)
+    loop do
+      sleep(1)
+      meterpreter_res = msf_api.meterpreter_read(execute_session_count.to_i)
+      break unless meterpreter_res['data'].empty?
+    end
+
+    puts meterpreter_res['data']
   end
 
   def exit
@@ -73,19 +94,24 @@ module  Vultest
     attack_config_file_path_list = []
     # Use to set config file
     vul_env_config_list = []
+    # Use anounce env caution
+    env_caution_list = []
 
     cnt = 0
-    db.execute('select * from configs where cve_name=?', "#{cve}") do |config|
+    db.execute('select * from configs where cve_name=?', cve) do |config|
       # create environment
-      vulenv = CreateEnv.new("./#{config['config_path']}", "#{cnt}")
+      vulenv = CreateEnv.new("./#{config['config_path']}", cnt)
       vulenv.create_vagrant_ansible_dir
       attack_vector = vulenv.get_attack_vector
+      env_caution = vulenv.get_caution
 
       attack_vector_list.push(attack_vector)
+      env_caution_list.push(env_caution)
       vul_env_config_list.push([cnt, "./test/vulenv_#{cnt}"])
       attack_config_file_path_list.push(config['module_path'])
       cnt += 1
     end
+    db.close
 
     # Can create list which is environment of vulnerability
     Utility.print_message('caution', 'vulnerability environment list')
@@ -127,6 +153,33 @@ module  Vultest
       end
 
       Utility.tty_spinner_end('success')
+
+      # When tool cannot change setting, tool want user to change setting
+      unless env_caution_list[select_id.to_i].nil?
+        env_caution_reload_flag = false
+        env_caution_list[select_id.to_i].each do |env_caution|
+          if env_caution['type'] == 'reload'
+            Utility.print_message('caution', env_caution['msg'])
+            unless env_caution_reload_flag
+              Open3.capture3('vagrant halt')
+              env_caution_reload_flag = true
+            end
+          end
+        end
+
+        if env_caution_reload_flag
+          Utility.print_message('default','Please enter key when ready')
+          input = gets
+
+          Utility.tty_spinner_begin('reload')
+          stdout, stderr, status = Open3.capture3('vagrant up')
+          if status.exitstatus != 0
+            Utility.tty_spinner_end('error')
+            exit!
+          end
+          Utility.tty_spinner_end('success')
+        end
+      end
     end
 
     if attack_vector_list[select_id.to_i] == 'local'

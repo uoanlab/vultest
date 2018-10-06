@@ -39,7 +39,7 @@ class CreateEnv
 
   def create_ansible_role
 
-    if @vulconfig['attack_vector'] == 'local' then
+    if @vulconfig['attack_vector'] == 'local'
       FileUtils.mkdir_p("#{@vultest_ansible_roles_dir}/metasploit")
       FileUtils.mkdir_p("#{@vultest_ansible_roles_dir}/metasploit/tasks")
       FileUtils.mkdir_p("#{@vultest_ansible_roles_dir}/metasploit/vars")
@@ -51,36 +51,43 @@ class CreateEnv
       FileUtils.cp_r("#{ansible_role_metasploit_dir}/files/database.yml", "#{@vultest_ansible_roles_dir}/metasploit/files/database.yml")
     end
 
+    return unless @vulconfig.key?('software')
+
     softwares = @vulconfig['software']
     softwares.each do |software|
       vultest_ansible_role_software_dir = "#{@vultest_ansible_roles_dir}/#{software['name']}"
 
       # create tasks dir
       FileUtils.mkdir_p("#{vultest_ansible_role_software_dir}/tasks")
-      if software['os_depend'] then
+      if software['os_depend'] 
         ansible_role_dir = "./build/ansible/roles/os/#{@vulconfig['os']['name']}/#{software['name']}"
       else
         ansible_role_dir = "./build/ansible/roles/#{software['name']}"
       end
       FileUtils.cp_r("#{ansible_role_dir}/tasks/main.yml", "#{vultest_ansible_role_software_dir}/tasks/main.yml")
 
-      next unless software['version']
-
       # create vars dir
       FileUtils.mkdir_p("#{vultest_ansible_role_software_dir}/vars")
       File.open("#{vultest_ansible_role_software_dir}/vars/main.yml", "w") do |vars_file|
         vars_file.puts("---")
-        vars_file.puts("#{software['name']}: #{software['version']}")
-        vars_file.puts("configure_command: #{software['configure_command']}") if software['configure_command']
+        if software['os_depend'] && !software.key?('affect_kernel')
+          if software.key?('version')
+            vars_file.puts("name_and_version: #{software['name']}=#{software['version']}")
+          else
+            vars_file.puts("name_and_version: #{software['name']}")
+          end
+        else
+          vars_file.puts("#{software['name']}: #{software['version']}")
+          vars_file.puts("configure_command: #{software['configure_command']}") if software.key?('configure_command')
+        end
       end
     end 
 
     # setting
-    if @vulconfig['setting'] then
-      vultest_ansible_role_setting_dir = "#{@vultest_ansible_roles_dir}/#{@vulconfig['cve']}"
-      FileUtils.mkdir_p("#{vultest_ansible_role_setting_dir}/tasks")
-      FileUtils.cp_r("#{@vulconfig['setting']}/tasks/main.yml", "#{vultest_ansible_role_setting_dir}/tasks/main.yml")
-    end
+    return unless @vulconfig.key?('setting')
+    vultest_ansible_role_setting_dir = "#{@vultest_ansible_roles_dir}/#{@vulconfig['cve']}"
+    FileUtils.mkdir_p("#{vultest_ansible_role_setting_dir}/tasks")
+    FileUtils.cp_r("#{@vulconfig['setting']}/tasks/main.yml", "#{vultest_ansible_role_setting_dir}/tasks/main.yml")
 
   end
 
@@ -93,15 +100,14 @@ class CreateEnv
       playbook_file.puts("  roles: ")
 
       # add roles in playbook
-      softwares = @vulconfig['software']
-      softwares.each do |software|
-        playbook_file.puts("    - ../roles/#{software['name']} ")
+      if @vulconfig.key?('software')
+        softwares = @vulconfig['software']
+        softwares.each do |software|
+          playbook_file.puts("    - ../roles/#{software['name']} ")
+        end
       end
 
-      if @vulconfig['setting'] then
-        playbook_file.puts("    - ../roles/#{@vulconfig['cve']} ")
-      end
-
+      playbook_file.puts("    - ../roles/#{@vulconfig['cve']} ") if @vulconfig.key?('setting')
       playbook_file.puts("    - ../roles/metasploit") if @vulconfig['attack_vector'] == 'local' 
     end
   end
@@ -117,6 +123,11 @@ class CreateEnv
 
   def get_attack_vector
     return @vulconfig['attack_vector']
+  end
+
+  def get_caution
+    return nil unless @vulconfig.key?('caution')
+    return @vulconfig['caution']
   end
 
 end
