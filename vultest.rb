@@ -5,6 +5,7 @@ require 'tty-table'
 require_relative './attack/msf'
 require_relative './create_env'
 require_relative './utility'
+require_relative './prompt'
 
 module Vultest
 
@@ -23,7 +24,6 @@ module Vultest
 
     Utility.print_message('execute', 'exploit attack')
 
-    execute_session_count = 0
     msf_modules.each do |msf_module|
       msf_module_type = msf_module['module_type']
       msf_module_name = msf_module['module_name']
@@ -37,7 +37,7 @@ module Vultest
       msf_module_option['LHOST'] = @rhost
       msf_module_info = msf_api.module_execute(msf_module_type, msf_module_name, msf_module_option)
 
-      i = 0
+      exploit_time = 0
       session_connection_flag = false
 
       Utility.tty_spinner_begin(msf_module['module_name'])
@@ -47,31 +47,41 @@ module Vultest
         msf_session_list.each do |session_info_key, session_info_value|
           session_connection_flag = true if msf_module_info['uuid'] == session_info_value['exploit_uuid']
         end
-        break if i > 600 || session_connection_flag
-        i += 1
+        break if exploit_time > 600 || session_connection_flag
+        exploit_time += 1
       end
       session_connection_flag ? Utility.tty_spinner_end('success') : Utility.tty_spinner_end('error')
-      execute_session_count += 1
     end
 
     # Execute demo
     Utility.print_message('execute', 'execute demo')
-    # Meterpreter is used by last session.
-    # execute_session_count is last session.
 
-    # If there isn't next code, any commnand is "command not found"
-    sleep(30)
+    # Use meterpreter by metasploit
+    meterpreter_session_id = nil
+    msf_api.module_session_list.each do |session_info_key, session_info_value|
+      meterpreter_session_id = session_info_key if session_info_value['type'] == 'meterpreter'
+    end
+    return if meterpreter_session_id.nil?
 
-    # Execute command
-    msf_api.meterpreter_write(execute_session_count.to_i, 'getuid')
-    meterpreter_res = msf_api.meterpreter_read(execute_session_count.to_i)
+    meterpreter_prompt = Prompt.new('meterpreter')
     loop do
-      sleep(1)
-      meterpreter_res = msf_api.meterpreter_read(execute_session_count.to_i)
-      break unless meterpreter_res['data'].empty?
+      meterpreter_prompt.print_prompt
+      input_command = meterpreter_prompt.get_input_command
+      # When input next line
+      next if input_command.nil?
+      break if input_command == 'exit'
+      msf_api.meterpreter_write(meterpreter_session_id, input_command)
+      meterpreter_time = 0
+      loop do
+        sleep(1)
+        meterpreter_res = msf_api.meterpreter_read(meterpreter_session_id)
+        unless meterpreter_res['data'].empty?
+          puts meterpreter_res['data']
+          break
+        end
+      end
     end
 
-    puts meterpreter_res['data']
   end
 
   def exit

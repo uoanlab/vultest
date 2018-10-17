@@ -68,7 +68,7 @@ class MetasploitAPI
   end
 
   def meterpreter_write (session_id, command)
-    params = ['session.meterpreter_write', @token, session_id, command]
+    params = ['session.meterpreter_run_single', @token, session_id, command]
     return self.msf_api(params)
   end
 

@@ -2,13 +2,16 @@ require 'pastel'
 require 'tty-font'
 
 class Prompt
-  def initialize
-    self.title
-    @prompt = 'vultest'
+  def initialize(prompt)
+    @prompt = prompt
+  end
+
+  def get_input_command_list
+    return @input_list
   end
 
   def get_input_command
-    return @input_list
+    return @input_list[0]
   end
 
   def set_prompt(prompt)

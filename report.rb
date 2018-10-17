@@ -174,15 +174,3 @@ module Report
   module_function :print_cvss_v3
 end
 
-=begin
-Report.print_cve('CVE-2014-6271')
-Report.print_cvss_v2('CVE-2014-6271')
-Report.print_cvss_v3('CVE-2014-6271')
-=end
-
-Report.print_cve('CVE-2018-10900')
-Report.print_cvss_v2('CVE-2018-10900')
-Report.print_cvss_v3('CVE-2018-10900')
-
-Report.print_cve('CVE-2016-8655')
-

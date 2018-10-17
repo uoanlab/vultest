@@ -11,8 +11,8 @@ curent_year = 2018
 nvd_url = 'https://nvd.nist.gov/feeds/json/cve/1.0'
 Dir.chdir('../src/nvd') do 
   for year in oldest_year..curent_year do
-    Open3.capture3("wget #{nvd_url}/nvdcve-1.0-#{year}.json.zip") unless File.exist?("nvdcve-1.0-#{year}.json.zip")
-    Open3.capture3("unzip nvdcve-1.0-#{year}.json.zip") unless File.exist?("nvdcve-1.0-#{year}.json")
+    Open3.capture3("wget #{nvd_url}/nvdcve-1.0-#{year}.json.zip")
+    Open3.capture3("unzip nvdcve-1.0-#{year}.json.zip")
     Open3.capture3("rm -rf nvdcve-1.0-#{year}.json.zip") if File.exist?("nvdcve-1.0-#{year}.json.zip")
   end
 end
