@@ -60,12 +60,12 @@ class CreateEnv
       # create tasks dir
       FileUtils.mkdir_p("#{vultest_ansible_role_software_dir}/tasks")
       if software['os_depend']
-        if @vulconfig['os']['name'] == 'ubuntu'
-          if software.key?('affect_kernel')
-            ansible_role_dir = "./build/ansible/roles/os/ubuntu/#{software['name']}"
-          elsif @vulconfig['os']['name'] == 'ubuntu'
-            ansible_role_dir = "./build/ansible/roles/os/ubuntu/apt"
-          end
+        if software.key?('affect_kernel')
+          ansible_role_dir = "./build/ansible/roles/os/#{@vulconfig['os']['name']}/#{software['name']}"
+        elsif @vulconfig['os']['name'] == 'ubuntu'
+          ansible_role_dir = "./build/ansible/roles/os/ubuntu/apt"
+        elsif @vulconfig['os']['name'] == 'centos'
+          ansible_role_dir = "./build/ansible/roles/os/centos/yum"
         end
       else
         ansible_role_dir = "./build/ansible/roles/#{software['name']}"
