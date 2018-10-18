@@ -5,6 +5,16 @@ os:
   name: centos
   version: 6.5
 software:
+  - name: gcc
+    os_depend: true
+  - name: make
+    os_depend: true
+  - name: pcre
+    os_depend: true
+  - name: pcre-devel
+    os_depend: true
+  - name: wget
+    os_depend: true
   - name: apache_httpd
     version: 2.2.15
     configure_command: "./configure --prefix=/opt/httpd"
