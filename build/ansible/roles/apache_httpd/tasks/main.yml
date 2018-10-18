@@ -1,16 +1,4 @@
 ---
-- name: Install necessary package
-  yum:
-    name: "{{packages}}"
-    state: latest
-  vars:
-    packages:
-      - gcc
-      - make
-      - pcre
-      - pcre-devel
-      - wget
-  when: ansible_distribution == "CentOS"
 - name: download apache_httpd
   get_url:
     url: "https://archive.apache.org/dist/httpd/httpd-{{apache_httpd}}.tar.gz"
