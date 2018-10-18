@@ -86,6 +86,15 @@ class CreateEnv
           vars_file.puts("#{software['name']}: #{software['version']}")
           vars_file.puts("configure_command: #{software['configure_command']}") if software.key?('configure_command')
         end
+
+        if software.key?('src_dir')
+          unless software['src_dir']
+            vars_file.puts("src_dir: /usr/local/src")
+          else
+            vars_file.puts("src_dir: #{software['src_dir']}")
+          end
+        end
+
       end
     end 
 

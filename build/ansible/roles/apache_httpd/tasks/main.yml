@@ -2,24 +2,24 @@
 - name: download apache_httpd
   get_url:
     url: "https://archive.apache.org/dist/httpd/httpd-{{apache_httpd}}.tar.gz"
-    dest: /usr/local/src
+    dest: "{{src_dir}}"
 - name: unarchive apache-httpd
   unarchive:
-    src: "/usr/local/src/httpd-{{apache_httpd}}.tar.gz"
-    dest: /usr/local/src
+    src: "{{src_dir}}/httpd-{{apache_httpd}}.tar.gz"
+    dest: "{{src_dir}}"
     copy: no
 - name: execute ./configure
   shell: bash -lc "{{configure_command}}"
   args:
-    chdir: "/usr/local/src/httpd-{{apache_httpd}}"
+    chdir: "{{src_dir}}/httpd-{{apache_httpd}}"
 - name: execute make
   shell: bash -lc "make"
   args:
-    chdir: "/usr/local/src/httpd-{{apache_httpd}}"
+    chdir: "{{src_dir}}/httpd-{{apache_httpd}}"
 - name: execute make install
   shell: bash -lc "make install"
   args:
-    chdir: "/usr/local/src/httpd-{{apache_httpd}}"
+    chdir: "{{src_dir}}/httpd-{{apache_httpd}}"
 - name: start apache_httpd
   shell: bash -lc "/opt/httpd/bin/apachectl start"
 

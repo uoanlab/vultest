@@ -19,4 +19,5 @@ software:
     version: 2.2.15
     configure_command: "./configure --prefix=/opt/httpd"
     os_depend: false
+    src_dir: false
 setting: setting/CVE-2014-6271/shellshock
