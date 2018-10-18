@@ -196,11 +196,12 @@ module Vultest
       Utility.print_message('caution', 'attack vector is local')
       Utility.print_message('caution', 'following execute command')
       message = <<-EOS
-      [1] vagrant ssh
-      [2] sudo su - msf
-      [3] cd metasploit-framework
-      [4] ./msfconsole
-      [5] load msgrpc ServerHost=192.168.33.10 ServerPort=55553 User=msf Pass=metasploit
+      [1] cd ./test/vulenv_#{select_id}
+      [2] vagrant ssh
+      [3] sudo su - msf
+      [4] cd metasploit-framework
+      [5] ./msfconsole
+      [6] load msgrpc ServerHost=192.168.33.10 ServerPort=55553 User=msf Pass=metasploit
       EOS
       Utility.print_message('default', message)
       @rhost = '192.168.33.10'
