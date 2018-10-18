@@ -124,7 +124,7 @@ module Vultest
     db.close
 
     # Can create list which is environment of vulnerability
-    Utility.print_message('caution', 'vulnerability environment list')
+    Utility.print_message('output', 'vulnerability environment list')
     header = ['id', 'vulnerability environment path']
     table = TTY::Table.new header, vul_env_config_list
     table.render(:ascii).each_line do |line|
@@ -169,11 +169,11 @@ module Vultest
         env_caution_setup_flag = false
         env_caution_list[select_id.to_i].each do |env_caution|
           if env_caution['type'] == 'setup'
-            Utility.print_message('caution', env_caution['msg'])
-            unless env_caution_setup_flag
-              Open3.capture3('vagrant halt')
-              env_caution_setup_flag = true
+            env_caution['msg'].each do |msg|
+              Utility.print_message('caution', msg)
             end
+            Open3.capture3('vagrant halt')
+            env_caution_setup_flag = true
           end
         end
 
@@ -206,6 +206,16 @@ module Vultest
       Utility.print_message('default', message)
       @rhost = '192.168.33.10'
     else
+      env_caution_list[select_id.to_i].each do |env_caution|
+        if env_caution['type'] == 'start-up'
+          Utility.print_message('caution', 'following execute command')
+          Utility.print_message('input', "cd ./test/vulenv_#{select_id}")
+          Utility.print_message('input', 'vagrant ssh')
+          env_caution['msg'].each do |msg|
+            Utility.print_message('input', msg)
+          end
+        end
+      end
       Utility.print_message('caution', 'input ip address of machine for attack')
       Utility.print_message('caution', 'start up kali linux')
     end
