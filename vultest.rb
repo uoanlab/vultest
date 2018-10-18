@@ -166,18 +166,18 @@ module Vultest
 
       # When tool cannot change setting, tool want user to change setting
       unless env_caution_list[select_id.to_i].nil?
-        env_caution_reload_flag = false
+        env_caution_setup_flag = false
         env_caution_list[select_id.to_i].each do |env_caution|
-          if env_caution['type'] == 'reload'
+          if env_caution['type'] == 'setup'
             Utility.print_message('caution', env_caution['msg'])
-            unless env_caution_reload_flag
+            unless env_caution_setup_flag
               Open3.capture3('vagrant halt')
-              env_caution_reload_flag = true
+              env_caution_setup_flag = true
             end
           end
         end
 
-        if env_caution_reload_flag
+        if env_caution_setup_flag
           Utility.print_message('default','Please enter key when ready')
           input = gets
 
