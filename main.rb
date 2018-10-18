@@ -1,5 +1,6 @@
 require_relative './prompt'
 require_relative './report'
+require_relative './utility'
 require_relative './vultest'
 
 prompt = Prompt.new('vultest')
@@ -26,6 +27,8 @@ loop do
     Vultest.attack
   elsif input_list[0] == 'rhost'
     Vultest.set_rhost(input_list[1])
+    Utility.print_message('caution', 'start up metasploit by kail linux')
+    Utility.print_message('caution', "load msgrpc ServerHost=#{input_list[1]} ServerPort=55553 User=msf Pass=metasploit")
   elsif input_list[0] == 'back'
     Vultest.exit
     prompt.set_prompt('vultest')
