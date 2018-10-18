@@ -5,7 +5,7 @@
     dest: /usr/local/src
 - name: unarchive "orientdb-community-{{orientdb}}.zip"
   unarchive:
-    src: "/usr/local/src/download.php?file=orientdb-community-{{orientdb}}.zip"
+    src: "/usr/local/src/orientdb-community-{{orientdb}}.zip"
     dest: /usr/local/src
     copy: no
 - name: chmod 755 bin/*.sh
@@ -14,10 +14,6 @@
     chdir: "/usr/local/src/orientdb-community-{{orientdb}}"
 - name: chmod -R 777 config
   shell: bash -lc "chmod -R 777 config"
-  args:
-    chdir: "/usr/local/src/orientdb-community-{{orientdb}}"
-- name: ./server.sh
-  shell: bash -lc "./server.sh"
   args:
     chdir: "/usr/local/src/orientdb-community-{{orientdb}}"
 
