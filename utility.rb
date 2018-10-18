@@ -6,8 +6,10 @@ require 'tty-table'
 
 module Utility
   @execute_symbol = Rainbow('[*]').blue
-  @caution_symbol = Rainbow('[!]').magenta
+  @caution_symbol = Rainbow('[>]').indianred
+  @input_symbol = Rainbow('[i]').aqua
   @error_symbol = Rainbow('[-]').red
+  @output_symbol = Rainbow('[o]').magenta
   @success_symbol = Rainbow('+').cyan
   @error_symbol = Rainbow('-').red
 
@@ -19,6 +21,10 @@ module Utility
       puts "#{@caution_symbol} #{message}"
     elsif type == 'error'
       puts "#{@error_symbol} #{message}"
+    elsif type == 'output'
+      puts "#{@output_symbol} #{message}"
+    elsif type == 'input'
+      puts "#{@input_symbol} #{message}"
     else
       puts "#{message}"
     end
