@@ -196,12 +196,12 @@ module Vultest
       Utility.print_message('caution', 'attack vector is local')
       Utility.print_message('caution', 'following execute command')
       message = <<-EOS
-      [1] cd ./test/vulenv_#{select_id}
-      [2] vagrant ssh
-      [3] sudo su - msf
-      [4] cd metasploit-framework
-      [5] ./msfconsole
-      [6] load msgrpc ServerHost=192.168.33.10 ServerPort=55553 User=msf Pass=metasploit
+  [1] cd ./test/vulenv_#{select_id}
+  [2] vagrant ssh
+  [3] sudo su - msf
+  [4] cd metasploit-framework
+  [5] ./msfconsole
+  [6] load msgrpc ServerHost=192.168.33.10 ServerPort=55553 User=msf Pass=metasploit
       EOS
       Utility.print_message('default', message)
       @rhost = '192.168.33.10'
@@ -209,10 +209,13 @@ module Vultest
       env_caution_list[select_id.to_i].each do |env_caution|
         if env_caution['type'] == 'start-up'
           Utility.print_message('caution', 'following execute command')
-          Utility.print_message('input', "cd ./test/vulenv_#{select_id}")
-          Utility.print_message('input', 'vagrant ssh')
+          Utility.print_message('defalut', "  [1] cd ./test/vulenv_#{select_id}")
+          Utility.print_message('default', '  [2] vagrant ssh')
+          code_procedure = 3
           env_caution['msg'].each do |msg|
-            Utility.print_message('input', msg)
+            msg = "  [#{code_procedure}] #{msg}"
+            Utility.print_message('default', msg)
+            code_procedure += 1
           end
         end
       end
