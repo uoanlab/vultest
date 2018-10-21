@@ -9,6 +9,7 @@ module DB
     vulconfigs = []
     db.execute('select * from configs where cve_name=?', cve) do |config|
       vulconfig = {}
+      vulconfig['name'] = config['name']
       vulconfig['config_path'] = config['config_path']
       vulconfig['module_path'] = config['module_path']
       vulconfigs.push(vulconfig)

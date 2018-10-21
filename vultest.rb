@@ -102,19 +102,19 @@ module Vultest
     vulconfigs = DB.get_vulconfigs(cve)
 
     #to do
-    index = 0
+    table_index = 0
     id_list = []
-    vulenv_configs_path = []
+    vulenv_name = []
     vulconfigs.each do |vulconfig|
-      vulenv_configs_path.push([index, vulconfig['config_path']])
-      id_list.push(index.to_s)
-      index += 1
+      vulenv_name.push([table_index, vulconfig['name']])
+      id_list.push(table_index.to_s)
+      table_index += 1
     end
 
     # Can create list which is environment of vulnerability
     Utility.print_message('output', 'vulnerability environment list')
-    header = ['id', 'vulnerability environment path']
-    table = TTY::Table.new header, vulenv_configs_path
+    header = ['id', 'vulenv name']
+    table = TTY::Table.new header, vulenv_name
     table.render(:ascii).each_line do |line|
       puts line.chomp
     end
