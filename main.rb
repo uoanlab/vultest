@@ -6,6 +6,7 @@ require_relative './vultest'
 prompt = Prompt.new('vultest')
 prompt.title
 cve = nil
+vultest = nil
 
 loop do
   prompt.print_prompt
@@ -16,7 +17,10 @@ loop do
     unless input_list[1].nil?
       cve = input_list[1]
     end
-    Vultest.start_up(cve)
+    vultest = Vultest.new(cve)
+    vultest.select_vulenv
+    vultest.prepare_vulenv
+    vultest.prepare_attack
     prompt.set_prompt(cve)
   elsif input_list[0] == 'exit'
     exit!
@@ -24,21 +28,23 @@ loop do
 
   #vultest prompt
   if input_list[0] == 'exploit'
-    Vultest.attack
+    vultest.attack
   elsif input_list[0] == 'rhost'
-    Vultest.set_rhost(input_list[1])
+    vultest.set_rhost(input_list[1])
     Utility.print_message('caution', 'start up metasploit by kail linux')
     Utility.print_message('caution', "load msgrpc ServerHost=#{input_list[1]} ServerPort=55553 User=msf Pass=metasploit")
   elsif input_list[0] == 'back'
-    Vultest.exit
+    vultest = nil
     prompt.set_prompt('vultest')
-  elsif input_list[0] == 'report'
+  elsif input_list[0] == 'info'
     unless input_list[1].nil?
       cve = input_list[1]
     end
     Report.print_cve(cve)
     Report.print_cvss_v2(cve)
     Report.print_cvss_v3(cve)
+  elsif input_list[0] == 'report'
+    vultest.attack_demo
   end
 
 end
