@@ -83,7 +83,7 @@ class CreateEnv
             vars_file.puts("name_and_version: #{software['name']}")
           end
         else
-          vars_file.puts("#{software['name']}: #{software['version']}")
+          vars_file.puts("version: #{software['version']}")
           vars_file.puts("configure_command: #{software['configure_command']}") if software.key?('configure_command')
         end
 
