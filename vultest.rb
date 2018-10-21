@@ -4,6 +4,7 @@ require 'tty-table'
 
 require_relative './attack/msf'
 require_relative './create_env'
+require_relative './db'
 require_relative './utility'
 require_relative './prompt'
 
@@ -93,63 +94,51 @@ module Vultest
     @rhost = rhost
   end
 
+  def set_attack_config_file_path(file_path)
+    @attack_config_file_path = file_path
+  end
+
   def start_up(cve)
-    #create database
-    db = SQLite3::Database.new('./db/vultest.db')
-    db.results_as_hash = true
+    vulconfigs = DB.get_vulconfigs(cve)
 
-    # Use to set ip address for machine of attack
-    attack_vector_list = []
-    # Use to set option of attack
-    attack_config_file_path_list = []
-    # Use to set config file
-    vul_env_config_list = []
-    # Use anounce env caution
-    env_caution_list = []
-
-    cnt = 0
-    db.execute('select * from configs where cve_name=?', cve) do |config|
-      # create environment
-      vulenv = CreateEnv.new("./#{config['config_path']}", cnt)
-      vulenv.create_vagrant_ansible_dir
-      attack_vector = vulenv.get_attack_vector
-      env_caution = vulenv.get_caution
-
-      attack_vector_list.push(attack_vector)
-      env_caution_list.push(env_caution)
-      vul_env_config_list.push([cnt, "./test/vulenv_#{cnt}"])
-      attack_config_file_path_list.push(config['module_path'])
-      cnt += 1
+    #to do
+    table_index = 0
+    id_list = []
+    vulenv_name = []
+    vulconfigs.each do |vulconfig|
+      vulenv_name.push([table_index, vulconfig['name']])
+      id_list.push(table_index.to_s)
+      table_index += 1
     end
-    db.close
 
     # Can create list which is environment of vulnerability
     Utility.print_message('output', 'vulnerability environment list')
-    header = ['id', 'vulnerability environment path']
-    table = TTY::Table.new header, vul_env_config_list
+    header = ['id', 'vulenv name']
+    table = TTY::Table.new header, vulenv_name
     table.render(:ascii).each_line do |line|
       puts line.chomp
     end
     print "\n"
 
-    id_list = []
-    vul_env_config_list.each do |id, vul_env_path|
-      id_list.push(id.to_s)
-    end
     # Select environment of vulnerability by id
     message = 'Select an id for testing vulnerability envrionment?'
     select_id = Utility.tty_prompt(message, id_list)
-    # Select file which is configure of attack
-    @attack_config_file_path = attack_config_file_path_list[select_id.to_i]
+
+    # Create and setting environment of vultest
+    vulenv = CreateEnv.new("./#{vulconfigs[select_id.to_i]['config_path']}")
+    vulenv.create_vagrant_ansible_dir
+    vulenv_config_detail = YAML.load_file("./#{vulconfigs[select_id.to_i]['config_path']}")
+    self.set_attack_config_file_path(vulconfigs[select_id.to_i]['module_path'])
 
     # start up environment of vulnerability
     Utility.print_message('execute', 'create vulnerability environment')
-    Dir.chdir("./test/vulenv_#{select_id}") do
+    Dir.chdir("./test") do
       Utility.tty_spinner_begin('start up')
       stdout, stderr, status = Open3.capture3('vagrant up')
 
       if status.exitstatus != 0
         reload_stdout, reload_stderr, reload_status = Open3.capture3('vagrant reload')
+
         if reload_status.exitstatus != 0
           Utility.tty_spinner_end('error')
           exit!
@@ -165,7 +154,7 @@ module Vultest
       Utility.tty_spinner_end('success')
 
       # When tool cannot change setting, tool want user to change setting
-      unless env_caution_list[select_id.to_i].nil?
+      if vulenv_config_detail.key?('caution')
         env_caution_setup_flag = false
         env_caution_list[select_id.to_i].each do |env_caution|
           if env_caution['type'] == 'setup'
@@ -192,11 +181,11 @@ module Vultest
       end
     end
 
-    if attack_vector_list[select_id.to_i] == 'local'
+    if vulenv_config_detail['attack_vector'] == 'local'
       Utility.print_message('caution', 'attack vector is local')
       Utility.print_message('caution', 'following execute command')
       message = <<-EOS
-  [1] cd ./test/vulenv_#{select_id}
+  [1] cd ./test
   [2] vagrant ssh
   [3] sudo su - msf
   [4] cd metasploit-framework
@@ -204,18 +193,19 @@ module Vultest
   [6] load msgrpc ServerHost=192.168.33.10 ServerPort=55553 User=msf Pass=metasploit
       EOS
       Utility.print_message('default', message)
-      @rhost = '192.168.33.10'
     else
-      env_caution_list[select_id.to_i].each do |env_caution|
-        if env_caution['type'] == 'start-up'
-          Utility.print_message('caution', 'following execute command')
-          Utility.print_message('defalut', "  [1] cd ./test/vulenv_#{select_id}")
-          Utility.print_message('default', '  [2] vagrant ssh')
-          code_procedure = 3
-          env_caution['msg'].each do |msg|
-            msg = "  [#{code_procedure}] #{msg}"
-            Utility.print_message('default', msg)
-            code_procedure += 1
+      if vulenv_config_detail.key?('caution')
+        vulenv_config_detail['caution'].each do |env_caution|
+          if env_caution['type'] == 'start-up'
+            Utility.print_message('caution', 'following execute command')
+            Utility.print_message('defalut', '  [1] cd ./test')
+            Utility.print_message('default', '  [2] vagrant ssh')
+            code_procedure = 3
+            env_caution['msg'].each do |msg|
+              msg = "  [#{code_procedure}] #{msg}"
+              Utility.print_message('default', msg)
+              code_procedure += 1
+            end
           end
         end
       end
@@ -225,6 +215,9 @@ module Vultest
   end
 
   module_function :attack
+  module_function :exit
   module_function :set_rhost
+  module_function :set_attack_config_file_path
   module_function :start_up
+
 end

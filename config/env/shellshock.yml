@@ -15,7 +15,7 @@ software:
     os_depend: true
   - name: wget
     os_depend: true
-  - name: apache_httpd
+  - name: apache-httpd
     version: 2.2.15
     configure_command: "./configure --prefix=/opt/httpd"
     os_depend: false

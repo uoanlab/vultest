@@ -3,11 +3,11 @@ require 'yaml'
 
 class CreateEnv
 
-  def initialize(vulconfig_file, cnt)
-    @vultest_dir = "./test/vulenv_#{cnt}"
+  def initialize(vulconfig_file_path)
+    @vultest_dir = "./test"
     FileUtils.mkdir_p("#{@vultest_dir}")
 
-    @vulconfig = YAML.load_file("#{vulconfig_file}")
+    @vulconfig = YAML.load_file("#{vulconfig_file_path}")
   end
 
   def create_vagrantfile
@@ -83,7 +83,7 @@ class CreateEnv
             vars_file.puts("name_and_version: #{software['name']}")
           end
         else
-          vars_file.puts("#{software['name']}: #{software['version']}")
+          vars_file.puts("version: #{software['version']}")
           vars_file.puts("configure_command: #{software['configure_command']}") if software.key?('configure_command')
         end
 
@@ -134,15 +134,6 @@ class CreateEnv
     self.create_ansible_hosts
     self.create_ansible_role
     self.create_ansible_playbook
-  end
-
-  def get_attack_vector
-    return @vulconfig['attack_vector']
-  end
-
-  def get_caution
-    return nil unless @vulconfig.key?('caution')
-    return @vulconfig['caution']
   end
 
 end

@@ -1,11 +1,11 @@
 ---
-- name: apt-get install "{{linux_image_version_generic}}}"
+- name: apt-get install "linux-image-{{version}}"
   apt:
     name: "{{item}}"
     state: present
     update_cache: no
   with_items:
-    - "linux-image-{{linux_image_version_generic}}"
+    - "linux-image-{{version}}"
 
 - name: uname -r
   shell: bash -lc "uname -r"
@@ -18,7 +18,7 @@
     state: absent
     update_cache: no
     install_recommends: no
-  when: '"{{linux_image_version_generic}}" != "{{def_kernel_version.stdout}}"'
+  when: '"{{version}}" != "{{def_kernel_version.stdout}}"'
 
 - name: "dpkg --list | grep linux-image | awk '{print $2}' | sed -n -e 1p"
   shell: dpkg --list | grep linux-image | awk '{print $2}' | sed -n -e 1p
@@ -31,7 +31,7 @@
     state: absent
     update_cache: no
     install_recommends: no
-  when: '"linux-image-{{linux_image_version_generic}}" != "{{latest_kernel_version.stdout}}"'
+  when: '"linux-image-{{version}}" != "{{latest_kernel_version.stdout}}"'
 
 - name: update-grub
   shell: bash -lc "update-grub"
