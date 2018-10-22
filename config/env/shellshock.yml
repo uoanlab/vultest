@@ -21,3 +21,8 @@ software:
     os_depend: false
     src_dir: false
 setting: setting/CVE-2014-6271/shellshock
+caution:
+    - type: report
+      msg:
+        - Exit cgi file
+        - Permission of cgi file is 755
