@@ -8,9 +8,9 @@ module DB
     db.results_as_hash = true
     cve_info = {}
 
-    db.execute('select * from cve where cve=?', cve) do |cve_info|
-      cve_info['nvd_id'] = cve_info['nvd_id']
-      cve_info['description'] = cve_info['description']
+    db.execute('select * from cve where cve=?', cve) do |info|
+      cve_info['nvd_id'] = info['nvd_id']
+      cve_info['description'] = info['description']
     end
     db.close
 
@@ -32,9 +32,9 @@ module DB
   def get_cpe(cve)
     db = SQLite3::Database.new('./db/cpe.sqlite3')
     db.results_as_hash = true
-    cpe = nil
+    cpe = []
     db.execute('select * from cpe where cve=?', cve) do |cpe_info|
-      cpe = cpe == nil ? cpe_info['cpe'] : "#{cpe}\n#{cpe_info['cpe']}"
+      cpe.push(cpe_info['cpe'])
     end
     db.close
 

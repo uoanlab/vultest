@@ -1,5 +1,5 @@
 require_relative './prompt'
-require_relative './report'
+require_relative './vulinfo'
 require_relative './utility'
 require_relative './vultest'
 
@@ -34,17 +34,19 @@ loop do
     Utility.print_message('caution', 'start up metasploit by kail linux')
     Utility.print_message('caution', "load msgrpc ServerHost=#{input_list[1]} ServerPort=55553 User=msf Pass=metasploit")
   elsif input_list[0] == 'back'
+    vultest.vulenv_destroy
     vultest = nil
     prompt.set_prompt('vultest')
   elsif input_list[0] == 'info'
     unless input_list[1].nil?
       cve = input_list[1]
     end
-    Report.print_cve(cve)
-    Report.print_cvss_v2(cve)
-    Report.print_cvss_v3(cve)
+    Vulinfo.print_cve(cve)
+    Vulinfo.print_cvss_v2(cve)
+    Vulinfo.print_cvss_v3(cve)
   elsif input_list[0] == 'report'
-    vultest.attack_demo
+    vultest.report
+    vultest.attack_verify
   end
 
 end

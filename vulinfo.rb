@@ -1,9 +1,8 @@
-require 'sqlite3'
 require 'tty-table'
 
 require_relative './db'
 
-module Report
+module Vulinfo
 
   def print_cve(cve)
 

@@ -66,8 +66,8 @@ class Vultest
     end
   end
 
-  def attack_demo
-    Utility.print_message('execute', 'execute demo')
+  def attack_verify
+    Utility.print_message('execute', 'execute verify')
 
     # Use meterpreter by metasploit
     meterpreter_session_id = nil
@@ -159,18 +159,18 @@ class Vultest
 
       # When tool cannot change setting, tool want user to change setting
       if @vulenv_config_detail.key?('caution')
-        env_caution_setup_flag = false
-        env_caution_list[select_id.to_i].each do |env_caution|
-          if env_caution['type'] == 'setup'
-            env_caution['msg'].each do |msg|
+        vulenv_caution_setup_flag = false
+        @vulenv_config_detail['caution'].each do |vulenv_caution|
+          if vulenv_caution['type'] == 'setup'
+            vulenv_caution['msg'].each do |msg|
               Utility.print_message('caution', msg)
             end
             Open3.capture3('vagrant halt')
-            env_caution_setup_flag = true
+            vulenv_caution_setup_flag = true
           end
         end
 
-        if env_caution_setup_flag
+        if vulenv_caution_setup_flag
           Utility.print_message('default','Please enter key when ready')
           input = gets
 
@@ -184,6 +184,79 @@ class Vultest
         end
       end
     end
+  end
+
+  def report
+    
+    Utility.print_message('default', 'vultest report')
+    Utility.print_message('default', "==============")
+
+    # Get CVE description
+    cve_info = DB.get_cve_info(@cve)
+    unless cve_info['description'].nil?
+      for str_range in 1..cve_info['description'].size/100
+        new_line_place = cve_info['description'].index(" ", str_range * 100) + 1
+        cve_info['description'].insert(new_line_place, "\n    ")
+      end
+    end
+    print "\n"
+
+    Utility.print_message('defalut', '  CVE description')
+    Utility.print_message('defalut', "  ===============")
+    print "\n"
+    Utility.print_message('defalut', "    #{cve_info['description']}")
+    print "\n"
+
+    # Get cpe
+    Utility.print_message('default', '  Affect system (CPE)')
+    Utility.print_message('defalut', "  ==================")
+    print "\n"
+    cpe = DB.get_cpe(@cve)
+    cpe.each do |cpe_info|
+      Utility.print_message('defalut', "    #{cpe_info}")
+    end
+    print "\n"
+
+    # Verfiy target
+    Utility.print_message('default', '  Verfiy target')
+    Utility.print_message('defalut', "  ===============")
+    print "\n"
+
+    Utility.print_message('default', "    #{@vulenv_config_detail['os']['name']}:#{@vulenv_config_detail['os']['version']}")
+    softwares = @vulenv_config_detail['software']
+    softwares.each do |software|
+      if software.key?('version')
+        Utility.print_message('default', "    #{software['name']}:#{software['version']}")
+      else
+        install_command = ''
+        if @vulenv_config_detail['os']['name'] == 'ubuntu'
+          install_command = "apt-get install #{software['name']}"
+        elsif @vulenv_config_detail['os']['name'] == 'centos'
+          install_command = "yum install #{software['name']}"
+        end
+        Utility.print_message('default', "    #{software['name']}:default(#{install_command})")
+      end
+    end
+    print "\n"
+
+    # Unique configure
+    first_flag = true
+    if @vulenv_config_detail.key?('caution')
+      @vulenv_config_detail['caution'].each do |messages|
+        if messages['type'] == 'report' || messages['type'] == 'setup'
+          if first_flag
+            Utility.print_message('default', '  Unique configure')
+            Utility.print_message('defalut', "  ================")
+            first_flag = false
+          end
+          messages['msg'].each do |message|
+            Utility.print_message('defalut', "    #{message}")
+          end
+        end
+      end
+    end
+    print "\n"
+
   end
 
   def set_rhost(rhost)
@@ -218,6 +291,27 @@ class Vultest
     @vulenv_config_path = vulconfigs[select_id.to_i]['config_path']
     @attack_config_path = vulconfigs[select_id.to_i]['module_path']
     @vulenv_config_detail = YAML.load_file("./#{@vulenv_config_path}")
+  end
+
+  def vulenv_destroy
+    Dir.chdir("./test") do
+      Utility.tty_spinner_begin('vulent destroy')
+      stdout, stderr, status = Open3.capture3('vagrant destroy -f')
+      if status.exitstatus != 0
+        Utility.tty_spinner_end('error')
+        exit!
+      end
+    end
+
+    Dir.chdir(".") do
+      stdout, stderr, status = Open3.capture3('rm -rf test')
+      if status.exitstatus != 0
+        Utility.tty_spinner_end('error')
+        exit!
+      end
+    end
+
+    Utility.tty_spinner_end('success')
   end
 
 end
