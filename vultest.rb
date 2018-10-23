@@ -79,41 +79,31 @@ class Vultest
     return if session_id.nil?
 
     session_prompt = Prompt.new(session_type)
-    if session_type == 'meterpreter'
-      loop do
-        session_prompt.print_prompt
-        input_command = session_prompt.get_input_command
-        # When input next line
-        next if input_command.nil?
-        break if input_command == 'exit'
+    loop do
+      session_prompt.print_prompt
+      input_command = session_prompt.get_input_command
+      # When input next line
+      next if input_command.nil?
+      break if input_command == 'exit'
+      if session_type == 'meterpreter'
         @msf_api.meterpreter_write(session_id, input_command)
-        loop do
-          sleep(1)
-          meterpreter_res = @msf_api.meterpreter_read(session_id)
-          unless meterpreter_res['data'].empty?
-            puts meterpreter_res['data']
-            break
-          end
-        end
-      end
-    elsif session_type == 'shell'
-      loop do
-        session_prompt.print_prompt
-        input_command = session_prompt.get_input_command
-        next if input_command.nil?
-        break if input_command == 'exit'
+      elsif session_type == 'shell'
         @msf_api.shell_write(session_id, input_command)
-        loop do
-          sleep(1)
-          shell_res = @msf_api.shell_read(session_id)
-          unless shell_res['data'].empyt?
-            puts shell_res['data']
-            break;
-          end
+      end
+      loop do
+        sleep(1)
+        res = {}
+        if session_type == 'meterpreter'
+          res = @msf_api.meterpreter_read(session_id)
+        elsif session_type == 'shell'
+          res = @msf_api.shell_read(session_id)
+        end
+        unless res['data'].empty?
+          puts res['data']
+          break
         end
       end
     end
-
   end
 
   def prepare_attack
@@ -169,10 +159,12 @@ class Vultest
         end
       end
 
-      reload_status, reload_stderr, reload_status = Open3.capture3('vagrant reload')
-      if reload_status.exitstatus != 0 
-        Utility.tty_spinner_end('error')
-        exit!
+      if @vulenv_config_detail.key?('reload')
+        reload_status, reload_stderr, reload_status = Open3.capture3('vagrant reload')
+        if reload_status.exitstatus != 0 
+          Utility.tty_spinner_end('error')
+          exit!
+        end
       end
 
       Utility.tty_spinner_end('success')
@@ -249,12 +241,16 @@ class Vultest
         Utility.print_message('default', "    #{software['name']}:#{software['version']}")
       else
         install_command = ''
-        if @vulenv_config_detail['os']['name'] == 'ubuntu'
-          install_command = "apt-get install #{software['name']}"
-        elsif @vulenv_config_detail['os']['name'] == 'centos'
-          install_command = "yum install #{software['name']}"
+        if software['os_depend']
+          if @vulenv_config_detail['os']['name'] == 'ubuntu'
+            install_command = "apt-get install #{software['name']}"
+          elsif @vulenv_config_detail['os']['name'] == 'centos'
+            install_command = "yum install #{software['name']}"
+          end
+          Utility.print_message('default', "    #{software['name']}:default(#{install_command})")
+        else
+          Utility.print_message('default', "    #{software['name']}:default")
         end
-        Utility.print_message('default', "    #{software['name']}:default(#{install_command})")
       end
     end
     print "\n"
