@@ -136,6 +136,8 @@ class Vultest
         end
       end
       Utility.print_message('caution', 'input ip address of machine for attack')
+      Utility.print_message('caution', "command is 'rhost' for setting ip address")
+      Utility.print_message('caution', 'ex) rhost 192.168.33.10')
       Utility.print_message('caution', 'start up kali linux')
     end
   end
