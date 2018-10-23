@@ -23,5 +23,6 @@ db.execute(sql, 'CVE-2015-1318', 'CVE-2015-1318', 'config/env/cve-2015-1318.yml'
 db.execute(sql, 'CVE-2017-7308', 'CVE-2017-7308', 'config/env/cve-2017-7308.yml', 'config/attack/cve-2017-7308-module.yml')
 db.execute(sql, 'CVE-2017-1000112', 'CVE-2017-1000112', 'config/env/cve-2017-1000112.yml', 'config/attack/cve-2017-1000112-module.yml')
 db.execute(sql, 'CVE-2017-11467', 'CVE-2017-11467', 'config/env/cve-2017-11467.yml', 'config/attack/cve-2017-11467-module.yml')
+db.execute(sql, 'CVE-2016-0752', 'rails', 'config/env/cve-2016-0752.yml', 'config/attack/cve-2016-0752-module.yml')
 
 db.close

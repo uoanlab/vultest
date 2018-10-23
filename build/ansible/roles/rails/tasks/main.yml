@@ -1,0 +1,9 @@
+---
+- name: gem install rails
+  gem:
+    name: rails
+    version: "{{version}}"
+    executable: "{{user_dir}}/.rbenv/shims/gem"
+    user_install: no
+    state: present
+  become_user: "{{user}}"

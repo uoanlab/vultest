@@ -51,6 +51,26 @@ class CreateEnv
       FileUtils.cp_r("#{ansible_role_metasploit_dir}/files/database.yml", "#{@vultest_ansible_roles_dir}/metasploit/files/database.yml")
     end
 
+    if @vulconfig.key?('user')
+      FileUtils.mkdir_p("#{@vultest_ansible_roles_dir}/user")
+      FileUtils.mkdir_p("#{@vultest_ansible_roles_dir}/user/tasks")
+      FileUtils.mkdir_p("#{@vultest_ansible_roles_dir}/user/vars")
+
+      ansible_role_user_dir = "./build/ansible/roles/user"
+      FileUtils.cp_r("#{ansible_role_user_dir}/tasks/main.yml", "#{@vultest_ansible_roles_dir}/user/tasks/main.yml")
+
+      File.open("#{@vultest_ansible_roles_dir}/user/vars/main.yml", "w") do |vars_file|
+        @vulconfig['user'].each do |user|
+          unless user
+            vars_file.puts('user: test')
+          else
+            vars_file.puts("user: #{user}")
+          end
+        end
+      end
+
+    end
+
     return unless @vulconfig.key?('software')
 
     softwares = @vulconfig['software']
@@ -95,6 +115,16 @@ class CreateEnv
           end
         end
 
+        if software.key?('user')
+          unless software['user']
+            vars_file.puts('user: test')
+            vars_file.puts('user_dir: /home/test')
+          else
+            vars_file.puts("user: #{software['user']}")
+            vars_file.puts("user_dir: /home/#{software['user']}")
+          end
+        end
+
       end
     end 
 
@@ -113,6 +143,9 @@ class CreateEnv
       playbook_file.puts("  connection: local ")
       playbook_file.puts("  become: yes ")
       playbook_file.puts("  roles: ")
+
+      # Create user
+      playbook_file.puts('    - ../roles/user') if @vulconfig.key?('user')
 
       # add roles in playbook
       if @vulconfig.key?('software')
