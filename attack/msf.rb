@@ -67,6 +67,16 @@ class MetasploitAPI
     return res = self.msf_api(params)
   end
 
+  def shell_write(session_id, command)
+    params = ['session.shell_write', @token, session_id, "#{command}\n"]
+    return self.msf_api(params)
+  end
+
+  def shell_read(session_id)
+    params = ['session.shell_read', @token, session_id, 'ReadPointer']
+    return self.msf_api(params)
+  end
+
   def meterpreter_write (session_id, command)
     params = ['session.meterpreter_run_single', @token, session_id, command]
     return self.msf_api(params)
@@ -76,4 +86,5 @@ class MetasploitAPI
     params = ['session.meterpreter_read', @token, session_id]
     return self.msf_api(params)
   end
+
 end
