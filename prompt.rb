@@ -26,8 +26,7 @@ class Prompt
 
   def print_prompt
     print "#{@prompt} > "
-    input = gets
-    input = input.chomp!
+    input = gets.chomp
     input_list = input.split(" ")
 
     @input_list = input_list
