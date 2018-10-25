@@ -107,7 +107,7 @@ class Vultest
   end
 
   def prepare_attack
-  if @vulenv_config_detail['attack_vector'] == 'local'
+    if @vulenv_config_detail['attack_vector'] == 'local'
       Utility.print_message('caution', 'attack vector is local')
       Utility.print_message('caution', 'following execute command')
       message = <<-EOS
@@ -157,7 +157,7 @@ class Vultest
 
         if reload_status.exitstatus != 0
           Utility.tty_spinner_end('error')
-          exit!
+          return 'error'
         end
       end
 
@@ -165,7 +165,7 @@ class Vultest
         reload_status, reload_stderr, reload_status = Open3.capture3('vagrant reload')
         if reload_status.exitstatus != 0 
           Utility.tty_spinner_end('error')
-          exit!
+          return 'error'
         end
       end
 
@@ -192,7 +192,7 @@ class Vultest
           stdout, stderr, status = Open3.capture3('vagrant up')
           if status.exitstatus != 0
             Utility.tty_spinner_end('error')
-            exit!
+            return 'error'
           end
           Utility.tty_spinner_end('success')
         end
@@ -201,7 +201,7 @@ class Vultest
   end
 
   def report
-    
+
     Utility.print_message('default', 'vultest report')
     Utility.print_message('default', "==============")
 
@@ -285,18 +285,22 @@ class Vultest
     vulconfigs = DB.get_vulconfigs(@cve)
 
     table_index = 0
-    id_list = []
-    vulenv_name = []
+    vulenv_name_list = []
+    vulenv_table = []
+    vulenv_index_info = {}
     vulconfigs.each do |vulconfig|
-      vulenv_name.push([table_index, vulconfig['name']])
-      id_list.push(table_index.to_s)
+      vulenv_table.push([table_index, vulconfig['name']])
+      vulenv_index_info[vulconfig['name']] = table_index
+      vulenv_name_list.push(vulconfig['name'])
       table_index += 1
     end
+
+    return 'error' if table_index == 0
 
     # Can create list which is environment of vulnerability
     Utility.print_message('output', 'vulnerability environment list')
     header = ['id', 'vulenv name']
-    table = TTY::Table.new header, vulenv_name
+    table = TTY::Table.new header, vulenv_table
     table.render(:ascii).each_line do |line|
       puts line.chomp
     end
@@ -304,7 +308,8 @@ class Vultest
 
     # Select environment of vulnerability by id
     message = 'Select an id for testing vulnerability envrionment?'
-    select_id = Utility.tty_prompt(message, id_list)
+    select_vulenv_name = Utility.tty_prompt(message, vulenv_name_list)
+    select_id = vulenv_index_info[select_vulenv_name]
 
     @vulenv_config_path = vulconfigs[select_id.to_i]['config_path']
     @attack_config_path = vulconfigs[select_id.to_i]['module_path']

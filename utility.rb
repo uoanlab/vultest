@@ -9,8 +9,8 @@ module Utility
   @caution_symbol = Rainbow('[>]').indianred
   @error_symbol = Rainbow('[-]').red
   @output_symbol = Rainbow('[o]').magenta
-  @success_symbol = Rainbow('+').cyan
-  @error_symbol = Rainbow('-').red
+  @success_mark = Rainbow('+').cyan
+  @error_mark = Rainbow('-').red
 
 
   def print_message (type, message)
@@ -28,7 +28,7 @@ module Utility
   end
 
   def tty_spinner_begin(message)
-    @spinner = TTY::Spinner.new("[:spinner] #{message}", success_mark: "#{@success_symbol}", error_mark: "#{@error_symbol}")
+    @spinner = TTY::Spinner.new("[:spinner] #{message}", success_mark: "#{@success_mark}", error_mark: "#{@error_mark}")
     @spinner.auto_spin
   end
 
