@@ -40,10 +40,12 @@ loop do
   when 'exploit'
     vultest.attack unless vultest.nil?
 
-  when 'rhost'
-    vultest.set_rhost(input_list[1])
-    Utility.print_message('caution', 'start up metasploit by kail linux')
-    Utility.print_message('caution', "load msgrpc ServerHost=#{input_list[1]} ServerPort=55553 User=msf Pass=metasploit")
+  when 'set'
+    if input_list[1] == 'attacker'
+      vultest.set_attack_machine_host(input_list[2])
+      Utility.print_message('caution', 'start up metasploit by kail linux')
+      Utility.print_message('caution', "load msgrpc ServerHost=#{input_list[2]} ServerPort=55553 User=msf Pass=metasploit")
+    end
 
   when 'back'
     vultest.vulenv_destroy
