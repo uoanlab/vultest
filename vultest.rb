@@ -12,7 +12,7 @@ class Vultest
 
   def initialize(cve)
     @cve = cve
-    @rhost = nil
+    @attack_machine_host = nil
     @attack_config_path = nil
     @vulenv_config_path = nil
     @vulenv_config_detail = nil 
@@ -23,10 +23,10 @@ class Vultest
 
   def attack
     # Connection Metasploit API
-    if @rhost.nil?
-      @rhost = '192.168.33.10'
+    if @attack_machine_host.nil?
+      @attack_machine_host = '192.168.33.10'
     end
-    @msf_api = MetasploitAPI.new(@rhost)
+    @msf_api = MetasploitAPI.new(@attack_machine_host)
     @msf_api.auth_login
     @msf_api.console_create
 
@@ -46,7 +46,7 @@ class Vultest
         msf_module_option[option['name']] = option['var']
       end
 
-      msf_module_option['LHOST'] = @rhost
+      msf_module_option['LHOST'] = @attack_machine_host
       msf_module_info = @msf_api.module_execute(msf_module_type, msf_module_name, msf_module_option)
 
       exploit_time = 0
@@ -136,8 +136,8 @@ class Vultest
         end
       end
       Utility.print_message('caution', 'input ip address of machine for attack')
-      Utility.print_message('caution', "command is 'rhost' for setting ip address")
-      Utility.print_message('caution', 'ex) rhost 192.168.33.10')
+      Utility.print_message('caution', "command is 'set' for setting ip address")
+      Utility.print_message('caution', 'ex) set attacker 192.168.33.10')
       Utility.print_message('caution', 'start up kali linux')
     end
   end
@@ -277,8 +277,8 @@ class Vultest
 
   end
 
-  def set_rhost(rhost)
-    @rhost = rhost
+  def set_attack_machine_host(attack_machine_host)
+    @attack_machine_host = attack_machine_host
   end
 
   def select_vulenv
