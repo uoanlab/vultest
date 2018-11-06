@@ -131,8 +131,22 @@ class CreateEnv
     # setting
     return unless @vulconfig.key?('setting')
     vultest_ansible_role_setting_dir = "#{@vultest_ansible_roles_dir}/#{@vulconfig['cve']}"
+    # tasks directory
     FileUtils.mkdir_p("#{vultest_ansible_role_setting_dir}/tasks")
     FileUtils.cp_r("#{@vulconfig['setting']}/tasks/main.yml", "#{vultest_ansible_role_setting_dir}/tasks/main.yml")
+    # vars directory
+    if Dir.exist?("#{@vulconfig['setting']}/vars")
+      FileUtils.mkdir_p("#{vultest_ansible_role_setting_dir}/vars")
+      FileUtils.cp_r("#{@vulconfig['setting']}/vars/main.yml", "#{vultest_ansible_role_setting_dir}/vars/main.yml")
+    end
+    # files directory
+    if Dir.exist?("#{@vulconfig['setting']}/files")
+      FileUtils.mkdir_p("#{vultest_ansible_role_setting_dir}/files")
+      Dir.glob("#{@vulconfig['setting']}/files/*") do |path|
+        file_or_dir = path.split('/')
+        FileUtils.cp_r("#{@vulconfig['setting']}/files/#{file_or_dir[file_or_dir.size - 1]}", "#{vultest_ansible_role_setting_dir}/files/#{file_or_dir[file_or_dir.size - 1]}")
+      end
+    end
 
   end
 
