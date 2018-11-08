@@ -1,3 +1,5 @@
+require 'bundler/setup'
+
 require_relative './prompt'
 require_relative './vulinfo'
 require_relative './utility'
