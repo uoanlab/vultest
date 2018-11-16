@@ -37,23 +37,29 @@ loop do
     prompt.set_prompt(cve)
 
   when 'exit'
-    break
+    break if vultest.nil?
 
+  # vultest commnad
   when 'exploit'
     vultest.attack unless vultest.nil?
 
+  # vultest command
   when 'set'
+    next if vultest.nil?
     if input_list[1] == 'attacker'
       vultest.set_attack_machine_host(input_list[2])
       Utility.print_message('caution', 'start up metasploit by kail linux')
       Utility.print_message('caution', "load msgrpc ServerHost=#{input_list[2]} ServerPort=55553 User=msf Pass=metasploit")
     end
 
+  # vultest command
   when 'back'
+    next if vultest.nil?
     vultest.vulenv_destroy
     vultest = nil
     prompt.set_prompt('vultest')
 
+  # vultest command
   when 'report'
     unless vultest.nil?
       vultest.report
