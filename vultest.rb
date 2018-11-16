@@ -31,7 +31,7 @@ class Vultest
     @msf_api.console_create
 
     # Lead yaml file
-    msf_module_config = YAML.load_file("./#{@attack_config_path}")
+    msf_module_config = YAML.load_file(@attack_config_path)
     msf_modules = msf_module_config['metasploit_module']
 
     Utility.print_message('execute', 'exploit attack')
@@ -143,7 +143,7 @@ class Vultest
   end
 
   def prepare_vulenv
-    vulenv = CreateEnv.new("./#{@vulenv_config_path}")
+    vulenv = CreateEnv.new(@vulenv_config_path)
     vulenv.create_vagrant_ansible_dir
 
     # start up environment of vulnerability
@@ -282,6 +282,7 @@ class Vultest
   end
 
   def select_vulenv
+    config = YAML.load_file('./config.yml')
     vulconfigs = DB.get_vulconfigs(@cve)
 
     table_index = 0
@@ -311,9 +312,9 @@ class Vultest
     select_vulenv_name = Utility.tty_prompt(message, vulenv_name_list)
     select_id = vulenv_index_info[select_vulenv_name]
 
-    @vulenv_config_path = vulconfigs[select_id.to_i]['config_path']
-    @attack_config_path = vulconfigs[select_id.to_i]['module_path']
-    @vulenv_config_detail = YAML.load_file("./#{@vulenv_config_path}")
+    @vulenv_config_path = "#{config['vultest_db_path']}/#{vulconfigs[select_id.to_i]['config_path']}"
+    @attack_config_path = "#{config['vultest_db_path']}/#{vulconfigs[select_id.to_i]['module_path']}"
+    @vulenv_config_detail = YAML.load_file(@vulenv_config_path)
   end
 
   def vulenv_destroy
