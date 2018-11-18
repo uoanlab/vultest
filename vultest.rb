@@ -19,6 +19,9 @@ class Vultest
 
     #attack tool
     @msf_api = nil
+
+    # config file
+    @config = YAML.load_file('./config.yml')
   end
 
   def attack
@@ -282,7 +285,6 @@ class Vultest
   end
 
   def select_vulenv
-    config = YAML.load_file('./config.yml')
     vulconfigs = DB.get_vulconfigs(@cve)
 
     table_index = 0
@@ -312,8 +314,8 @@ class Vultest
     select_vulenv_name = Utility.tty_prompt(message, vulenv_name_list)
     select_id = vulenv_index_info[select_vulenv_name]
 
-    @vulenv_config_path = "#{config['vultest_db_path']}/#{vulconfigs[select_id.to_i]['config_path']}"
-    @attack_config_path = "#{config['vultest_db_path']}/#{vulconfigs[select_id.to_i]['module_path']}"
+    @vulenv_config_path = "#{@config['vultest_db_path']}/#{vulconfigs[select_id.to_i]['config_path']}"
+    @attack_config_path = "#{@config['vultest_db_path']}/#{vulconfigs[select_id.to_i]['module_path']}"
     @vulenv_config_detail = YAML.load_file(@vulenv_config_path)
   end
 
