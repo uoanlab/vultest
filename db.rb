@@ -1,10 +1,12 @@
 require 'sqlite3'
 require 'tty-table'
+require 'yaml'
 
 module DB
+  @config = YAML.load_file('./config.yml')
 
   def get_cve_info(cve)
-    db = SQLite3::Database.new('./data/vuln/cve.sqlite3')
+    db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cve.sqlite3")
     db.results_as_hash = true
     cve_info = {}
 
@@ -18,7 +20,7 @@ module DB
   end
 
   def get_cwe(cve)
-    db = SQLite3::Database.new('./data/vuln/cwe.sqlite3')
+    db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cwe.sqlite3")
     db.results_as_hash = true
     cwe = nil
     db.execute('select * from cwe where cve=?', cve) do |cwe_info|
@@ -30,7 +32,7 @@ module DB
   end
 
   def get_cpe(cve)
-    db = SQLite3::Database.new('./data/vuln/cpe.sqlite3')
+    db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cpe.sqlite3")
     db.results_as_hash = true
     cpe = []
     db.execute('select * from cpe where cve=?', cve) do |cpe_info|
@@ -42,7 +44,7 @@ module DB
   end
 
   def get_cvss_v2 (cve)
-    db = SQLite3::Database.new('./data/vuln/cvss_v2.sqlite3')
+    db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cvss_v2.sqlite3")
     db.results_as_hash = true
     cvss_v2 = {}
     db.execute('select * from cvss_v2 where cve=?', cve) do |cvss|
@@ -61,7 +63,7 @@ module DB
   end
 
   def get_cvss_v3 (cve)
-    db = SQLite3::Database.new('./data/vuln/cvss_v3.sqlite3')
+    db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cvss_v3.sqlite3")
     db.results_as_hash = true
     cvss_v3 = {}
 
@@ -84,7 +86,7 @@ module DB
   end
 
   def get_vulconfigs(cve)
-    db = SQLite3::Database.new('./data/config/vultest.sqlite3')
+    db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/vultest.sqlite3")
     db.results_as_hash = true
 
     vulconfigs = []
