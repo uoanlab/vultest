@@ -1,7 +1,7 @@
 require 'fileutils'
 require 'yaml'
 
-class CreateEnv
+class VagrantAnsible
 
   def initialize(vulconfig_file_path)
     @vultest_dir = "./test"

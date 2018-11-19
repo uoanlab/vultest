@@ -2,8 +2,10 @@ require 'sqlite3'
 require 'tty-table'
 require 'yaml'
 
+require_relative './utility'
+
 module DB
-  @config = YAML.load_file('./config.yml')
+  @config = Utility.get_config
 
   def get_cve_info(cve)
     db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cve.sqlite3")
