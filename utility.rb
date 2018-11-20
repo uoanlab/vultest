@@ -3,6 +3,7 @@ require 'tty-command'
 require 'tty-prompt'
 require 'tty-spinner'
 require 'tty-table'
+require 'yaml'
 
 module Utility
   @execute_symbol = Rainbow('[*]').blue
@@ -41,9 +42,14 @@ module Utility
     return prompt.enum_select("#{@caution_symbol} #{message}", list)
   end
 
+  def get_config
+    return YAML.load_file('./config.yml')
+  end
+
   module_function :print_message
   module_function :tty_prompt
   module_function :tty_spinner_begin
   module_function :tty_spinner_end
+  module_function :get_config
 
 end
