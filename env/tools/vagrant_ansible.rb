@@ -3,11 +3,11 @@ require 'yaml'
 
 class VagrantAnsible
 
-  def initialize(vulconfig_file_path)
-    @vultest_dir = "./test"
-    FileUtils.mkdir_p("#{@vultest_dir}")
+  def initialize(vulconfig_file_path, vulenv_dir)
+    @vultest_dir = vulenv_dir
+    FileUtils.mkdir_p(@vultest_dir)
 
-    @vulconfig = YAML.load_file("#{vulconfig_file_path}")
+    @vulconfig = YAML.load_file(vulconfig_file_path)
     @config = YAML.load_file('./config.yml')
   end
 

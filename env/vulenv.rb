@@ -7,14 +7,14 @@ require_relative './tools/vagrant_ansible'
 
 module Vulenv
 
-  def create(vulenv_config_path)
-    vulenv = VagrantAnsible.new(vulenv_config_path)
+  def create(vulenv_config_path, vulenv_dir)
+    vulenv = VagrantAnsible.new(vulenv_config_path, vulenv_dir)
     vulenv_config_detail = YAML.load_file(vulenv_config_path)
     vulenv.create_vagrant_ansible_dir
 
     # start up environment of vulnerability
     Utility.print_message('execute', 'create vulnerability environment')
-    Dir.chdir("./test") do
+    Dir.chdir(vulenv_dir) do
       Utility.tty_spinner_begin('start up')
       stdout, stderr, status = Open3.capture3('vagrant up')
 
@@ -66,8 +66,8 @@ module Vulenv
     end
   end
 
-  def destroy
-    Dir.chdir("./test") do
+  def destroy(vulenv_dir)
+    Dir.chdir(vulenv_dir) do
       Utility.tty_spinner_begin('vulent destroy')
       stdout, stderr, status = Open3.capture3('vagrant destroy -f')
       if status.exitstatus != 0
@@ -76,12 +76,10 @@ module Vulenv
       end
     end
 
-    Dir.chdir("..") do
-      stdout, stderr, status = Open3.capture3('rm -rf test')
-      if status.exitstatus != 0
-        Utility.tty_spinner_end('error')
-        exit!
-      end
+    stdout, stderr, status = Open3.capture3("rm -rf #{vulenv_dir}")
+    if status.exitstatus != 0
+      Utility.tty_spinner_end('error')
+      exit!
     end
 
     Utility.tty_spinner_end('success')

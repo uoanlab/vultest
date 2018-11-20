@@ -3,7 +3,7 @@ require_relative '../env/vulenv'
 require_relative '../utility'
 
 module VultestCommand
-  def test(cve)
+  def test(cve, vulenv_dir)
     vulenv_config_path, attack_config_path = Vulenv.select(cve)
 
     if vulenv_config_path.nil? || attack_config_path.nil?
@@ -11,12 +11,12 @@ module VultestCommand
       return nil, nil
     end
 
-    if Vulenv.create(vulenv_config_path) == 'error'
+    if Vulenv.create(vulenv_config_path, vulenv_dir) == 'error'
       Utility.print_message('error', 'Cannot start up vulnerable environment')
       return nil, nil
     end
 
-    Exploit.prepare(vulenv_config_path)
+    Exploit.prepare(vulenv_config_path, vulenv_dir)
 
     return vulenv_config_path, attack_config_path
   end

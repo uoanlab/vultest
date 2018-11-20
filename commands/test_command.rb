@@ -14,7 +14,7 @@ module TestCommand
   end
 
   def set(option, var)
-    if option == 'attacker'
+    if option == 'ATTACKER'
       Utility.print_message('caution', 'start up metasploit by kail linux')
       Utility.print_message('caution', "load msgrpc ServerHost=#{var} ServerPort=55553 User=msf Pass=metasploit")
     end
@@ -36,8 +36,8 @@ module TestCommand
     Exploit.verify
   end
 
-  def destroy
-    Vulenv.destroy
+  def destroy(vulenv_dir)
+    Vulenv.destroy(vulenv_dir)
   end
 
   module_function :exploit
