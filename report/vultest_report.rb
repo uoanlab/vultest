@@ -61,22 +61,15 @@ module VultestReport
     print "\n"
 
     # Unique configure
-    first_flag = true
-    if vulenv_config_detail.key?('caution')
-      vulenv_config_detail['caution'].each do |messages|
-        if messages['type'] == 'report' || messages['type'] == 'setup'
-          if first_flag
-            Utility.print_message('default', '  Unique configure')
-            Utility.print_message('defalut', "  ================")
-            first_flag = false
-          end
-          messages['msg'].each do |message|
-            Utility.print_message('defalut', "    #{message}")
-          end
-        end
+    if vulenv_config_detail.key?('report')
+      Utility.print_message('default', '  Unique configure')
+      Utility.print_message('defalut', "  ================")
+      msgs = vulenv_config_detail['report']
+      msgs['msg'].each do |msg|
+        Utility.print_message('defalut', "    #{msg}")
       end
+      print "\n"
     end
-    print "\n"
   end
 
   module_function :report
