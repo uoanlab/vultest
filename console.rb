@@ -48,6 +48,7 @@ loop do
 
   when 'back'
     prompt = 'vultest'
+    attack_machine_host = nil
   end
 
 end
