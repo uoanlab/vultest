@@ -17,9 +17,30 @@ module TestCommand
     if option == 'ATTACKER'
       Utility.print_message('caution', 'start up metasploit by kail linux')
       Utility.print_message('caution', "load msgrpc ServerHost=#{var} ServerPort=55553 User=msf Pass=metasploit")
+      return var
     end
 
-    return var
+    if option == 'TESTDIR'
+      path = ''
+      path_elm = var.split("/")
+
+      path_elm.each do |elm|
+        path.concat('/') unless path.empty?
+        if elm[0] == '$'
+          elm.slice!(0)
+          if ENV.key?(elm)
+            path.concat(ENV[elm])
+          else
+            path.concat('$')
+            path.concat(elm)
+          end
+        else
+          path.concat(elm)
+        end
+      end
+
+      return path
+    end
   end
 
   def report(cve, vulenv_config_path)
