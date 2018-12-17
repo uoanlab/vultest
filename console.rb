@@ -15,9 +15,12 @@ prompt = 'vultest'
 cve = nil
 vulenv_config_path = nil
 attack_config_path = nil
-attack_machine_host = nil
 
-vulenv_dir = './test'
+testdir = './test'
+testdir = ENV['TESTDIR'] if ENV.key?('TESTDIR')
+
+attacker = nil
+attacker = ENV['ATTACKER'] if ENV.key?('ATTACKER')
 
 # execute prompt
 loop do
@@ -27,28 +30,27 @@ loop do
   case input_list[0]
   when 'test'
     cve = input_list[1]
-    vulenv_config_path, attack_config_path = VultestCommand.test(cve, vulenv_dir)
+    vulenv_config_path, attack_config_path = VultestCommand.test(cve, testdir)
     prompt = cve
 
   when 'exit'
     break if VultestCommand.exit == 'success'
 
   when 'exploit'
-    TestCommand.exploit(attack_machine_host, attack_config_path)
+    TestCommand.exploit(attacker, vulenv_config_path, attack_config_path)
 
   when 'set'
-    attack_machine_host = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'ATTACKER'
-    vulenv_dir = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'TESTDIR'
+    attacker = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'ATTACKER'
+    testdir = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'TESTDIR'
 
   when 'report'
     TestCommand.report(cve, vulenv_config_path)
 
   when 'destroy'
-    TestCommand.destroy(vulenv_dir)
+    TestCommand.destroy(testdir)
 
   when 'back'
     prompt = 'vultest'
-    attack_machine_host = nil
   end
 
 end

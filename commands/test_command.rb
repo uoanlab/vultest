@@ -4,18 +4,18 @@ require_relative '../report/vultest_report'
 require_relative '../utility'
 
 module TestCommand
-  def exploit(attack_machine_host, attack_config_path)
+  def exploit(attack_machine_host, vulenv_config_path, attack_config_path)
     if attack_config_path.nil? 
       Utility.print_message('error', 'Cannot search exploit configure')
       return nil
     end
 
-    Exploit.exploit(attack_machine_host, attack_config_path)
+    Exploit.exploit(attack_machine_host, vulenv_config_path, attack_config_path)
   end
 
   def set(option, var)
     if option == 'ATTACKER'
-      Utility.print_message('caution', 'start up metasploit by kail linux')
+      Utility.print_message('caution', 'start up metasploit on kail linux')
       Utility.print_message('caution', "load msgrpc ServerHost=#{var} ServerPort=55553 User=msf Pass=metasploit")
       return var
     end
@@ -31,7 +31,6 @@ module TestCommand
           if ENV.key?(elm)
             path.concat(ENV[elm])
           else
-            path.concat('$')
             path.concat(elm)
           end
         else
