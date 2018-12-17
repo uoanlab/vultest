@@ -133,3 +133,6 @@
     owner: "{{user}}"
     mode: 0755
 
+- name: metasploit server
+  shell: bash -lc "/home/msf/metasploit-framework/msfrpcd -a 192.168.33.10 -p 55553 -U msf -P metasploit -S false"
+  become_user: "{{user}}"
