@@ -16,8 +16,6 @@ module VultestCommand
       return nil, nil
     end
 
-    Exploit.prepare(vulenv_config_path, vulenv_dir)
-
     return vulenv_config_path, attack_config_path
   end
 

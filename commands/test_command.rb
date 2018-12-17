@@ -4,23 +4,33 @@ require_relative '../report/vultest_report'
 require_relative '../utility'
 
 module TestCommand
-  def exploit(attack_machine_host, vulenv_config_path, attack_config_path)
+  def exploit(attacker, vultestkey, vulenv_config_path, attack_config_path)
     if attack_config_path.nil? 
       Utility.print_message('error', 'Cannot search exploit configure')
       return nil
     end
 
-    Exploit.exploit(attack_machine_host, vulenv_config_path, attack_config_path)
+    vulenv_config = YAML.load_file(vulenv_config_path)
+    if vulenv_config['attack_vector'] != 'remote'
+      attacker = '192.168.33.10'
+    end
+
+    if vulenv_config['attack_vector'] == 'remote' && vultestkey.nil?
+      Utility.print_message('error', 'Set public key with kali linux')
+      return nil
+    end
+
+    if attacker.nil?
+      Utility.print_message('error', 'Set attack machin ip address')
+      return nil
+    end
+
+    Exploit.prepare(attacker, vultestkey, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
+    Exploit.exploit(attacker, attack_config_path)
   end
 
   def set(option, var)
-    if option == 'ATTACKER'
-      Utility.print_message('caution', 'start up metasploit on kail linux')
-      Utility.print_message('caution', "load msgrpc ServerHost=#{var} ServerPort=55553 User=msf Pass=metasploit")
-      return var
-    end
-
-    if option == 'TESTDIR'
+    if option == 'TESTDIR' || option == 'VULTESTKEY'
       path = ''
       path_elm = var.split("/")
 
@@ -40,6 +50,8 @@ module TestCommand
 
       return path
     end
+
+    return var
   end
 
   def report(cve, vulenv_config_path)
