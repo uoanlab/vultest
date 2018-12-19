@@ -22,3 +22,6 @@ gem "sqlite3"
 
 # msgpack
 gem "msgpack"
+
+# ssh
+gem "net-ssh"
