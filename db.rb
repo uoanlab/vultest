@@ -92,7 +92,7 @@ module DB
     db.results_as_hash = true
 
     vulconfigs = []
-    db.execute('select * from configs where cve_name=?', cve) do |config|
+    db.execute('select * from configs where cve=?', cve) do |config|
       vulconfig = {}
       vulconfig['name'] = config['name']
       vulconfig['config_path'] = config['config_path']
