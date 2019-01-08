@@ -112,9 +112,9 @@
 - name: gem install bundler
   gem:
     name: bundler
+    version: "{{bundler_version}}"
     executable: "{{user_dir}}/.rbenv/shims/gem"
     user_install: no
-    state: latest
   become_user: "{{user}}"
 
 - name: bundle install

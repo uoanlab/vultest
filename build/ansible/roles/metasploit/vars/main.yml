@@ -3,4 +3,4 @@ user: msf
 user_dir: /home/msf
 
 ruby_version: 2.5.3
-
+bundler_version: 1.16.1
