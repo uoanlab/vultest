@@ -12,7 +12,7 @@ class VagrantAnsible
   end
 
   def create_vagrantfile
-    vagrantfile_dir = "./build/vagrant/#{@vulconfig['os']['name']}/#{@vulconfig['os']['version']}/Vagrantfile"
+    vagrantfile_dir = "./build/vagrant/#{@vulconfig['construction']['os']['name']}/#{@vulconfig['construction']['os']['version']}/Vagrantfile"
     FileUtils.cp_r("#{vagrantfile_dir}", "#{@vultest_dir}/Vagrantfile")
   end
 

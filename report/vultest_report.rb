@@ -39,7 +39,8 @@ module VultestReport
     print "\n"
 
     vulenv_config_detail = YAML.load_file(vulenv_config_path)
-    Utility.print_message('default', "    #{vulenv_config_detail['os']['name']}:#{vulenv_config_detail['os']['version']}")
+    Utility.print_message('default', "    #{vulenv_config_detail['construction']['os']['name']}:#{vulenv_config_detail['construction']['os']['version']}")
+=begin
     softwares = vulenv_config_detail['software']
     softwares.each do |software|
       if software.key?('version')
@@ -58,6 +59,7 @@ module VultestReport
         end
       end
     end
+=end
     print "\n"
 
     # Configuration
