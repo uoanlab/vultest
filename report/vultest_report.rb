@@ -3,7 +3,7 @@ require_relative '../utility'
 
 module VultestReport
 
-  def report(cve, vulenv_config_path)
+  def report(cve, vulenv_config_path, attack_config_path)
     Utility.print_message('default', 'vultest report')
     Utility.print_message('default', "==============")
 
@@ -24,8 +24,8 @@ module VultestReport
     print "\n"
 
     # Get cpe
-    Utility.print_message('default', '  Affect system (CPE)')
-    Utility.print_message('defalut', "  ==================")
+    Utility.print_message('default', '  Affect software version (CPE)')
+    Utility.print_message('defalut', "  ==============================")
     print "\n"
     cpe = DB.get_cpe(cve)
     cpe.each do |cpe_info|
@@ -33,9 +33,9 @@ module VultestReport
     end
     print "\n"
 
-    # Verfiy target
-    Utility.print_message('default', '  Verfiy target')
-    Utility.print_message('defalut', "  ===============")
+    # Attack target host
+    Utility.print_message('default', '  Attack target host')
+    Utility.print_message('defalut', "  ===================")
     print "\n"
 
     vulenv_config_detail = YAML.load_file(vulenv_config_path)
@@ -60,13 +60,28 @@ module VultestReport
     end
     print "\n"
 
-    # Unique configure
+    # Configuration
     if vulenv_config_detail.key?('report')
-      Utility.print_message('default', '  Unique configure')
-      Utility.print_message('defalut', "  ================")
+      Utility.print_message('default', '  Configuration of attack target host')
+      Utility.print_message('defalut', "  ===================================")
+      print "\n"
       msgs = vulenv_config_detail['report']
       msgs['msg'].each do |msg|
         Utility.print_message('defalut', "    #{msg}")
+      end
+      print "\n"
+    end
+
+    attack_config_detail = YAML.load_file(attack_config_path)
+    Utility.print_message('default', '  Attack method')
+    Utility.print_message('defalut', "  ===============")
+    print "\n"
+
+    attack_methods = attack_config_detail['metasploit_module']
+    attack_methods.each do |attack_method|
+      Utility.print_message('default', "    module_name : #{attack_method['module_name']}")
+      attack_method['options'].each do |option|
+        Utility.print_message('default', "      #{option['name']} : #{option['var']}")
       end
       print "\n"
     end

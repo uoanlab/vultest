@@ -44,7 +44,7 @@ loop do
     testdir = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'TESTDIR'
 
   when 'report'
-    TestCommand.report(cve, vulenv_config_path)
+    TestCommand.report(cve, vulenv_config_path, attack_config_path)
 
   when 'destroy'
     TestCommand.destroy(testdir)
