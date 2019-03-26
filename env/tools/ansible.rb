@@ -59,6 +59,10 @@ module Ansible
           softwares.each do |software|
             self.role_sorce(ansible_dir['roles'], software)
           end
+        elsif type == 'yum'
+          softwares.each do |software|
+            self.role_yum(ansible_dir['roles'], software)
+          end
         end
       end
     end
@@ -67,6 +71,7 @@ module Ansible
     if vulconfig['construction'].key?('vul_software')
       self.role_apt(ansible_dir['roles'], vulconfig['construction']['vul_software']['apt']) if vulconfig['construction']['vul_software'].key?('apt')
       self.role_sorce(ansible_dir['roles'], vulconfig['construction']['vul_software']['source']) if vulconfig['construction']['vul_software'].key?('source')
+      self.role_sorce(ansible_dir['roles'], vulconfig['construction']['vul_software']['yum']) if vulconfig['construction']['vul_software'].key?('yum')
     end
 
     # setting
@@ -107,6 +112,11 @@ module Ansible
             playbook_file.puts("    - ../roles/#{related_software['name']} ")
           end
         end
+        if vulconfig['construction']['related_software'].key?('yum')
+          vulconfig['construction']['related_software']['yum'].each do |related_software|
+            playbook_file.puts("    - ../roles/#{related_software['name']} ")
+          end
+        end
         if vulconfig['construction']['related_software'].key?('source')
           vulconfig['construction']['related_software']['source'].each do |related_software|
             playbook_file.puts("    - ../roles/#{related_software['name']} ")
@@ -117,6 +127,10 @@ module Ansible
       if vulconfig['construction'].key?('vul_software')
         if vulconfig['construction']['vul_software'].key?('apt')
           playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['apt']['name']} ")
+        end
+
+        if vulconfig['construction']['vul_software'].key?('yum')
+          playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['yum']['name']} ")
         end
 
         if vulconfig['construction']['vul_software'].key?('source')
@@ -166,9 +180,23 @@ module Ansible
     end
   end
 
+  def role_yum(roles_dir, software)
+    # tasks 
+    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
+    FileUtils.cp_r("./build/ansible/roles/yum/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
+
+    # vars
+    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
+    File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
+      vars_file.puts("---")
+      software.key?('version') ? vars_file.puts("name_and_version: #{software['name']}=#{software['version']}") : vars_file.puts("name_and_version: #{software['name']}")
+    end
+  end
+
   module_function :create
   module_function :role_apt
   module_function :role_sorce
+  module_function :role_yum
 
 end
 
