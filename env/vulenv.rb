@@ -1,16 +1,22 @@
+require 'fileutils'
 require 'open3'
 require 'tty-table'
 
 require_relative '../db'
 require_relative '../utility'
-require_relative './tools/vagrant_ansible'
+require_relative './tools/vagrant'
+require_relative './tools/ansible'
 
 module Vulenv
 
   def create(vulenv_config_path, vulenv_dir)
-    vulenv = VagrantAnsible.new(vulenv_config_path, vulenv_dir)
+
+    # Create the vulnerable environment
+    FileUtils.mkdir_p(vulenv_dir)
+    Vagrant.create(vulenv_config_path, vulenv_dir)
+    Ansible.create(vulenv_config_path, vulenv_dir)
+
     vulenv_config_detail = YAML.load_file(vulenv_config_path)
-    vulenv.create_vagrant_ansible_dir
 
     # start up environment of vulnerability
     Utility.print_message('execute', 'create vulnerability environment')
