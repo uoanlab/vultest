@@ -1,7 +1,7 @@
 ---
-- name: gem install rails
+- name: "gem install {{name}} -v {{version}}"
   gem:
-    name: rails
+    name: "{{name}}"
     version: "{{version}}"
     executable: "{{user_dir}}/.rbenv/shims/gem"
     user_install: no
