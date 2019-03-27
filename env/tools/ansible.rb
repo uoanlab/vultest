@@ -34,15 +34,15 @@ module Ansible
       FileUtils.cp_r("./build/ansible/roles/metasploit/files/database.yml", "#{ansible_dir['roles']}/metasploit/files/database.yml")
     end
 
-    if vulconfig.key?('user')
+    if vulconfig['construction'].key?('user')
       FileUtils.mkdir_p("#{ansible_dir['roles']}/user")
       FileUtils.mkdir_p("#{ansible_dir['roles']}/user/tasks")
       FileUtils.mkdir_p("#{ansible_dir['roles']}/user/vars")
 
       FileUtils.cp_r("./build/ansible/roles/user/tasks/main.yml", "#{ansible_dir['roles']}/user/tasks/main.yml")
 
-      File.open("#{@vultest_ansible_roles_dir}/user/vars/main.yml", "w") do |vars_file|
-        vulconfig['user'].each do |user|
+      File.open("#{ansible_dir['roles']}/user/vars/main.yml", "w") do |vars_file|
+        vulconfig['construction']['user'].each do |user|
           user ? vars_file.puts("user: #{user}") : vars_file.puts('user: test')
         end
       end
@@ -55,13 +55,17 @@ module Ansible
           softwares.each do |software|
             self.role_apt(ansible_dir['roles'], software)
           end
-        elsif type == 'sorce'
-          softwares.each do |software|
-            self.role_sorce(ansible_dir['roles'], software)
-          end
         elsif type == 'yum'
           softwares.each do |software|
             self.role_yum(ansible_dir['roles'], software)
+          end
+        elsif type == 'gem'
+          softwares.each do |software|
+            self.role_gem(ansible_dir['roles'], software)
+          end
+        elsif type == 'source'
+          softwares.each do |software|
+            self.role_source(ansible_dir['roles'], software)
           end
         end
       end
@@ -70,29 +74,29 @@ module Ansible
     # vulnerable software
     if vulconfig['construction'].key?('vul_software')
       self.role_apt(ansible_dir['roles'], vulconfig['construction']['vul_software']['apt']) if vulconfig['construction']['vul_software'].key?('apt')
-      self.role_sorce(ansible_dir['roles'], vulconfig['construction']['vul_software']['source']) if vulconfig['construction']['vul_software'].key?('source')
-      self.role_sorce(ansible_dir['roles'], vulconfig['construction']['vul_software']['yum']) if vulconfig['construction']['vul_software'].key?('yum')
+      self.role_yum(ansible_dir['roles'], vulconfig['construction']['vul_software']['yum']) if vulconfig['construction']['vul_software'].key?('yum')
+      self.role_gem(ansible_dir['roles'], vulconfig['construction']['vul_software']['gem']) if vulconfig['construction']['vul_software'].key?('gem')
+      self.role_source(ansible_dir['roles'], vulconfig['construction']['vul_software']['source']) if vulconfig['construction']['vul_software'].key?('source')
     end
 
-    # setting
-    if vulconfig.key?('setting')
-
+    # content
+    if vulconfig['construction'].key?('content')
       # tasks directory
       FileUtils.mkdir_p("#{ansible_dir['roles']}/#{vulconfig['cve']}/tasks")
-      FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['setting']}/tasks/main.yml", "#{ansible_dir['roles']}/#{vulconfig['cve']}/tasks/main.yml")
+      FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/tasks/main.yml", "#{ansible_dir['roles']}/#{vulconfig['cve']}/tasks/main.yml")
 
       # vars directory
-      if Dir.exist?("#{vulconfig['setting']}/vars")
+      if Dir.exist?("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/vars")
         FileUtils.mkdir_p("#{ansible_dir['roles']}/#{vulconfig['cve']}/tasks/vars")
-        FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['setting']}/vars/main.yml", "#{ansible_dir['roles']}/#{vulconfig['cve']}/vars/main.yml")
+        FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/vars/main.yml", "#{ansible_dir['roles']}/#{vulconfig['cve']}/vars/main.yml")
       end
 
       # files directory
-      if Dir.exist?("#{config['vultest_db_path']}/data/#{vulconfig['setting']}/files")
-        FileUtils.mkdir_p("#{ansible_dir['roles']}/#{vulconfig['cve']}}/files")
-        Dir.glob("#{config['vultest_db_path']}/data/#{vulconfig['setting']}/files/*") do |path|
+      if Dir.exist?("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/files")
+        FileUtils.mkdir_p("#{ansible_dir['roles']}/#{vulconfig['cve']}/files")
+        Dir.glob("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/files/*") do |path|
           file_or_dir = path.split('/')
-          FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['setting']}/files/#{file_or_dir[file_or_dir.size - 1]}", 
+          FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/files/#{file_or_dir[file_or_dir.size - 1]}", 
                          "#{ansible_dir['roles']}/#{vulconfig['cve']}/files/#{file_or_dir[file_or_dir.size - 1]}")
         end
       end
@@ -103,51 +107,54 @@ module Ansible
       playbook_file.puts("---\n- hosts: vagrant\n  connection: local \n  become: yes \n  roles: ")
 
       # Create user
-      playbook_file.puts('    - ../roles/user') if vulconfig.key?('user')
+      playbook_file.puts('    - ../roles/user') if vulconfig['construction'].key?('user')
 
       # add roles in playbook
       if vulconfig['construction'].key?('related_software')
+
         if vulconfig['construction']['related_software'].key?('apt')
           vulconfig['construction']['related_software']['apt'].each do |related_software|
             playbook_file.puts("    - ../roles/#{related_software['name']} ")
           end
         end
+
         if vulconfig['construction']['related_software'].key?('yum')
           vulconfig['construction']['related_software']['yum'].each do |related_software|
             playbook_file.puts("    - ../roles/#{related_software['name']} ")
           end
         end
+
+        if vulconfig['construction']['related_software'].key?('gem')
+          vulconfig['construction']['related_software']['gem'].each do |related_software|
+            playbook_file.puts("    - ../roles/#{related_software['name']} ")
+          end
+        end
+
         if vulconfig['construction']['related_software'].key?('source')
           vulconfig['construction']['related_software']['source'].each do |related_software|
             playbook_file.puts("    - ../roles/#{related_software['name']} ")
           end
         end
+
       end
 
       if vulconfig['construction'].key?('vul_software')
-        if vulconfig['construction']['vul_software'].key?('apt')
-          playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['apt']['name']} ")
-        end
-
-        if vulconfig['construction']['vul_software'].key?('yum')
-          playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['yum']['name']} ")
-        end
-
-        if vulconfig['construction']['vul_software'].key?('source')
-          playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['source']['name']} ")
-        end
+        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['apt']['name']} ") if vulconfig['construction']['vul_software'].key?('apt')
+        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['yum']['name']} ") if vulconfig['construction']['vul_software'].key?('yum')
+        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['gem']['name']} ") if vulconfig['construction']['vul_software'].key?('gem')
+        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['source']['name']} ") if vulconfig['construction']['vul_software'].key?('source')
       end
 
-      playbook_file.puts("    - ../roles/#{vulconfig['cve']} ") if vulconfig.key?('setting')
+      playbook_file.puts("    - ../roles/#{vulconfig['cve']} ") if vulconfig['construction'].key?('content')
       playbook_file.puts("    - ../roles/metasploit") if vulconfig['attack_vector'] == 'local'
     end
 
   end
 
   def role_apt(roles_dir, software)
-    # tasks 
+    # tasks
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
-    software['name'] =~ /^linux-image/ ? FileUtils.cp_r("./build/ansible/roles/os/ubuntu/kernel/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml") : FileUtils.cp_r("./build/ansible/roles/os/ubuntu/package/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
+    software['name'] =~ /^linux-image/ ? FileUtils.cp_r("./build/ansible/roles/os/ubuntu/kernel/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml") : FileUtils.cp_r("./build/ansible/roles/apt/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
     # vars
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
@@ -157,17 +164,33 @@ module Ansible
     end
   end
 
-  def role_sorce(roles_dir, software)
+  def role_gem(roles_dir, software)
     # tasks
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
-    FileUtils.cp_r("./build/ansible/roles/#{software['name']}/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
+    FileUtils.cp_r("./build/ansible/roles/gem/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
     # vars
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
     File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
       vars_file.puts("---")
 
+      vars_file.puts("name: #{software['name']}")
       vars_file.puts("version: #{software['version']}")
+      software['user'] ? vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
+    end
+  end
+
+  def role_source(roles_dir, software)
+    # tasks
+    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
+    FileUtils.cp_r("./build/ansible/roles/source/#{software['name']}/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
+
+    # vars
+    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
+    File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
+      vars_file.puts("---")
+
+      vars_file.puts("version: #{software['version']}") if software.key?('version')
       vars_file.puts("configure_command: #{software['configure_command']}") if software.key?('configure_command')
 
       if software.key?('src_dir')
@@ -195,7 +218,8 @@ module Ansible
 
   module_function :create
   module_function :role_apt
-  module_function :role_sorce
+  module_function :role_gem
+  module_function :role_source
   module_function :role_yum
 
 end
