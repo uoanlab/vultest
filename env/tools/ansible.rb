@@ -194,7 +194,7 @@ module Ansible
       vars_file.puts("configure_command: #{software['configure_command']}") if software.key?('configure_command')
 
       if software.key?('src_dir')
-        software['src_dir'] ? vars_file.puts("src_dir: /usr/local/src") : vars_file.puts("src_dir: #{software['src_dir']}")
+        software['src_dir'] ? vars_file.puts("src_dir: #{software['src_dir']}") : vars_file.puts("src_dir: /usr/local/src") 
       end
 
       if software.key?('user')
