@@ -44,17 +44,13 @@ module Vulenv
       Utility.tty_spinner_end('success')
 
       # When tool cannot change setting, tool want user to change setting
-      if vulenv_config_detail.key?('caution')
+      if vulenv_config_detail['construction'].key?('hard_setup')
         vulenv_caution_setup_flag = false
-        vulenv_config_detail['caution'].each do |vulenv_caution|
-          if vulenv_caution['type'] == 'setup'
-            vulenv_caution['msg'].each do |msg|
-              Utility.print_message('caution', msg)
-            end
-            Open3.capture3('vagrant halt')
-            vulenv_caution_setup_flag = true
-          end
+        vulenv_config_detail['construction']['hard_setup']['msg'].each do |msg|
+          Utility.print_message('caution', msg)
         end
+        Open3.capture3('vagrant halt')
+        vulenv_caution_setup_flag = true
 
         if vulenv_caution_setup_flag
           Utility.print_message('default','Please enter key when ready')
