@@ -33,53 +33,133 @@ module VultestReport
     end
     print "\n"
 
-    # Attack target host
-    Utility.print_message('default', '  Attack target host')
-    Utility.print_message('defalut', "  ===================")
+    # Output target host
+    Utility.print_message('default', '  target host')
+    Utility.print_message('defalut', "  ============")
     print "\n"
 
-    vulenv_config_detail = YAML.load_file(vulenv_config_path)
-    Utility.print_message('default', "    #{vulenv_config_detail['construction']['os']['name']}:#{vulenv_config_detail['construction']['os']['version']}")
-=begin
-    softwares = vulenv_config_detail['software']
-    softwares.each do |software|
-      if software.key?('version')
-        Utility.print_message('default', "    #{software['name']}:#{software['version']}")
-      else
-        install_command = ''
-        if software['os_depend']
-          if vulenv_config_detail['os']['name'] == 'ubuntu'
-            install_command = "apt-get install #{software['name']}"
-          elsif vulenv_config_detail['os']['name'] == 'centos'
-            install_command = "yum install #{software['name']}"
-          end
-          Utility.print_message('default', "    #{software['name']}:default(#{install_command})")
-        else
-          Utility.print_message('default', "    #{software['name']}:default")
+    vulenv_config = YAML.load_file(vulenv_config_path)
+
+    # Output target host operation system
+    Utility.print_message('default', '    operation system')
+    Utility.print_message('defalut', "    ================")
+    print "\n"
+    Utility.print_message('default', "      #{vulenv_config['construction']['os']['name']} : #{vulenv_config['construction']['os']['version']}")
+    print "\n"
+
+    # Output vulnerable software
+    if vulenv_config['construction'].key?('vul_software')
+      Utility.print_message('default', '    vulnerable software')
+      Utility.print_message('defalut', "    ====================")
+      print "\n"
+
+      if vulenv_config['construction']['vul_software'].key?('apt')
+        Utility.print_message('default', "      Install Method : apt")
+        if vulenv_config['construction']['vul_software']['apt'].key?('version')
+          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['apt']['name']} : #{vulenv_config['construction']['vul_software']['apt']['version']}")
+        elsif
+          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['apt']['name']}")
         end
+        print "\n"
+      end
+
+      if vulenv_config['construction']['vul_software'].key?('yum')
+        Utility.print_message('default', "      Install Method : yum")
+        if vulenv_config['construction']['vul_software']['yum'].key?('version')
+          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['yum']['name']} : #{vulenv_config['construction']['vul_software']['yum']['version']}")
+        elsif
+          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['yum']['name']}")
+        end
+        print "\n"
+      end
+
+      if vulenv_config['construction']['vul_software'].key?('gem')
+        Utility.print_message('default', "      Install Method : gem")
+        if vulenv_config['construction']['vul_software']['gem'].key?('version')
+          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['gem']['name']} : #{vulenv_config['construction']['vul_software']['gem']['version']}")
+        elsif
+          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['gem']['name']}")
+        end
+        print "\n"
+      end
+
+      if vulenv_config['construction']['vul_software'].key?('source')
+        Utility.print_message('default', "      Install Method : source")
+        Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['source']['name']} : #{vulenv_config['construction']['vul_software']['source']['version']}")
+        print "\n"
       end
     end
-=end
-    print "\n"
 
-    # Configuration
-    if vulenv_config_detail.key?('report')
+    # Output related software
+    if vulenv_config['construction'].key?('related_software')
+      Utility.print_message('default', '    related software')
+      Utility.print_message('defalut', "    ====================")
+      print "\n"
+
+      if vulenv_config['construction']['related_software'].key?('apt')
+        Utility.print_message('default', "      Install Method : apt")
+        vulenv_config['construction']['related_software']['apt'].each do |software|
+          if software.key?('version')
+            Utility.print_message('default', "      #{software['name']} : #{software['version']}")
+          elsif
+            Utility.print_message('default', "      #{software['name']}")
+          end
+        end
+        print "\n"
+      end
+
+      if vulenv_config['construction']['related_software'].key?('yum')
+        Utility.print_message('default', "      Install Method : yum")
+        vulenv_config['construction']['related_software']['yum'].each do |software|
+          if software.key?('version')
+            Utility.print_message('default', "      #{software['name']} : #{software['version']}")
+          elsif
+            Utility.print_message('default', "      #{software['name']}")
+          end
+        end
+        print "\n"
+      end
+
+      if vulenv_config['construction']['related_software'].key?('gem')
+        Utility.print_message('default', "      Install Method : gem")
+        vulenv_config['construction']['related_software']['gem'].each do |software|
+          if software.key?('version')
+            Utility.print_message('default', "      #{software['name']} : #{software['version']}")
+          elsif
+            Utility.print_message('default', "      #{software['name']}")
+          end
+        end
+        print "\n"
+      end
+
+      if vulenv_config['construction']['related_software'].key?('source')
+        Utility.print_message('default', "      Install Method : source")
+        vulenv_config['construction']['related_software']['source'].each do |software|
+          Utility.print_message('default', "      #{software['name']} : #{software['version']}")
+        end
+        print "\n"
+      end
+    end
+
+
+    # Output configuration of attack target host
+    if vulenv_config.key?('report')
       Utility.print_message('default', '  Configuration of attack target host')
       Utility.print_message('defalut', "  ===================================")
       print "\n"
-      msgs = vulenv_config_detail['report']
+      msgs = vulenv_config['report']
       msgs['msg'].each do |msg|
         Utility.print_message('defalut', "    #{msg}")
       end
       print "\n"
     end
 
-    attack_config_detail = YAML.load_file(attack_config_path)
+    attack_config = YAML.load_file(attack_config_path)
     Utility.print_message('default', '  Attack method')
     Utility.print_message('defalut', "  ===============")
     print "\n"
 
-    attack_methods = attack_config_detail['metasploit_module']
+    attack_methods = attack_config['metasploit_module']
     attack_methods.each do |attack_method|
       Utility.print_message('default', "    module_name : #{attack_method['module_name']}")
       attack_method['options'].each do |option|
