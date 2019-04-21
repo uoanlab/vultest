@@ -2,8 +2,10 @@ require 'bundler/setup'
 require 'pastel'
 require 'tty-font'
 
+require_relative './utility.rb'
 require_relative './commands/test_command.rb'
 require_relative './commands/vultest_command.rb'
+
 
 # vultest title
 font = TTY::Font.new(:"3d")
@@ -31,7 +33,9 @@ loop do
   when 'test'
     cve = input_list[1]
     vulenv_config_path, attack_config_path = VultestCommand.test(cve, testdir)
-    prompt = cve
+    unless vulenv_config_path.nil? && attack_config_path.nil?
+      prompt = cve
+    end
 
   when 'exit'
     break if VultestCommand.exit == 'success'
@@ -40,6 +44,10 @@ loop do
     TestCommand.exploit(attacker, testdir, vulenv_config_path, attack_config_path)
 
   when 'set'
+    if input_list.length != 3
+      Utility.print_message('error', 'Inadequate option')
+      next
+    end
     attacker = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'ATTACKER'
     testdir = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'TESTDIR'
 
@@ -51,6 +59,12 @@ loop do
 
   when 'back'
     prompt = 'vultest'
+
+  when nil
+    next
+
+  else
+    Utility.print_message('error', 'command not found')
   end
 
 end
