@@ -19,14 +19,14 @@ vulenv_config_path = nil
 attack_config_path = nil
 
 if ARGV.size != 0
-  options = ARGV.getopts('c:', 'a:', 't:', 'd')
+  options = ARGV.getopts('d', 'cve:', 'attacker:', 'dir:')
 
-  exit! if options['c'].nil?
-  cve = options['c']
+  exit! if options['cve'].nil?
+  cve = options['cve']
 
   # setting options
-  attacker = options['a'] unless options['a'].nil?
-  testdir = options['t'] unless options['t'].nil?
+  attacker = options['attacker'] unless options['attacker'].nil?
+  testdir = options['dir'] unless options['dir'].nil?
 
   # execute vulnerable test
   begin
