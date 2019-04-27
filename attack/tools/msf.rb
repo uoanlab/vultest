@@ -46,6 +46,10 @@ Relased under the MIT license
 https://github.com/piotrmurach/tty-font/blob/master/LICENSE.txtj
 
 This software includes the work that is distributed in the Apache License 2.0
+
+Reference
+https://metasploit.help.rapid7.com/docs/standard-api-methods-reference
+https://www.mbsd.jp/blog/20180228.html
 =end
 
 require_relative '../../utility'
