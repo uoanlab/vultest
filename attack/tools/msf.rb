@@ -54,19 +54,19 @@ https://www.mbsd.jp/blog/20180228.html
 
 require_relative '../../utility'
 
-# Metasploit APIの接続
+# Connecting Metasploit API
 class MetasploitAPI
 
   def initialize(rhost)
-    # Metasploitの接続情報
+    # Connection of infomation for Metasploit
     @rhost = rhost
     @port = 55553
     @uri = '/api/'
 
-    # Metasploitに接続
+    # Connecting Metasploit
     @client = Net::HTTP.new(@rhost, @port)
 
-    # Metasploit APIのユーザ
+    # User of Metasploit API
     @user = 'msf'
     @password = 'metasploit'
   end
@@ -80,40 +80,40 @@ class MetasploitAPI
     return MessagePack.unpack(res_message_pack.body)
   end
 
-  # auth.login APIでMetasploitにログイン
+  # Login Metasploit by auth.login API
   def auth_login
     params = ['auth.login', @user, @password]
     res = self.msf_api(params)
     @token = res['token']
   end
 
-  # console.create APIでMSFconsoleを作成
+  # Create MSFconsole by console.create
   def console_create
     params = ['console.create', @token]
     res = self.msf_api(params)
     @console_id = res['id']
   end
 
-  # console.write APIで任意のコマンドを実行
-  # コマンド末尾に改行が必要
+  # Execute a command by console.write API
+  # The end of the command is \n
   def console_write(command)
     params = ['console.write', @token, @console_id, command]
     res = self.msf_api(params)
   end
 
-  # console.read APIでMSFconsole上に出力されたコマンドの実行結果を取得
+  # Get the execution result on MSFconsole by console.read API
   def console_read
     params = ['console.read', @token, @console_id]
     return res = self.msf_api(params)
   end
 
-  # Metasploit APIで攻撃を開始
+  # Execute exploit by Metasploit API
   def module_execute (module_type, module_name, options)
     params = ['module.execute', @token, module_type, module_name, options]
     return res = self.msf_api(params)
   end
 
-  # session listから攻撃の成功を確認
+  # Check result of exploit by session list
   def module_session_list
     params = ['session.list', @token]
     return res = self.msf_api(params)
