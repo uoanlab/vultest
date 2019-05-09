@@ -36,7 +36,7 @@ vulenv_config_path = nil
 attack_config_path = nil
 
 if ARGV.size != 0
-  options = ARGV.getopts('d', 'cve:', 'attacker:', 'dir:')
+  options = ARGV.getopts('h', 'cve:', 'attacker:', 'dir:', 'destroy:')
 
   exit! if options['cve'].nil?
   cve = options['cve']
@@ -60,7 +60,7 @@ if ARGV.size != 0
     retry
   end
 
-  TestCommand.destroy(testdir) if options['d']
+  TestCommand.destroy(testdir) if options['destroy'] == 'yes'
 
   exit!
 end
