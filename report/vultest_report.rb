@@ -68,42 +68,8 @@ module VultestReport
       Utility.print_message('default', '    vulnerable software')
       Utility.print_message('defalut', "    ====================")
       print "\n"
-
-      if vulenv_config['construction']['vul_software'].key?('apt')
-        Utility.print_message('default', "      Install Method : apt")
-        if vulenv_config['construction']['vul_software']['apt'].key?('version')
-          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['apt']['name']} : #{vulenv_config['construction']['vul_software']['apt']['version']}")
-        elsif
-          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['apt']['name']}")
-        end
-        print "\n"
-      end
-
-      if vulenv_config['construction']['vul_software'].key?('yum')
-        Utility.print_message('default', "      Install Method : yum")
-        if vulenv_config['construction']['vul_software']['yum'].key?('version')
-          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['yum']['name']} : #{vulenv_config['construction']['vul_software']['yum']['version']}")
-        elsif
-          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['yum']['name']}")
-        end
-        print "\n"
-      end
-
-      if vulenv_config['construction']['vul_software'].key?('gem')
-        Utility.print_message('default', "      Install Method : gem")
-        if vulenv_config['construction']['vul_software']['gem'].key?('version')
-          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['gem']['name']} : #{vulenv_config['construction']['vul_software']['gem']['version']}")
-        elsif
-          Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['gem']['name']}")
-        end
-        print "\n"
-      end
-
-      if vulenv_config['construction']['vul_software'].key?('source')
-        Utility.print_message('default', "      Install Method : source")
-        Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['source']['name']} : #{vulenv_config['construction']['vul_software']['source']['version']}")
-        print "\n"
-      end
+      Utility.print_message('default', "      #{vulenv_config['construction']['vul_software']['name']} : #{vulenv_config['construction']['vul_software']['version']}")
+      print "\n"
     end
 
     # Output related software
@@ -112,49 +78,11 @@ module VultestReport
       Utility.print_message('defalut', "    ====================")
       print "\n"
 
-      if vulenv_config['construction']['related_software'].key?('apt')
-        Utility.print_message('default', "      Install Method : apt")
-        vulenv_config['construction']['related_software']['apt'].each do |software|
-          if software.key?('version')
-            Utility.print_message('default', "      #{software['name']} : #{software['version']}")
-          elsif
-            Utility.print_message('default', "      #{software['name']}")
-          end
-        end
-        print "\n"
+      vulenv_config['construction']['related_software'].each do |software|
+        Utility.print_message('default', "      #{software['name']} : #{software['version']}")
       end
+      print "\n"
 
-      if vulenv_config['construction']['related_software'].key?('yum')
-        Utility.print_message('default', "      Install Method : yum")
-        vulenv_config['construction']['related_software']['yum'].each do |software|
-          if software.key?('version')
-            Utility.print_message('default', "      #{software['name']} : #{software['version']}")
-          elsif
-            Utility.print_message('default', "      #{software['name']}")
-          end
-        end
-        print "\n"
-      end
-
-      if vulenv_config['construction']['related_software'].key?('gem')
-        Utility.print_message('default', "      Install Method : gem")
-        vulenv_config['construction']['related_software']['gem'].each do |software|
-          if software.key?('version')
-            Utility.print_message('default', "      #{software['name']} : #{software['version']}")
-          elsif
-            Utility.print_message('default', "      #{software['name']}")
-          end
-        end
-        print "\n"
-      end
-
-      if vulenv_config['construction']['related_software'].key?('source')
-        Utility.print_message('default', "      Install Method : source")
-        vulenv_config['construction']['related_software']['source'].each do |software|
-          Utility.print_message('default', "      #{software['name']} : #{software['version']}")
-        end
-        print "\n"
-      end
     end
 
 
