@@ -65,33 +65,32 @@ module Ansible
 
     # related software
     if vulconfig['construction'].key?('related_software')
-      vulconfig['construction']['related_software'].each do |type, softwares|
-        if type == 'apt'
-          softwares.each do |software|
-            self.role_apt(ansible_dir['roles'], software)
-          end
-        elsif type == 'yum'
-          softwares.each do |software|
-            self.role_yum(ansible_dir['roles'], software)
-          end
-        elsif type == 'gem'
-          softwares.each do |software|
-            self.role_gem(ansible_dir['roles'], software)
-          end
-        elsif type == 'source'
-          softwares.each do |software|
-            self.role_source(ansible_dir['roles'], software)
-          end
+      vulconfig['construction']['related_software'].each do |software|
+        case software['method']
+        when 'apt'
+          self.role_apt(ansible_dir['roles'], software)
+        when 'yum'
+          self.role_yum(ansible_dir['roles'], software)
+        when'gem'
+          self.role_gem(ansible_dir['roles'], software)
+        when 'source'
+          self.role_source(ansible_dir['roles'], software)
         end
       end
     end
 
     # vulnerable software
     if vulconfig['construction'].key?('vul_software')
-      self.role_apt(ansible_dir['roles'], vulconfig['construction']['vul_software']['apt']) if vulconfig['construction']['vul_software'].key?('apt')
-      self.role_yum(ansible_dir['roles'], vulconfig['construction']['vul_software']['yum']) if vulconfig['construction']['vul_software'].key?('yum')
-      self.role_gem(ansible_dir['roles'], vulconfig['construction']['vul_software']['gem']) if vulconfig['construction']['vul_software'].key?('gem')
-      self.role_source(ansible_dir['roles'], vulconfig['construction']['vul_software']['source']) if vulconfig['construction']['vul_software'].key?('source')
+      case vulconfig['construction']['vul_software']['method']
+        when 'apt'
+          self.role_apt(ansible_dir['roles'], vulconfig['construction']['vul_software'])
+        when 'yum'
+          self.role_yum(ansible_dir['roles'], vulconfig['construction']['vul_software'])
+        when'gem'
+          self.role_gem(ansible_dir['roles'], vulconfig['construction']['vul_software'])
+        when 'source'
+          self.role_source(ansible_dir['roles'], vulconfig['construction']['vul_software'])
+        end
     end
 
     # content
@@ -126,38 +125,13 @@ module Ansible
 
       # add roles in playbook
       if vulconfig['construction'].key?('related_software')
-
-        if vulconfig['construction']['related_software'].key?('apt')
-          vulconfig['construction']['related_software']['apt'].each do |related_software|
-            playbook_file.puts("    - ../roles/#{related_software['name']} ")
-          end
+        vulconfig['construction']['related_software'].each do |software|
+          playbook_file.puts("    - ../roles/#{software['name']} ")
         end
-
-        if vulconfig['construction']['related_software'].key?('yum')
-          vulconfig['construction']['related_software']['yum'].each do |related_software|
-            playbook_file.puts("    - ../roles/#{related_software['name']} ")
-          end
-        end
-
-        if vulconfig['construction']['related_software'].key?('gem')
-          vulconfig['construction']['related_software']['gem'].each do |related_software|
-            playbook_file.puts("    - ../roles/#{related_software['name']} ")
-          end
-        end
-
-        if vulconfig['construction']['related_software'].key?('source')
-          vulconfig['construction']['related_software']['source'].each do |related_software|
-            playbook_file.puts("    - ../roles/#{related_software['name']} ")
-          end
-        end
-
       end
 
       if vulconfig['construction'].key?('vul_software')
-        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['apt']['name']} ") if vulconfig['construction']['vul_software'].key?('apt')
-        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['yum']['name']} ") if vulconfig['construction']['vul_software'].key?('yum')
-        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['gem']['name']} ") if vulconfig['construction']['vul_software'].key?('gem')
-        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['source']['name']} ") if vulconfig['construction']['vul_software'].key?('source')
+        playbook_file.puts("    - ../roles/#{vulconfig['construction']['vul_software']['name']} ") 
       end
 
       playbook_file.puts("    - ../roles/#{vulconfig['cve']} ") if vulconfig['construction'].key?('content')
@@ -175,7 +149,7 @@ module Ansible
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
     File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
       vars_file.puts("---")
-      software.key?('version') ? vars_file.puts("name_and_version: #{software['name']}=#{software['version']}") : vars_file.puts("name_and_version: #{software['name']}")
+      vars_file.puts("name_and_version: #{software['name']}=#{software['version']}")
     end
   end
 
@@ -227,7 +201,7 @@ module Ansible
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
     File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
       vars_file.puts("---")
-      software.key?('version') ? vars_file.puts("name_and_version: #{software['name']}=#{software['version']}") : vars_file.puts("name_and_version: #{software['name']}")
+      vars_file.puts("name_and_version: #{software['name']}-#{software['version']}")
     end
   end
 
