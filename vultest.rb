@@ -55,11 +55,11 @@ if ARGV.size != 0
 
   begin
     TestCommand.exploit(attacker, testdir, vulenv_config_path, attack_config_path)
-    TestCommand.report(cve, vulenv_config_path, attack_config_path)
   rescue
     retry
   end
 
+  TestCommand.report(cve, testdir, vulenv_config_path, attack_config_path)
   TestCommand.destroy(testdir) if options['destroy'] == 'yes'
 
   exit!
@@ -114,7 +114,7 @@ loop do
 
   when 'report'
     begin
-      TestCommand.report(cve, vulenv_config_path, attack_config_path)
+      TestCommand.report(cve, testdir, vulenv_config_path, attack_config_path)
     rescue
       Utility.print_message('error', 'Cannot output vulnerable report')
       TestCommand.destroy(testdir)

@@ -66,7 +66,7 @@ module TestCommand
     return var
   end
 
-  def report(cve, vulenv_config_path, attack_config_path)
+  def report(cve, testdir, vulenv_config_path, attack_config_path)
     if cve.nil?
       Utility.print_message('error', 'You have to set CVE.')
       return 'error'
@@ -76,7 +76,7 @@ module TestCommand
       Utility.print_message('error', 'Cannot have vulnerable environmently configure')
     end
 
-    VultestReport.report(cve, vulenv_config_path, attack_config_path)
+    VultestReport.report(cve, testdir, vulenv_config_path, attack_config_path)
     Exploit.verify
   end
 
