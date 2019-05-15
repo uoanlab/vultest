@@ -13,6 +13,7 @@ gem "tty-command"
 gem "tty-prompt"
 gem "tty-spinner"
 gem "tty-table"
+gem 'tty-markdown'
 
 # command
 gem "fileutils"
