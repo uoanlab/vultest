@@ -1,5 +1,4 @@
 # vultest tool
-
 Vulnerability testing environment by automation.
 
 # LICENSE
