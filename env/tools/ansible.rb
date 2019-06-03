@@ -64,7 +64,8 @@ module Ansible
     # related software
     if vulconfig['construction'].key?('related_software')
       vulconfig['construction']['related_software'].each do |software|
-        case software['method']
+        method = software.key?('method') ? software['method'] : vulconfig['construction']['os']['defult_method']
+        case method
         when 'apt'
           self.role_apt(ansible_dir['roles'], software)
         when 'yum'
@@ -79,7 +80,9 @@ module Ansible
 
     # vulnerable software
     if vulconfig['construction'].key?('vul_software')
-      case vulconfig['construction']['vul_software']['method']
+      method = vulconfig['construction']['vul_software'].key?('method') ? 
+        vulconfig['construction']['vul_software']['method'] : vulconfig['construction']['os']['defult_method']
+      case method
         when 'apt'
           self.role_apt(ansible_dir['roles'], vulconfig['construction']['vul_software'])
         when 'yum'
@@ -95,12 +98,14 @@ module Ansible
     if vulconfig['construction'].key?('content')
       # tasks directory
       FileUtils.mkdir_p("#{ansible_dir['roles']}/#{vulconfig['cve']}/tasks")
-      FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/tasks/main.yml", "#{ansible_dir['roles']}/#{vulconfig['cve']}/tasks/main.yml")
+      FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/tasks/main.yml", 
+                     "#{ansible_dir['roles']}/#{vulconfig['cve']}/tasks/main.yml")
 
       # vars directory
       if Dir.exist?("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/vars")
         FileUtils.mkdir_p("#{ansible_dir['roles']}/#{vulconfig['cve']}/tasks/vars")
-        FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/vars/main.yml", "#{ansible_dir['roles']}/#{vulconfig['cve']}/vars/main.yml")
+        FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vulconfig['construction']['content']}/vars/main.yml", 
+                       "#{ansible_dir['roles']}/#{vulconfig['cve']}/vars/main.yml")
       end
 
       # files directory
@@ -141,7 +146,9 @@ module Ansible
   def role_apt(roles_dir, software)
     # tasks
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
-    software['name'] =~ /^linux-image/ ? FileUtils.cp_r("./build/ansible/roles/os/ubuntu/kernel/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml") : FileUtils.cp_r("./build/ansible/roles/apt/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
+    software['name'] =~ /^linux-image/ ? 
+      FileUtils.cp_r("./build/ansible/roles/os/ubuntu/kernel/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml") : 
+      FileUtils.cp_r("./build/ansible/roles/apt/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
     # vars
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
@@ -163,7 +170,9 @@ module Ansible
 
       vars_file.puts("name: #{software['name']}")
       vars_file.puts("version: #{software['version']}")
-      software['user'] ? vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
+      software['user'] ? 
+        vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : 
+        vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
     end
   end
 
@@ -185,7 +194,9 @@ module Ansible
       end
 
       if software.key?('user')
-        software['user'] ? vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
+        software['user'] ? 
+          vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : 
+          vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
       end
     end
   end
@@ -210,4 +221,3 @@ module Ansible
   module_function :role_yum
 
 end
-
