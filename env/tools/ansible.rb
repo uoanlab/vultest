@@ -64,7 +64,7 @@ module Ansible
     # related software
     if vulconfig['construction'].key?('related_software')
       vulconfig['construction']['related_software'].each do |software|
-        method = software.key?('method') ? software['method'] : vulconfig['construction']['os']['defult_method']
+        method = software.key?('method') ? software['method'] : vulconfig['construction']['os']['default_method']
         case method
         when 'apt'
           self.role_apt(ansible_dir['roles'], software)
@@ -81,7 +81,7 @@ module Ansible
     # vulnerable software
     if vulconfig['construction'].key?('vul_software')
       method = vulconfig['construction']['vul_software'].key?('method') ? 
-        vulconfig['construction']['vul_software']['method'] : vulconfig['construction']['os']['defult_method']
+        vulconfig['construction']['vul_software']['method'] : vulconfig['construction']['os']['default_method']
       case method
         when 'apt'
           self.role_apt(ansible_dir['roles'], vulconfig['construction']['vul_software'])
