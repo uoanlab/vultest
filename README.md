@@ -7,7 +7,7 @@ University of Aizu, 2019
 # Documents
 - [Wiki](https://github.com/uoanlab/vultest/wiki)
 
-# Available Vulnerability lists
+# Ready-to-test Vulnerabilities
 - CVE-2015-1318
 - CVE-2015-1328
 - CVE-2015-3224
