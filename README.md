@@ -13,7 +13,7 @@ University of Aizu, 2019
 - CVE-2015-3224
 - CVE-2017-11467
 
-# Related products
+# Related product
 - [vultest-db](https://github.com/uoanlab/vultest-db): Configuration database for automatic vulnerability tests
 
 # Authors & Contributors
