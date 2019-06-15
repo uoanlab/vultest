@@ -18,4 +18,5 @@ University of Aizu, 2019
 
 # Authors & Contributors
 - Kohei AKASAKA <redsloop.ko@gmail.com>
+- Akihito NAKAMURA <nakamura@u-aizu.ac.jp>
 
