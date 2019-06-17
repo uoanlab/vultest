@@ -17,6 +17,6 @@ University of Aizu, 2019
 - [vultest-db](https://github.com/uoanlab/vultest-db): Configuration database for automatic vulnerability tests
 
 # Authors & Contributors
-- Kohei AKASAKA <redsloop.ko@gmail.com>
-- Akihito NAKAMURA <nakamura@u-aizu.ac.jp>
+- Kohei AKASAKA <redsloop.ko [at] gmail.com>
+- Akihito NAKAMURA <nakamura [at] u-aizu.ac.jp>
 
