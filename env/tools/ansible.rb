@@ -186,12 +186,28 @@ module Ansible
     File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
       vars_file.puts("---")
 
-      vars_file.puts("version: #{software['version']}") if software.key?('version')
-      vars_file.puts("configure_command: #{software['configure_command']}") if software.key?('configure_command')
-
-      if software.key?('src_dir')
-        software['src_dir'] ? vars_file.puts("src_dir: #{software['src_dir']}") : vars_file.puts("src_dir: /usr/local/src") 
+      if software['name'] == 'bash'
+        vs = software['version'].split('.')
+        vars_file.puts("version: #{vs[0] + '.' + vs[1]}")
+        vars_file.puts("patches:")
+        vs[2].to_i.times do |index|
+          index += 1
+          if (0 < index.to_i) && (index.to_i < 10)
+            vars_file.puts("   - {name: patch-#{index}, version: bash#{vs[0]+vs[1]}-00#{index.to_s}}")
+          elsif (10 <= index.to_i) && (index.to_i < 100)
+            vars_file.puts("   - {name: patch-#{index}, version: bash#{vs[0]+vs[1]}-0#{index.to_s}}")
+          else
+            vars_file.puts("   - {name: patch-#{index}, version: bash#{vs[0]+vs[1]}-#{index.to_s}}")
+          end
+        end
+      else
+        vars_file.puts("version: #{software['version']}")
       end
+      software.key?('configure_command') ? 
+        vars_file.puts("configure_command: #{software['configure_command']}") : 
+        vars_file.puts("configure_command: ./configure")
+
+      software.key?('src_dir') ? vars_file.puts("src_dir: #{software['src_dir']}") : vars_file.puts("src_dir: /usr/local/src") 
 
       if software.key?('user')
         software['user'] ? 
