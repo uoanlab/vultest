@@ -61,7 +61,7 @@ module TestCommand
       return path
     end
 
-    return var
+    var
   end
 
   def report(cve, testdir, vulenv_config_path, attack_config_path)

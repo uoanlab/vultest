@@ -34,7 +34,7 @@ module VultestCommand
   end
 
   def exit
-    return 'success'
+    'success'
   end
 
   module_function :test

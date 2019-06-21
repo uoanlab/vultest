@@ -39,7 +39,7 @@ class MetasploitAPI
     req.body = params.to_msgpack
     res_message_pack = @client.request(req)
 
-    return MessagePack.unpack(res_message_pack.body)
+    MessagePack.unpack(res_message_pack.body)
   end
 
   # Login Metasploit by auth.login API
@@ -66,39 +66,39 @@ class MetasploitAPI
   # Get the execution result on MSFconsole by console.read API
   def console_read
     params = ['console.read', @token, @console_id]
-    return res = self.msf_api(params)
+    res = self.msf_api(params)
   end
 
   # Execute exploit by Metasploit API
   def module_execute (module_type, module_name, options)
     params = ['module.execute', @token, module_type, module_name, options]
-    return res = self.msf_api(params)
+    res = self.msf_api(params)
   end
 
   # Check result of exploit by session list
   def module_session_list
     params = ['session.list', @token]
-    return res = self.msf_api(params)
+    res = self.msf_api(params)
   end
 
   def shell_write(session_id, command)
     params = ['session.shell_write', @token, session_id, "#{command}\n"]
-    return self.msf_api(params)
+    self.msf_api(params)
   end
 
   def shell_read(session_id)
     params = ['session.shell_read', @token, session_id, 'ReadPointer']
-    return self.msf_api(params)
+    self.msf_api(params)
   end
 
   def meterpreter_write (session_id, command)
     params = ['session.meterpreter_run_single', @token, session_id, command]
-    return self.msf_api(params)
+    self.msf_api(params)
   end
 
   def meterpreter_read(session_id)
     params = ['session.meterpreter_read', @token, session_id]
-    return self.msf_api(params)
+    self.msf_api(params)
   end
 
 end

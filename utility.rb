@@ -64,11 +64,11 @@ module Utility
 
   def tty_prompt (message, list)
     prompt = TTY::Prompt.new
-    return prompt.enum_select("#{@caution_symbol} #{message}", list)
+    prompt.enum_select("#{@caution_symbol} #{message}", list)
   end
 
   def get_config
-    return YAML.load_file('./config.yml')
+    YAML.load_file('./config.yml')
   end
 
   module_function :print_message

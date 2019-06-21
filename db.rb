@@ -28,7 +28,7 @@ module DB
     end
     db.close
 
-    return cve_info
+    cve_info
   end
 
   def get_cwe(cve)
@@ -40,7 +40,7 @@ module DB
     end
     db.close
 
-    return cwe
+    cwe
   end
 
   def get_cpe(cve)
@@ -52,7 +52,7 @@ module DB
     end
     db.close
 
-    return cpe
+    cpe
   end
 
   def get_cvss_v2 (cve)
@@ -71,7 +71,7 @@ module DB
     end
     db.close
 
-    return cvss_v2
+    cvss_v2
   end
 
   def get_cvss_v3 (cve)
@@ -94,7 +94,7 @@ module DB
     end
     db.close
 
-    return cvss_v3
+    cvss_v3
   end
 
   def get_vulconfigs(cve)
@@ -110,7 +110,7 @@ module DB
       vulconfigs.push(vulconfig)
     end
     db.close
-    return vulconfigs
+    vulconfigs
   end
 
   module_function :get_cve_info
