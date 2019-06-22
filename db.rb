@@ -35,9 +35,7 @@ module DB
     db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cwe.sqlite3")
     db.results_as_hash = true
     cwe = nil
-    db.execute('select * from cwe where cve=?', cve) do |cwe_info|
-      cwe = cwe == nil ? cwe_info['cwe'] : "#{cwe}\n#{cwe_info['cwe']}"
-    end
+    db.execute('select * from cwe where cve=?', cve) { |cwe_info| cwe = cwe == nil ? cwe_info['cwe'] : "#{cwe}\n#{cwe_info['cwe']}"}
     db.close
 
     cwe
@@ -47,9 +45,7 @@ module DB
     db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cpe.sqlite3")
     db.results_as_hash = true
     cpe = []
-    db.execute('select * from cpe where cve=?', cve) do |cpe_info|
-      cpe.push(cpe_info['cpe'])
-    end
+    db.execute('select * from cpe where cve=?', cve) { |cpe_info| cpe.push(cpe_info['cpe']) }
     db.close
 
     cpe
