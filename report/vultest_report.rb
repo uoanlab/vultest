@@ -44,9 +44,7 @@ module VultestReport
       # Output related software
       if vulenv_config['construction'].key?('related_software')
         report_file.puts('### Related Software')
-        vulenv_config['construction']['related_software'].each do |software|
-          report_file.puts("- #{software['name']} : #{software['version']}\n")
-        end
+        vulenv_config['construction']['related_software'].each { |software| report_file.puts("- #{software['name']} : #{software['version']}\n") }
       end
       report_file.puts("\n")
 
@@ -59,9 +57,7 @@ module VultestReport
         attack_methods = attack_config['metasploit_module']
         attack_methods.each do |attack_method|
           report_file.puts("#### Module Name : #{attack_method['module_name']}\n")
-          attack_method['options'].each do |option|
-            report_file.puts("- #{option['name']} : #{option['var']}\n")
-          end
+          attack_method['options'].each { |option| report_file.puts("- #{option['name']} : #{option['var']}\n") }
           report_file.puts("\n")
         end
       end

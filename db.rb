@@ -35,9 +35,7 @@ module DB
     db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cwe.sqlite3")
     db.results_as_hash = true
     cwe = nil
-    db.execute('select * from cwe where cve=?', cve) do |cwe_info|
-      cwe = cwe == nil ? cwe_info['cwe'] : "#{cwe}\n#{cwe_info['cwe']}"
-    end
+    db.execute('select * from cwe where cve=?', cve) { |cwe_info| cwe = cwe == nil ? cwe_info['cwe'] : "#{cwe}\n#{cwe_info['cwe']}"}
     db.close
 
     cwe
@@ -47,9 +45,7 @@ module DB
     db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/cpe.sqlite3")
     db.results_as_hash = true
     cpe = []
-    db.execute('select * from cpe where cve=?', cve) do |cpe_info|
-      cpe.push(cpe_info['cpe'])
-    end
+    db.execute('select * from cpe where cve=?', cve) { |cpe_info| cpe << cpe_info['cpe'] }
     db.close
 
     cpe
@@ -97,20 +93,20 @@ module DB
     cvss_v3
   end
 
-  def get_vulconfigs(cve)
+  def get_vul_configs(cve)
     db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/vultest.sqlite3")
     db.results_as_hash = true
 
-    vulconfigs = []
+    vul_configs = []
     db.execute('select * from configs where cve=?', cve) do |config|
-      vulconfig = {}
-      vulconfig['name'] = config['name']
-      vulconfig['config_path'] = config['config_path']
-      vulconfig['module_path'] = config['module_path']
-      vulconfigs.push(vulconfig)
+      vul_config = {}
+      vul_config['name'] = config['name']
+      vul_config['config_path'] = config['config_path']
+      vul_config['module_path'] = config['module_path']
+      vul_configs << vul_config
     end
     db.close
-    vulconfigs
+    vul_configs
   end
 
   module_function :get_cve_info
@@ -118,6 +114,6 @@ module DB
   module_function :get_cpe
   module_function :get_cvss_v2
   module_function :get_cvss_v3
-  module_function :get_vulconfigs
+  module_function :get_vul_configs
 
 end

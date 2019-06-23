@@ -26,7 +26,7 @@ module Vulenv
     Vagrant.create(vulenv_config_path, vulenv_dir)
     Ansible.create(vulenv_config_path, vulenv_dir)
 
-    vulenv_config_detail = YAML.load_file(vulenv_config_path)
+    vulenv_config = YAML.load_file(vulenv_config_path)
 
     # start up environment of vulnerability
     Utility.print_message('execute', 'create vulnerability environment')
@@ -43,7 +43,7 @@ module Vulenv
         end
       end
 
-      if vulenv_config_detail.key?('reload')
+      if vulenv_config.key?('reload')
         reload_status, reload_stderr, reload_status = Open3.capture3('vagrant reload')
         if reload_status.exitstatus != 0 
           Utility.tty_spinner_end('error')
@@ -54,26 +54,20 @@ module Vulenv
       Utility.tty_spinner_end('success')
 
       # When tool cannot change setting, tool want user to change setting
-      if vulenv_config_detail['construction'].key?('hard_setup')
-        vulenv_caution_setup_flag = false
-        vulenv_config_detail['construction']['hard_setup']['msg'].each do |msg|
-          Utility.print_message('caution', msg)
-        end
+      if vulenv_config['construction'].key?('hard_setup')
+        vulenv_config['construction']['hard_setup']['msg'].each { |msg| Utility.print_message('caution', msg) }
         Open3.capture3('vagrant halt')
-        vulenv_caution_setup_flag = true
 
-        if vulenv_caution_setup_flag
-          Utility.print_message('default','Please enter key when ready')
-          input = gets
+        Utility.print_message('default','Please enter key when ready')
+        input = gets
 
-          Utility.tty_spinner_begin('reload')
-          stdout, stderr, status = Open3.capture3('vagrant up')
-          if status.exitstatus != 0
-            Utility.tty_spinner_end('error')
-            return 'error'
-          end
-          Utility.tty_spinner_end('success')
+        Utility.tty_spinner_begin('reload')
+        stdout, stderr, status = Open3.capture3('vagrant up')
+        if status.exitstatus != 0
+          Utility.tty_spinner_end('error')
+          return 'error'
         end
+        Utility.tty_spinner_end('success')
       end
     end
   end
@@ -98,16 +92,16 @@ module Vulenv
   end
 
   def select(cve)
-    vulconfigs = DB.get_vulconfigs(cve)
+    vul_configs = DB.get_vul_configs(cve)
 
     table_index = 0
     vulenv_name_list = []
     vulenv_table = []
     vulenv_index_info = {}
-    vulconfigs.each do |vulconfig|
-      vulenv_table.push([table_index, vulconfig['name']])
-      vulenv_index_info[vulconfig['name']] = table_index
-      vulenv_name_list.push(vulconfig['name'])
+    vul_configs.each do |vul_config|
+      vulenv_table.push([table_index, vul_config['name']])
+      vulenv_index_info[vul_config['name']] = table_index
+      vulenv_name_list << vul_config['name']
       table_index += 1
     end
 
@@ -129,8 +123,8 @@ module Vulenv
 
     config = Utility.get_config
 
-    vulenv_config_path = "#{config['vultest_db_path']}/#{vulconfigs[select_id.to_i]['config_path']}"
-    attack_config_path = "#{config['vultest_db_path']}/#{vulconfigs[select_id.to_i]['module_path']}"
+    vulenv_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i]['config_path']}"
+    attack_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i]['module_path']}"
 
     return vulenv_config_path, attack_config_path
   end

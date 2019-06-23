@@ -17,9 +17,11 @@ require 'optparse'
 require 'pastel'
 require 'tty-font'
 
-require_relative './utility.rb'
-require_relative './commands/test_command.rb'
-require_relative './commands/vultest_command.rb'
+require_relative './attack/exploit'
+require_relative './env/vulenv'
+require_relative './report/vultest_report'
+require_relative './utility'
+
 
 # setting initialize var
 testdir = './test'
@@ -43,22 +45,54 @@ if ARGV.size != 0
   testdir = options['dir'] unless options['dir'].nil?
 
   # execute vulnerable test
-  begin
-    vulenv_config_path, attack_config_path = VultestCommand.test(cve, testdir)
-  rescue
-    Utility.print_message('error', "Cannot test #{cve}")
+  vulenv_config_path, attack_config_path = Vulenv.select(cve)
+
+  if vulenv_config_path.nil? || attack_config_path.nil?
+    Utility.print_message('error', 'Cannot test vulnerability') 
     exit!
   end
 
-  begin
-    TestCommand.exploit(attacker, testdir, vulenv_config_path, attack_config_path)
-  rescue
-    retry
+  if Vulenv.create(vulenv_config_path, testdir) == 'error'
+    Utility.print_message('error', 'Cannot start up vulnerable environment')
+    exit!
   end
 
-  TestCommand.report(cve, testdir, vulenv_config_path, attack_config_path)
-  TestCommand.destroy(testdir) if options['destroy'] == 'yes'
+  # Execute exploit
+  sleep(10)
+  if attack_config_path.nil? 
+    Utility.print_message('error', 'Cannot search exploit configure')
+    exit!
+  end
 
+  vulenv_config = YAML.load_file(vulenv_config_path)
+  if vulenv_config['attack_vector'] != 'remote'
+    attacker = '192.168.33.10'
+  end
+
+  if attacker.nil?
+    Utility.print_message('error', 'Set attack machin ip address')
+    exit!
+  end
+
+  Exploit.prepare(attacker, testdir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
+  Exploit.exploit(attacker, attack_config_path)
+
+  #Output and Create vulnerability report
+  if cve.nil?
+    Utility.print_message('error', 'You have to set CVE.')
+    exit!
+  end
+
+  if vulenv_config_path.nil?
+    Utility.print_message('error', 'Cannot have vulnerable environmently configure')
+    exit!
+  end
+
+  VultestReport.report(cve, testdir, vulenv_config_path, attack_config_path)
+  Exploit.verify
+
+  #Execute destroy
+  Vulenv.destroy(testdir) if options['destroy'] == 'yes'
   exit!
 end
 
@@ -73,52 +107,89 @@ prompt = 'vultest'
 # execute prompt
 loop do
   print "#{prompt} > "
-  input_list = gets.chomp.split(" ")
+  command = gets.chomp.split(" ")
 
-  case input_list[0]
+  case command[0]
   when 'test'
-    cve = input_list[1]
+    cve = command[1]
 
-    begin
-      vulenv_config_path, attack_config_path = VultestCommand.test(cve, testdir)
-    rescue
-      Utility.print_message('error', "Cannot test #{cve}")
-      TestCommand.destroy(testdir)
+    vulenv_config_path, attack_config_path = Vulenv.select(cve)
+
+    if vulenv_config_path.nil? || attack_config_path.nil?
+      Utility.print_message('error', 'Cannot test vulnerability') 
+      next
     end
 
-    unless vulenv_config_path.nil? && attack_config_path.nil?
-      prompt = cve
+    if Vulenv.create(vulenv_config_path, testdir) == 'error'
+      Utility.print_message('error', 'Cannot start up vulnerable environment')
+      next
     end
+
+    prompt = cve
 
   when 'exit'
-    break if VultestCommand.exit == 'success'
+    break
 
   when 'exploit'
-    begin
-      TestCommand.exploit(attacker, testdir, vulenv_config_path, attack_config_path)
-    rescue
-      Utility.print_message('error', "Cannot exploit")
-      TestCommand.destroy(testdir)
+    if attack_config_path.nil? 
+      Utility.print_message('error', 'Cannot search exploit configure')
+      next
     end
 
+    vulenv_config = YAML.load_file(vulenv_config_path)
+    if vulenv_config['attack_vector'] != 'remote'
+      attacker = '192.168.33.10'
+    end
+
+    if attacker.nil?
+      Utility.print_message('error', 'Set attack machin ip address')
+      next
+    end
+
+    Exploit.prepare(attacker, testdir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
+    Exploit.exploit(attacker, attack_config_path)
+
   when 'set'
-    if input_list.length != 3
+    if command.length != 3
       Utility.print_message('error', 'Inadequate option')
       next
     end
-    attacker = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'ATTACKER'
-    testdir = TestCommand.set(input_list[1], input_list[2]) if input_list[1] == 'TESTDIR'
+
+    testdir = 
+      if command[1] == 'TESTDIR'
+        path = ''
+        path_elm = command[2].split("/")
+
+        path_elm.each do |elm|
+          path.concat('/') unless path.empty?
+          if elm[0] == '$'
+            elm.slice!(0)
+            ENV.key?(elm) ? path.concat(ENV[elm]) : path.concat(elm)
+          else
+            path.concat(elm)
+          end
+        end
+        path
+      end
+
+    attacker = command[2]
 
   when 'report'
-    begin
-      TestCommand.report(cve, testdir, vulenv_config_path, attack_config_path)
-    rescue
-      Utility.print_message('error', 'Cannot output vulnerable report')
-      TestCommand.destroy(testdir)
+    if cve.nil?
+      Utility.print_message('error', 'You have to set CVE.')
+      next
     end
 
+    if vulenv_config_path.nil?
+      Utility.print_message('error', 'Cannot have vulnerable environmently configure')
+      next
+    end
+
+    VultestReport.report(cve, testdir, vulenv_config_path, attack_config_path)
+    Exploit.verify
+
   when 'destroy'
-    TestCommand.destroy(testdir)
+    Vulenv.destroy(testdir)
 
   when 'back'
     prompt = 'vultest'

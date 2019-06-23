@@ -16,11 +16,10 @@ require_relative '../../utility'
 
 module Vagrant
 
-  def create(vulconfig_file, vulenv_dir)
-    vulconfig = YAML.load_file(vulconfig_file)
-    config = YAML.load_file('./config.yml')
+  def create(vul_config_file, vulenv_dir)
+    vul_config = YAML.load_file(vul_config_file)
 
-    FileUtils.cp_r("./build/vagrant/#{vulconfig['construction']['os']['name']}/#{vulconfig['construction']['os']['version']}/Vagrantfile", "#{vulenv_dir}/Vagrantfile")
+    FileUtils.cp_r("./build/vagrant/#{vul_config['construction']['os']['name']}/#{vul_config['construction']['os']['version']}/Vagrantfile", "#{vulenv_dir}/Vagrantfile")
   end
 
   module_function :create
