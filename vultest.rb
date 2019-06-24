@@ -110,7 +110,7 @@ loop do
   command = gets.chomp.split(" ")
 
   case command[0]
-  when 'test'
+  when /test/i
     cve = command[1]
 
     vulenv_config_path, attack_config_path = Vulenv.select(cve)
@@ -127,10 +127,10 @@ loop do
 
     prompt = cve
 
-  when 'exit'
+  when /exit/i
     break
 
-  when 'exploit'
+  when /exploit/i
     if attack_config_path.nil? 
       Utility.print_message('error', 'Cannot search exploit configure')
       next
@@ -149,14 +149,14 @@ loop do
     Exploit.prepare(attacker, testdir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
     Exploit.exploit(attacker, attack_config_path)
 
-  when 'set'
+  when /set/i
     if command.length != 3
       Utility.print_message('error', 'Inadequate option')
       next
     end
 
     testdir = 
-      if command[1] == 'TESTDIR'
+      if command[1] =~ /testdir/i
         path = ''
         path_elm = command[2].split("/")
 
@@ -174,7 +174,7 @@ loop do
 
     attacker = command[2]
 
-  when 'report'
+  when /report/i
     if cve.nil?
       Utility.print_message('error', 'You have to set CVE.')
       next
@@ -188,10 +188,10 @@ loop do
     VultestReport.report(cve, testdir, vulenv_config_path, attack_config_path)
     Exploit.verify
 
-  when 'destroy'
+  when /destroy/i
     Vulenv.destroy(testdir)
 
-  when 'back'
+  when /back/i
     prompt = 'vultest'
 
   when nil
