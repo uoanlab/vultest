@@ -17,8 +17,7 @@
 require_relative '../../utility'
 
 # Connecting Metasploit API
-class MetasploitAPI
-
+class Metasploit
   def initialize(rhost)
     # Connection of infomation for Metasploit
     @rhost = rhost
@@ -100,5 +99,5 @@ class MetasploitAPI
     params = ['session.meterpreter_read', @token, session_id]
     self.msf_api(params)
   end
-
 end
+
