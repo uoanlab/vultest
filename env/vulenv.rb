@@ -105,7 +105,7 @@ module Vulenv
       table_index += 1
     end
 
-    return nil, nil if table_index == 0
+    return nil, nil if table_index == 1
 
     # Can create list which is environment of vulnerability
     Utility.print_message('output', 'vulnerability environment list')
@@ -123,8 +123,8 @@ module Vulenv
 
     config = Utility.get_config
 
-    vulenv_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i]['config_path']}"
-    attack_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i]['module_path']}"
+    vulenv_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}"
+    attack_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}"
 
     return vulenv_config_path, attack_config_path
   end
