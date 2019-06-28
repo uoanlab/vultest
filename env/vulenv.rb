@@ -94,7 +94,7 @@ module Vulenv
   def select(cve)
     vul_configs = DB.get_vul_configs(cve)
 
-    table_index = 0
+    table_index = 1
     vulenv_name_list = []
     vulenv_table = []
     vulenv_index_info = {}
