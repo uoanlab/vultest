@@ -35,7 +35,7 @@ vulenv_config_path = nil
 attack_config_path = nil
 
 if ARGV.size != 0
-  options = ARGV.getopts('h', 'cve:', 'attacker:', 'dir:', 'destroy:')
+  options = ARGV.getopts('h', 'cve:', 'test:yes', 'attacker:', 'dir:', 'destroy:')
 
   exit! if options['cve'].nil?
   cve = options['cve']
@@ -56,6 +56,8 @@ if ARGV.size != 0
     Utility.print_message('error', 'Cannot start up vulnerable environment')
     exit!
   end
+
+  exit! if options['test'] == 'no'
 
   # Execute exploit
   sleep(10)
