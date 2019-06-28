@@ -64,14 +64,10 @@ module Ansible
       vul_config['construction']['related_software'].each do |software|
         method = software.key?('method') ? software['method'] : vul_config['construction']['os']['default_method']
         case method
-        when 'apt'
-          self.role_apt(ansible_dir[:roles], software)
-        when 'yum'
-          self.role_yum(ansible_dir[:roles], software)
-        when'gem'
-          self.role_gem(ansible_dir[:roles], software)
-        when 'source'
-          self.role_source(ansible_dir[:roles], software)
+        when 'apt' then self.role_apt(ansible_dir[:roles], software)
+        when 'yum' then self.role_yum(ansible_dir[:roles], software)
+        when 'gem' then self.role_gem(ansible_dir[:roles], software)
+        when 'source' then self.role_source(ansible_dir[:roles], software)
         end
       end
     end
@@ -81,14 +77,10 @@ module Ansible
       method = vul_config['construction']['vul_software'].key?('method') ? 
         vul_config['construction']['vul_software']['method'] : vul_config['construction']['os']['default_method']
       case method
-        when 'apt'
-          self.role_apt(ansible_dir[:roles], vul_config['construction']['vul_software'])
-        when 'yum'
-          self.role_yum(ansible_dir[:roles], vul_config['construction']['vul_software'])
-        when'gem'
-          self.role_gem(ansible_dir[:roles], vul_config['construction']['vul_software'])
-        when 'source'
-          self.role_source(ansible_dir[:roles], vul_config['construction']['vul_software'])
+        when 'apt' then self.role_apt(ansible_dir[:roles], vul_config['construction']['vul_software'])
+        when 'yum' then self.role_yum(ansible_dir[:roles], vul_config['construction']['vul_software'])
+        when 'gem' then self.role_gem(ansible_dir[:roles], vul_config['construction']['vul_software'])
+        when 'source' then self.role_source(ansible_dir[:roles], vul_config['construction']['vul_software'])
         end
     end
 
@@ -125,13 +117,9 @@ module Ansible
       playbook_file.puts('    - ../roles/user') if vul_config['construction'].key?('user')
 
       # add roles in playbook
-      if vul_config['construction'].key?('related_software')
-        vul_config['construction']['related_software'].each { |software| playbook_file.puts("    - ../roles/#{software['name']} ") }
-      end
+      vul_config['construction']['related_software'].each { |software| playbook_file.puts("    - ../roles/#{software['name']} ") } if vul_config['construction'].key?('related_software')
 
-      if vul_config['construction'].key?('vul_software')
-        playbook_file.puts("    - ../roles/#{vul_config['construction']['vul_software']['name']} ") 
-      end
+      playbook_file.puts("    - ../roles/#{vul_config['construction']['vul_software']['name']} ") if vul_config['construction'].key?('vul_software')
 
       playbook_file.puts("    - ../roles/#{vul_config['cve']} ") if vul_config['construction'].key?('content')
       playbook_file.puts("    - ../roles/metasploit") if vul_config['attack_vector'] == 'local'
@@ -185,16 +173,12 @@ module Ansible
         vars_file.puts("patches:")
         version[2].to_i.times do |index|
           index += 1
-          if (0 < index.to_i) && (index.to_i < 10)
-            vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-00#{index.to_s}}")
-          elsif (10 <= index.to_i) && (index.to_i < 100)
-            vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-0#{index.to_s}}")
-          else
-            vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-#{index.to_s}}")
+          if (0 < index.to_i) && (index.to_i < 10) then vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-00#{index.to_s}}")
+          elsif (10 <= index.to_i) && (index.to_i < 100) then vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-0#{index.to_s}}")
+          else vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-#{index.to_s}}")
           end
         end
-      else
-        vars_file.puts("version: #{software['version']}")
+      else vars_file.puts("version: #{software['version']}")
       end
       software.key?('configure_command') ? 
         vars_file.puts("configure_command: #{software['configure_command']}") : vars_file.puts("configure_command: ./configure")
