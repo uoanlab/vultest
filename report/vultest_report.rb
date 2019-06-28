@@ -33,10 +33,8 @@ module VultestReport
       report_file.puts("\n")
 
       # Output target host operation system
-      if vulenv_config['construction']['os']['vulnerability']
-        report_file.puts("### Vulnerable Software\n")
-      else
-        report_file.puts("### Operating System\n")
+      if vulenv_config['construction']['os']['vulnerability'] then report_file.puts("### Vulnerable Software\n")
+      else report_file.puts("### Operating System\n")
       end
       report_file.puts("#{vulenv_config['construction']['os']['name']} : #{vulenv_config['construction']['os']['version']}")
       report_file.puts("\n")
@@ -81,10 +79,8 @@ module VultestReport
       cpe.each do |cpe_info|
         output_cpe_info = ''
         cpe_info.each_char do |c|
-          if c == '*'
-            output_cpe_info = output_cpe_info + '\\' + c
-          else
-            output_cpe_info = output_cpe_info + c
+          if c == '*' then output_cpe_info = output_cpe_info + '\\' + c
+          else output_cpe_info = output_cpe_info + c
           end
         end
         report_file.puts("- #{output_cpe_info}")
