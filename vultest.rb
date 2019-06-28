@@ -24,8 +24,8 @@ require_relative './utility'
 
 
 # setting initialize var
-testdir = './test'
-testdir = ENV['TESTDIR'] if ENV.key?('TESTDIR')
+test_dir = './test'
+test_dir = ENV['TESTDIR'] if ENV.key?('TESTDIR')
 
 attacker = nil
 attacker = ENV['ATTACKER'] if ENV.key?('ATTACKER')
@@ -42,7 +42,7 @@ if ARGV.size != 0
 
   # setting options
   attacker = options['attacker'] unless options['attacker'].nil?
-  testdir = options['dir'] unless options['dir'].nil?
+  test_dir = options['dir'] unless options['dir'].nil?
 
   # execute vulnerable test
   vulenv_config_path, attack_config_path = Vulenv.select(cve)
@@ -52,7 +52,7 @@ if ARGV.size != 0
     exit!
   end
 
-  if Vulenv.create(vulenv_config_path, testdir) == 'error'
+  if Vulenv.create(vulenv_config_path, test_dir) == 'error'
     Utility.print_message('error', 'Cannot start up vulnerable environment')
     exit!
   end
@@ -74,7 +74,7 @@ if ARGV.size != 0
     exit!
   end
 
-  Exploit.prepare(attacker, testdir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
+  Exploit.prepare(attacker, test_dir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
   Exploit.exploit(attacker, attack_config_path)
 
   #Output and Create vulnerability report
@@ -88,11 +88,11 @@ if ARGV.size != 0
     exit!
   end
 
-  VultestReport.report(cve, testdir, vulenv_config_path, attack_config_path)
+  VultestReport.report(cve, test_dir, vulenv_config_path, attack_config_path)
   Exploit.verify
 
   #Execute destroy
-  Vulenv.destroy(testdir) if options['destroy'] == 'yes'
+  Vulenv.destroy(test_dir) if options['destroy'] == 'yes'
   exit!
 end
 
@@ -120,7 +120,7 @@ loop do
       next
     end
 
-    if Vulenv.create(vulenv_config_path, testdir) == 'error'
+    if Vulenv.create(vulenv_config_path, test_dir) == 'error'
       Utility.print_message('error', 'Cannot start up vulnerable environment')
       next
     end
@@ -146,7 +146,7 @@ loop do
       next
     end
 
-    Exploit.prepare(attacker, testdir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
+    Exploit.prepare(attacker, test_dir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
     Exploit.exploit(attacker, attack_config_path)
 
   when /set/i
@@ -155,7 +155,7 @@ loop do
       next
     end
 
-    testdir = 
+    test_dir = 
       if command[1] =~ /testdir/i
         path = ''
         path_elm = command[2].split("/")
@@ -185,11 +185,11 @@ loop do
       next
     end
 
-    VultestReport.report(cve, testdir, vulenv_config_path, attack_config_path)
+    VultestReport.report(cve, test_dir, vulenv_config_path, attack_config_path)
     Exploit.verify
 
   when /destroy/i
-    Vulenv.destroy(testdir)
+    Vulenv.destroy(test_dir)
 
   when /back/i
     prompt = 'vultest'

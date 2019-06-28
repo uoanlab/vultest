@@ -17,8 +17,8 @@ require_relative '../utility'
 
 module VultestReport
 
-  def report(cve, testdir, vulenv_config_path, attack_config_path)
-    File.open("#{testdir}/report.md", "w") do |report_file|
+  def report(cve, test_dir, vulenv_config_path, attack_config_path)
+    File.open("#{test_dir}/report.md", "w") do |report_file|
       report_file.puts("# Vultest Report\n\n")
 
       # Output target host
@@ -92,7 +92,7 @@ module VultestReport
       report_file.puts("\n")
     end
 
-    parsed = TTY::Markdown.parse_file("#{testdir}/report.md")
+    parsed = TTY::Markdown.parse_file("#{test_dir}/report.md")
     puts parsed
 
   end
