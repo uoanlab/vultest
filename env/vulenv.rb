@@ -1,4 +1,5 @@
 # Copyright [2019] [University of Aizu]
+
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,9 +30,9 @@ module Vulenv
     vulenv_config = YAML.load_file(vulenv_config_path)
 
     # start up environment of vulnerability
-    Utility.print_message('execute', 'create vulnerability environment')
+    Utility.print_message('execute', 'Create vulnerability environment')
     Dir.chdir(vulenv_dir) do
-      Utility.tty_spinner_begin('start up')
+      Utility.tty_spinner_begin('Start up')
       stdout, stderr, status = Open3.capture3('vagrant up')
 
       if status.exitstatus != 0
@@ -61,7 +62,7 @@ module Vulenv
         Utility.print_message('default','Please enter key when ready')
         input = gets
 
-        Utility.tty_spinner_begin('reload')
+        Utility.tty_spinner_begin('Reload')
         stdout, stderr, status = Open3.capture3('vagrant up')
         if status.exitstatus != 0
           Utility.tty_spinner_end('error')
@@ -74,7 +75,7 @@ module Vulenv
 
   def destroy(vulenv_dir)
     Dir.chdir(vulenv_dir) do
-      Utility.tty_spinner_begin('vulent destroy')
+      Utility.tty_spinner_begin('Vulnerable environment destroy')
       stdout, stderr, status = Open3.capture3('vagrant destroy -f')
       if status.exitstatus != 0
         Utility.tty_spinner_end('error')
@@ -108,7 +109,7 @@ module Vulenv
     return nil, nil if table_index == 1
 
     # Can create list which is environment of vulnerability
-    Utility.print_message('output', 'vulnerability environment list')
+    Utility.print_message('output', 'Vulnerability environment list')
     header = ['id', 'vulenv name']
     table = TTY::Table.new header, vulenv_table
     table.render(:ascii).each_line do |line|
