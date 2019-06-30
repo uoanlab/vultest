@@ -21,32 +21,27 @@ module VultestReport
     File.open("#{test_dir}/report.md", "w") do |report_file|
       report_file.puts("# Vultest Report\n\n")
 
-      # Output target host
       report_file.puts("## Target Host\n\n")
       vulenv_config = YAML.load_file(vulenv_config_path)
 
-      # Output vulnerable software
       if vulenv_config['construction'].key?('vul_software')
         report_file.puts("### Vulnerable Software\n")
         report_file.puts("#{vulenv_config['construction']['vul_software']['name']} : #{vulenv_config['construction']['vul_software']['version']}\n")
       end
       report_file.puts("\n")
 
-      # Output target host operation system
       if vulenv_config['construction']['os']['vulnerability'] then report_file.puts("### Vulnerable Software\n")
       else report_file.puts("### Operating System\n")
       end
       report_file.puts("#{vulenv_config['construction']['os']['name']} : #{vulenv_config['construction']['os']['version']}")
       report_file.puts("\n")
 
-      # Output related software
       if vulenv_config['construction'].key?('related_software')
         report_file.puts('### Related Software')
         vulenv_config['construction']['related_software'].each { |software| report_file.puts("- #{software['name']} : #{software['version']}\n") }
       end
       report_file.puts("\n")
 
-      # Attack method
       attack_config = YAML.load_file(attack_config_path)
       report_file.puts("## Attack Method\n\n")
 
@@ -61,7 +56,6 @@ module VultestReport
       end
       report_file.puts("\n")
 
-      # Get CVE description
       cve_info = DB.get_cve_info(cve)
       unless cve_info['description'].nil?
         for str_range in 1..cve_info['description'].size/100
@@ -73,7 +67,6 @@ module VultestReport
       report_file.puts("#{cve_info['description']}\n")
       report_file.puts("\n")
 
-      # Get cpe
       report_file.puts("## Affect Software Version (CPE)\n")
       cpe = DB.get_cpe(cve)
       cpe.each do |cpe_info|

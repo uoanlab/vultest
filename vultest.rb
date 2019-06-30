@@ -23,7 +23,6 @@ require_relative './report/vultest_report'
 require_relative './utility'
 
 
-# setting initialize var
 test_dir = './test'
 test_dir = ENV['TESTDIR'] if ENV.key?('TESTDIR')
 
@@ -40,11 +39,9 @@ if ARGV.size != 0
   exit! if options['cve'].nil?
   cve = options['cve']
 
-  # setting options
   attacker = options['attacker'] unless options['attacker'].nil?
   test_dir = options['dir'] unless options['dir'].nil?
 
-  # execute vulnerable test
   vulenv_config_path, attack_config_path = Vulenv.select(cve)
 
   if vulenv_config_path.nil? || attack_config_path.nil?
@@ -59,7 +56,6 @@ if ARGV.size != 0
 
   exit! if options['test'] == 'no'
 
-  # Execute exploit
   sleep(10)
   if attack_config_path.nil? 
     Utility.print_message('error', 'Cannot search exploit configure')
@@ -79,7 +75,6 @@ if ARGV.size != 0
   Exploit.prepare(attacker, test_dir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
   Exploit.exploit(attacker, attack_config_path)
 
-  #Output and Create vulnerability report
   if cve.nil?
     Utility.print_message('error', 'You have to set CVE.')
     exit!
@@ -93,20 +88,16 @@ if ARGV.size != 0
   VultestReport.report(cve, test_dir, vulenv_config_path, attack_config_path)
   Exploit.verify
 
-  #Execute destroy
   Vulenv.destroy(test_dir) if options['destroy'] == 'yes'
   exit!
 end
 
-# vultest title
 font = TTY::Font.new(:"3d")
 pastel = Pastel.new
 puts pastel.red(font.write("VULTEST"))
 
-# pormpt and option initialize
 prompt = 'vultest'
 
-# execute prompt
 loop do
   print "#{prompt} > "
   command = gets.chomp.split(" ")

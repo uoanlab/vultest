@@ -16,18 +16,14 @@
 
 require_relative '../../utility'
 
-# Connecting Metasploit API
 class Metasploit
   def initialize(rhost)
-    # Connection of infomation for Metasploit
     @rhost = rhost
     @port = 55553
     @uri = '/api/'
 
-    # Connecting Metasploit
     @client = Net::HTTP.new(@rhost, @port)
 
-    # User of Metasploit API
     @user = 'msf'
     @password = 'metasploit'
   end
@@ -41,40 +37,34 @@ class Metasploit
     MessagePack.unpack(res_message_pack.body)
   end
 
-  # Login Metasploit by auth.login API
   def auth_login
     params = ['auth.login', @user, @password]
     res = self.msf_api(params)
     @token = res['token']
   end
 
-  # Create MSFconsole by console.create
   def console_create
     params = ['console.create', @token]
     res = self.msf_api(params)
     @console_id = res['id']
   end
 
-  # Execute a command by console.write API
   # The end of the command is \n
   def console_write(command)
     params = ['console.write', @token, @console_id, command]
     res = self.msf_api(params)
   end
 
-  # Get the execution result on MSFconsole by console.read API
   def console_read
     params = ['console.read', @token, @console_id]
     res = self.msf_api(params)
   end
 
-  # Execute exploit by Metasploit API
   def module_execute (module_type, module_name, options)
     params = ['module.execute', @token, module_type, module_name, options]
     res = self.msf_api(params)
   end
 
-  # Check result of exploit by session list
   def module_session_list
     params = ['session.list', @token]
     res = self.msf_api(params)

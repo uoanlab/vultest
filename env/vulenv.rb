@@ -22,14 +22,12 @@ module Vulenv
 
   def create(vulenv_config_path, vulenv_dir)
 
-    # Create the vulnerable environment
     FileUtils.mkdir_p(vulenv_dir)
     Vagrant.create(vulenv_config_path, vulenv_dir)
     Ansible.create(vulenv_config_path, vulenv_dir)
 
     vulenv_config = YAML.load_file(vulenv_config_path)
 
-    # start up environment of vulnerability
     Utility.print_message('execute', 'Create vulnerability environment')
     Dir.chdir(vulenv_dir) do
       Utility.tty_spinner_begin('Start up')
@@ -54,7 +52,6 @@ module Vulenv
 
       Utility.tty_spinner_end('success')
 
-      # When tool cannot change setting, tool want user to change setting
       if vulenv_config['construction'].key?('hard_setup')
         vulenv_config['construction']['hard_setup']['msg'].each { |msg| Utility.print_message('caution', msg) }
         Open3.capture3('vagrant halt')
@@ -108,7 +105,6 @@ module Vulenv
 
     return nil, nil if table_index == 1
 
-    # Can create list which is environment of vulnerability
     Utility.print_message('output', 'Vulnerability environment list')
     header = ['id', 'vulenv name']
     table = TTY::Table.new header, vulenv_table
@@ -117,7 +113,6 @@ module Vulenv
     end
     print "\n"
 
-    # Select environment of vulnerability by id
     message = 'Select an id for testing vulnerability envrionment?'
     select_vulenv_name = Utility.tty_prompt(message, vulenv_name_list)
     select_id = vulenv_index_info[select_vulenv_name]

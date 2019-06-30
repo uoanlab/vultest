@@ -20,7 +20,6 @@ module Ansible
     vul_config = YAML.load_file(vul_config_file)
     config = YAML.load_file('./config.yml')
 
-    # Create ansible directory
     ansible_dir = {}
     ansible_dir[:base] = "#{vulenv_dir}/ansible"
     ansible_dir[:hosts] = "#{ansible_dir[:base]}/hosts"
@@ -32,7 +31,6 @@ module Ansible
     FileUtils.mkdir_p("#{ansible_dir[:playbook]}")
     FileUtils.mkdir_p("#{ansible_dir[:roles]}")
 
-    # Create anslbe tasks
     FileUtils.cp_r("./build/ansible/ansible.cfg", "#{ansible_dir[:base]}/ansible.cfg")
     FileUtils.cp_r("./build/ansible/hosts/hosts.yml", "#{ansible_dir[:hosts]}/hosts.yml")
 
@@ -59,7 +57,6 @@ module Ansible
       end
     end
 
-    # related software
     if vul_config['construction'].key?('related_software')
       vul_config['construction']['related_software'].each do |software|
         method = software.key?('method') ? software['method'] : vul_config['construction']['os']['default_method']
@@ -72,7 +69,6 @@ module Ansible
       end
     end
 
-    # vulnerable software
     if vul_config['construction'].key?('vul_software')
       method = vul_config['construction']['vul_software'].key?('method') ? 
         vul_config['construction']['vul_software']['method'] : vul_config['construction']['os']['default_method']
@@ -84,21 +80,17 @@ module Ansible
         end
     end
 
-    # content
     if vul_config['construction'].key?('content')
-      # tasks directory
       FileUtils.mkdir_p("#{ansible_dir[:roles]}/#{vul_config['cve']}/tasks")
       FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vul_config['construction']['content']}/tasks/main.yml", 
                      "#{ansible_dir[:roles]}/#{vul_config['cve']}/tasks/main.yml")
 
-      # vars directory
       if Dir.exist?("#{config['vultest_db_path']}/data/#{vul_config['construction']['content']}/vars")
         FileUtils.mkdir_p("#{ansible_dir[:roles]}/#{vul_config['cve']}/tasks/vars")
         FileUtils.cp_r("#{config['vultest_db_path']}/data/#{vul_config['construction']['content']}/vars/main.yml", 
                        "#{ansible_dir[:roles]}/#{vul_config['cve']}/vars/main.yml")
       end
 
-      # files directory
       if Dir.exist?("#{config['vultest_db_path']}/data/#{vul_config['construction']['content']}/files")
         FileUtils.mkdir_p("#{ansible_dir[:roles]}/#{vul_config['cve']}/files")
         Dir.glob("#{config['vultest_db_path']}/data/#{vul_config['construction']['content']}/files/*") do |path|
@@ -109,14 +101,11 @@ module Ansible
       end
     end
 
-    # Create playbook
     File.open("#{ansible_dir[:playbook]}/main.yml", "w") do |playbook_file|
       playbook_file.puts("---\n- hosts: vagrant\n  connection: local \n  become: yes \n  roles: ")
 
-      # Create user
       playbook_file.puts('    - ../roles/user') if vul_config['construction'].key?('user')
 
-      # add roles in playbook
       vul_config['construction']['related_software'].each { |software| playbook_file.puts("    - ../roles/#{software['name']} ") } if vul_config['construction'].key?('related_software')
 
       playbook_file.puts("    - ../roles/#{vul_config['construction']['vul_software']['name']} ") if vul_config['construction'].key?('vul_software')
@@ -128,11 +117,9 @@ module Ansible
   end
 
   def role_apt(roles_dir, software)
-    # tasks
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
     FileUtils.cp_r("./build/ansible/roles/apt/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
-    # vars
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
     File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
       vars_file.puts("---")
@@ -141,11 +128,9 @@ module Ansible
   end
 
   def role_gem(roles_dir, software)
-    # tasks
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
     FileUtils.cp_r("./build/ansible/roles/gem/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
-    # vars
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
     File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
       vars_file.puts("---")
@@ -158,11 +143,9 @@ module Ansible
   end
 
   def role_source(roles_dir, software)
-    # tasks
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
     FileUtils.cp_r("./build/ansible/roles/source/#{software['name']}/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
-    # vars
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
     File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
       vars_file.puts("---")
@@ -194,11 +177,9 @@ module Ansible
   end
 
   def role_yum(roles_dir, software)
-    # tasks 
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
     FileUtils.cp_r("./build/ansible/roles/yum/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
-    # vars
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
     File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
       vars_file.puts("---")
