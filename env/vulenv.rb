@@ -119,10 +119,11 @@ module Vulenv
 
     config = Utility.get_config
 
-    vulenv_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}"
-    attack_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}"
+    {
+      vulenv: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}", 
+      attack: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}"
+    }
 
-    return vulenv_config_path, attack_config_path
   end
 
   module_function :create

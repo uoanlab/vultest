@@ -32,8 +32,7 @@ attack[:user] = ENV['ATTACKERUSER'] if ENV.key?('ATTACKERUSER')
 attack[:passwd] = ENV['ATTACKPASSWD'] if ENV.key?('ATTACKPASSWD')
 
 cve = nil
-vulenv_config_path = nil
-attack_config_path = nil
+config_path = {vulenv: nil, attack: nil}
 
 if ARGV.size != 0
   options = ARGV.getopts('h', 'cve:', 'test:yes', 'attack_user:', 'attack_passwd:', 'attack_host:', 'dir:', 'destroy:')
@@ -46,14 +45,14 @@ if ARGV.size != 0
   attack[:passwd] = options['attack_passwd'] unless options['attack_passwd'].nil?
   test_dir = options['dir'] unless options['dir'].nil?
 
-  vulenv_config_path, attack_config_path = Vulenv.select(cve)
+  config_path = Vulenv.select(cve)
 
-  if vulenv_config_path.nil? || attack_config_path.nil?
+  if config_path[:vulenv].nil? || config_path[:attack].nil?
     Utility.print_message('error', 'Cannot test vulnerability') 
     exit!
   end
 
-  if Vulenv.create(vulenv_config_path, test_dir) == 'error'
+  if Vulenv.create(config_path[:vulenv], test_dir) == 'error'
     Utility.print_message('error', 'Cannot start up vulnerable environment')
     exit!
   end
@@ -61,13 +60,13 @@ if ARGV.size != 0
   exit! if options['test'] == 'no'
 
   sleep(10)
-  if attack_config_path.nil? 
+  if config_path[:attack].nil? 
     Utility.print_message('error', 'Cannot search exploit configure')
     exit!
   end
 
-  vulenv_config = YAML.load_file(vulenv_config_path)
-  if vulenv_config['attack_vector'] != 'remote'
+  attack_vector = YAML.load_file(config_path[:vulenv])['attack_vector']
+  if attack_vector != 'remote'
     attack[:host] = '192.168.33.10'
   end
 
@@ -76,20 +75,20 @@ if ARGV.size != 0
     exit!
   end
 
-  Exploit.prepare(attack, test_dir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
-  Exploit.exploit(attack[:host], attack_config_path)
+  Exploit.prepare(attack, test_dir, config_path[:vulenv]) if attack_vector == 'remote'
+  Exploit.exploit(attack[:host], config_path[:attack])
 
   if cve.nil?
     Utility.print_message('error', 'You have to set CVE.')
     exit!
   end
 
-  if vulenv_config_path.nil?
+  if config_path[:vulenv].nil?
     Utility.print_message('error', 'Cannot have vulnerable environmently configure')
     exit!
   end
 
-  VultestReport.report(cve, test_dir, vulenv_config_path, attack_config_path)
+  VultestReport.report(cve, test_dir, config_path)
   Exploit.verify
 
   Vulenv.destroy(test_dir) if options['destroy'] == 'yes'
@@ -110,14 +109,14 @@ loop do
   when /test/i
     cve = command[1]
 
-    vulenv_config_path, attack_config_path = Vulenv.select(cve)
+    config_path = Vulenv.select(cve)
 
-    if vulenv_config_path.nil? || attack_config_path.nil?
+    if config_path[:vulenv].nil? || config_path[:attack].nil?
       Utility.print_message('error', 'Cannot test vulnerability') 
       next
     end
 
-    if Vulenv.create(vulenv_config_path, test_dir) == 'error'
+    if Vulenv.create(config_path[:vulenv], test_dir) == 'error'
       Utility.print_message('error', 'Cannot start up vulnerable environment')
       next
     end
@@ -128,13 +127,13 @@ loop do
     break
 
   when /exploit/i
-    if attack_config_path.nil? 
+    if config_path[:attack].nil? 
       Utility.print_message('error', 'Cannot search exploit configure')
       next
     end
 
-    vulenv_config = YAML.load_file(vulenv_config_path)
-    if vulenv_config['attack_vector'] != 'remote'
+    attack_vector = YAML.load_file(config_path[:vulenv])['attack_vector']
+    if attack_vector != 'remote'
       attack[:host] = '192.168.33.10'
     end
 
@@ -143,8 +142,8 @@ loop do
       next
     end
 
-    Exploit.prepare(attack, test_dir, vulenv_config_path) if vulenv_config['attack_vector'] == 'remote'
-    Exploit.exploit(attack, attack_config_path)
+    Exploit.prepare(attack, test_dir, config_path[:vulenv]) if attack_vector == 'remote'
+    Exploit.exploit(attack[:host], config_path[:attack])
 
   when /set/i
     if command.length != 3
@@ -184,12 +183,12 @@ loop do
       next
     end
 
-    if vulenv_config_path.nil?
+    if config_path[:vulenv].nil?
       Utility.print_message('error', 'Cannot have vulnerable environmently configure')
       next
     end
 
-    VultestReport.report(cve, test_dir, vulenv_config_path, attack_config_path)
+    VultestReport.report(cve, test_dir, config_path)
     Exploit.verify
 
   when /destroy/i
