@@ -17,12 +17,12 @@ require_relative '../utility'
 
 module VultestReport
 
-  def report(cve, test_dir, vulenv_config_path, attack_config_path)
+  def report(cve, test_dir, config_path)
     File.open("#{test_dir}/report.md", "w") do |report_file|
       report_file.puts("# Vultest Report\n\n")
 
       report_file.puts("## Target Host\n\n")
-      vulenv_config = YAML.load_file(vulenv_config_path)
+      vulenv_config = YAML.load_file(config_path[:vulenv])
 
       if vulenv_config['construction'].key?('vul_software')
         report_file.puts("### Vulnerable Software\n")
@@ -42,7 +42,7 @@ module VultestReport
       end
       report_file.puts("\n")
 
-      attack_config = YAML.load_file(attack_config_path)
+      attack_config = YAML.load_file(config_path[:attack])
       report_file.puts("## Attack Method\n\n")
 
       if attack_config.key?('metasploit_module')

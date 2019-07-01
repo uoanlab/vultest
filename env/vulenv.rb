@@ -56,7 +56,7 @@ module Vulenv
         vulenv_config['construction']['hard_setup']['msg'].each { |msg| Utility.print_message('caution', msg) }
         Open3.capture3('vagrant halt')
 
-        Utility.print_message('default','Please enter key when ready')
+        puts 'Please enter key when ready'
         input = gets
 
         Utility.tty_spinner_begin('Reload')
@@ -105,7 +105,7 @@ module Vulenv
 
     return nil, nil if table_index == 1
 
-    Utility.print_message('output', 'Vulnerability environment list')
+    puts 'Vulnerability environment list'
     header = ['id', 'vulenv name']
     table = TTY::Table.new header, vulenv_table
     table.render(:ascii).each_line do |line|
@@ -119,10 +119,11 @@ module Vulenv
 
     config = Utility.get_config
 
-    vulenv_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}"
-    attack_config_path = "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}"
+    {
+      vulenv: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}", 
+      attack: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}"
+    }
 
-    return vulenv_config_path, attack_config_path
   end
 
   module_function :create
