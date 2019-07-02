@@ -76,7 +76,7 @@ if ARGV.size != 0
   end
 
   Exploit.prepare(attack, test_dir, config_path[:vulenv]) if attack_vector == 'remote'
-  Exploit.exploit(attack[:host], config_path[:attack])
+  Exploit.execute(attack[:host], config_path[:attack])
 
   if cve.nil?
     Utility.print_message('error', 'You have to set CVE.')
@@ -127,6 +127,11 @@ loop do
     break
 
   when /exploit/i
+    if cve.nil?
+      Utility.print_message('error', 'Firstly, executing test command')
+      next
+    end
+
     if config_path[:attack].nil? 
       Utility.print_message('error', 'Cannot search exploit configure')
       next
@@ -143,7 +148,7 @@ loop do
     end
 
     Exploit.prepare(attack, test_dir, config_path[:vulenv]) if attack_vector == 'remote'
-    Exploit.exploit(attack[:host], config_path[:attack])
+    Exploit.execute(attack[:host], config_path[:attack])
 
   when /set/i
     if command.length != 3
@@ -152,6 +157,11 @@ loop do
     end
 
     if command[1] =~ /testdir/i
+      unless cve.nil?
+        Utility.print_message('error', 'Cannot execute set command')
+        next
+      end
+
       path = ''
       path_elm = command[2].split("/")
 
@@ -192,6 +202,11 @@ loop do
     Exploit.verify
 
   when /destroy/i
+    if cve.nil?
+      Utility.print_message('error', 'Firstly, executing test command')
+      next
+    end
+
     Vulenv.destroy(test_dir)
 
   when /back/i

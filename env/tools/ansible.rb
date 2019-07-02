@@ -116,7 +116,7 @@ module Ansible
 
   end
 
-  def role_apt(roles_dir, software)
+  def self.role_apt(roles_dir, software)
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
     FileUtils.cp_r("./build/ansible/roles/apt/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
@@ -127,7 +127,7 @@ module Ansible
     end
   end
 
-  def role_gem(roles_dir, software)
+  def self.role_gem(roles_dir, software)
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
     FileUtils.cp_r("./build/ansible/roles/gem/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
@@ -142,7 +142,7 @@ module Ansible
     end
   end
 
-  def role_source(roles_dir, software)
+  def self.role_source(roles_dir, software)
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
     FileUtils.cp_r("./build/ansible/roles/source/#{software['name']}/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
@@ -176,7 +176,7 @@ module Ansible
     end
   end
 
-  def role_yum(roles_dir, software)
+  def self.role_yum(roles_dir, software)
     FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
     FileUtils.cp_r("./build/ansible/roles/yum/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
@@ -188,9 +188,4 @@ module Ansible
   end
 
   module_function :create
-  module_function :role_apt
-  module_function :role_gem
-  module_function :role_source
-  module_function :role_yum
-
 end
