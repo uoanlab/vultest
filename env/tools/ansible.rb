@@ -115,75 +115,77 @@ module Ansible
     end
 
   end
+  
+  class << self
+    def role_apt(roles_dir, software)
+      FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
+      FileUtils.cp_r("./build/ansible/roles/apt/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
-  def self.role_apt(roles_dir, software)
-    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
-    FileUtils.cp_r("./build/ansible/roles/apt/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
-
-    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
-    File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
-      vars_file.puts("---")
-      vars_file.puts("name_and_version: #{software['name']}=#{software['version']}")
-    end
-  end
-
-  def self.role_gem(roles_dir, software)
-    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
-    FileUtils.cp_r("./build/ansible/roles/gem/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
-
-    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
-    File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
-      vars_file.puts("---")
-
-      vars_file.puts("name: #{software['name']}")
-      vars_file.puts("version: #{software['version']}")
-      software['user'] ? 
-        vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
-    end
-  end
-
-  def self.role_source(roles_dir, software)
-    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
-    FileUtils.cp_r("./build/ansible/roles/source/#{software['name']}/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
-
-    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
-    File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
-      vars_file.puts("---")
-
-      if software['name'] == 'bash'
-        version = software['version'].split('.')
-        vars_file.puts("version: #{version[0] + '.' + version[1]}")
-        vars_file.puts("patches:")
-        version[2].to_i.times do |index|
-          index += 1
-          if (0 < index.to_i) && (index.to_i < 10) then vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-00#{index.to_s}}")
-          elsif (10 <= index.to_i) && (index.to_i < 100) then vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-0#{index.to_s}}")
-          else vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-#{index.to_s}}")
-          end
-        end
-      else vars_file.puts("version: #{software['version']}")
+      FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
+      File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
+        vars_file.puts("---")
+        vars_file.puts("name_and_version: #{software['name']}=#{software['version']}")
       end
-      software.key?('configure_command') ? 
-        vars_file.puts("configure_command: #{software['configure_command']}") : vars_file.puts("configure_command: ./configure")
+    end
 
-      software.key?('src_dir') ? vars_file.puts("src_dir: #{software['src_dir']}") : vars_file.puts("src_dir: /usr/local/src") 
+    def role_gem(roles_dir, software)
+      FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
+      FileUtils.cp_r("./build/ansible/roles/gem/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
-      if software.key?('user')
+      FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
+      File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
+        vars_file.puts("---")
+
+        vars_file.puts("name: #{software['name']}")
+        vars_file.puts("version: #{software['version']}")
         software['user'] ? 
-          vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : 
-          vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
+          vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
       end
     end
-  end
 
-  def self.role_yum(roles_dir, software)
-    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
-    FileUtils.cp_r("./build/ansible/roles/yum/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
+    def role_source(roles_dir, software)
+      FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
+      FileUtils.cp_r("./build/ansible/roles/source/#{software['name']}/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
 
-    FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
-    File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
-      vars_file.puts("---")
-      vars_file.puts("name_and_version: #{software['name']}-#{software['version']}")
+      FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
+      File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
+        vars_file.puts("---")
+
+        if software['name'] == 'bash'
+          version = software['version'].split('.')
+          vars_file.puts("version: #{version[0] + '.' + version[1]}")
+          vars_file.puts("patches:")
+          version[2].to_i.times do |index|
+            index += 1
+            if (0 < index.to_i) && (index.to_i < 10) then vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-00#{index.to_s}}")
+            elsif (10 <= index.to_i) && (index.to_i < 100) then vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-0#{index.to_s}}")
+            else vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]+version[1]}-#{index.to_s}}")
+            end
+          end
+        else vars_file.puts("version: #{software['version']}")
+        end
+        software.key?('configure_command') ? 
+          vars_file.puts("configure_command: #{software['configure_command']}") : vars_file.puts("configure_command: ./configure")
+
+        software.key?('src_dir') ? vars_file.puts("src_dir: #{software['src_dir']}") : vars_file.puts("src_dir: /usr/local/src") 
+
+        if software.key?('user')
+          software['user'] ? 
+            vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}") : 
+            vars_file.puts("user: test\nvars_file.puts('user_dir: /home/test")
+        end
+      end
+    end
+
+    def role_yum(roles_dir, software)
+      FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/tasks")
+      FileUtils.cp_r("./build/ansible/roles/yum/tasks/main.yml", "#{roles_dir}/#{software['name']}/tasks/main.yml")
+
+      FileUtils.mkdir_p("#{roles_dir}/#{software['name']}/vars")
+      File.open("#{roles_dir}/#{software['name']}/vars/main.yml", "w") do |vars_file|
+        vars_file.puts("---")
+        vars_file.puts("name_and_version: #{software['name']}-#{software['version']}")
+      end
     end
   end
 

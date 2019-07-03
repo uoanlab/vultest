@@ -85,6 +85,4 @@ module VultestReport
     puts parsed
 
   end
-
-  module_function :report
 end
