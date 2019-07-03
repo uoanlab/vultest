@@ -1,9 +1,6 @@
 #.vagrant
 .vagrant
 
-# ruby version
-.ruby-version
-
 # gem package
 .bundle
 vendor

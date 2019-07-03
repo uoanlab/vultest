@@ -17,22 +17,10 @@ require 'optparse'
 require 'pastel'
 require 'tty-font'
 
-require_relative './attack/exploit'
-require_relative './env/vulenv'
-require_relative './report/vultest_report'
+require_relative './process_vultest'
 require_relative './utility'
 
-
-test_dir = './test'
-test_dir = ENV['TESTDIR'] if ENV.key?('TESTDIR')
-
-attack = {host: nil, user: 'root', passwd: 'toor'}
-attack[:host] = ENV['ATTACKHOST'] if ENV.key?('ATTACKHOST')
-attack[:user] = ENV['ATTACKERUSER'] if ENV.key?('ATTACKERUSER')
-attack[:passwd] = ENV['ATTACKPASSWD'] if ENV.key?('ATTACKPASSWD')
-
-cve = nil
-config_path = {vulenv: nil, attack: nil}
+vultest_processing = ProcessVultest.new
 
 if ARGV.size != 0
   options = ARGV.getopts('h', 'cve:', 'test:yes', 'attack_user:', 'attack_passwd:', 'attack_host:', 'dir:', 'destroy:')
@@ -40,58 +28,19 @@ if ARGV.size != 0
   exit! if options['cve'].nil?
   cve = options['cve']
 
-  attack[:host] = options['attack_host'] unless options['attack_host'].nil?
-  attack[:user] = options['attack_user'] unless options['attack_user'].nil?
-  attack[:passwd] = options['attack_passwd'] unless options['attack_passwd'].nil?
-  test_dir = options['dir'] unless options['dir'].nil?
+  vultest_processing.attack[:host] = options['attack_host'] unless options['attack_host'].nil?
+  vultest_processing.attack[:user] = options['attack_user'] unless options['attack_user'].nil?
+  vultest_processing.attack[:passwd] = options['attack_passwd'] unless options['attack_passwd'].nil?
+  vultest_processing.test_dir = options['dir'] unless options['dir'].nil?
 
-  config_path = Vulenv.select(cve)
-
-  if config_path[:vulenv].nil? || config_path[:attack].nil?
-    Utility.print_message('error', 'Cannot test vulnerability') 
-    exit!
-  end
-
-  if Vulenv.create(config_path[:vulenv], test_dir) == 'error'
-    Utility.print_message('error', 'Cannot start up vulnerable environment')
-    exit!
-  end
-
-  exit! if options['test'] == 'no'
+  vultest_processing.create_vulenv(cve)
+  exit! if options['test'] == 'no' || vultest_processing::cve.nil?
 
   sleep(10)
-  if config_path[:attack].nil? 
-    Utility.print_message('error', 'Cannot search exploit configure')
-    exit!
-  end
+  vultest_processing.attack_vulenv
+  vultest_processing.create_report
 
-  attack_vector = YAML.load_file(config_path[:vulenv])['attack_vector']
-  if attack_vector != 'remote'
-    attack[:host] = '192.168.33.10'
-  end
-
-  if attack[:host].nil?
-    Utility.print_message('error', 'Set attack machin ip address')
-    exit!
-  end
-
-  Exploit.prepare(attack, test_dir, config_path[:vulenv]) if attack_vector == 'remote'
-  Exploit.execute(attack[:host], config_path[:attack])
-
-  if cve.nil?
-    Utility.print_message('error', 'You have to set CVE.')
-    exit!
-  end
-
-  if config_path[:vulenv].nil?
-    Utility.print_message('error', 'Cannot have vulnerable environmently configure')
-    exit!
-  end
-
-  VultestReport.report(cve, test_dir, config_path)
-  Exploit.verify
-
-  Vulenv.destroy(test_dir) if options['destroy'] == 'yes'
+  vultest_processing.destroy_vulenv! if options['destroy'] == 'yes'
   exit!
 end
 
@@ -100,55 +49,20 @@ pastel = Pastel.new
 puts pastel.red(font.write("VULTEST"))
 
 prompt = 'vultest'
-
 loop do
   print "#{prompt} > "
   command = gets.chomp.split(" ")
 
   case command[0]
   when /test/i
-    cve = command[1]
-
-    config_path = Vulenv.select(cve)
-
-    if config_path[:vulenv].nil? || config_path[:attack].nil?
-      Utility.print_message('error', 'Cannot test vulnerability') 
-      next
-    end
-
-    if Vulenv.create(config_path[:vulenv], test_dir) == 'error'
-      Utility.print_message('error', 'Cannot start up vulnerable environment')
-      next
-    end
-
-    prompt = cve
+    vultest_processing.create_vulenv(command[1])
+    prompt = vultest_processing.cve unless vultest_processing::cve.nil?
 
   when /exit/i
     break
 
   when /exploit/i
-    if cve.nil?
-      Utility.print_message('error', 'Firstly, executing test command')
-      next
-    end
-
-    if config_path[:attack].nil? 
-      Utility.print_message('error', 'Cannot search exploit configure')
-      next
-    end
-
-    attack_vector = YAML.load_file(config_path[:vulenv])['attack_vector']
-    if attack_vector != 'remote'
-      attack[:host] = '192.168.33.10'
-    end
-
-    if attack[:host].nil?
-      Utility.print_message('error', 'Set attack machin ip address')
-      next
-    end
-
-    Exploit.prepare(attack, test_dir, config_path[:vulenv]) if attack_vector == 'remote'
-    Exploit.execute(attack[:host], config_path[:attack])
+    vultest_processing.attack_vulenv
 
   when /set/i
     if command.length != 3
@@ -157,7 +71,7 @@ loop do
     end
 
     if command[1] =~ /testdir/i
-      unless cve.nil?
+      unless vultest_processing::cve.nil?
         Utility.print_message('error', 'Cannot execute set command')
         next
       end
@@ -173,44 +87,29 @@ loop do
         else path.concat(elm)
         end
       end
-      test_dir = path
-      puts "TESTDIR => #{test_dir}"
+      vultest_processing.test_dir = path
+      puts "TESTDIR => #{vultest_processing.test_dir}"
     elsif command[1] =~ /attackhost/i 
-      attack[:host] = command[2]
-      puts "ATTACKHOST => #{attack[:host]}"
+      vultest_processing.attack[:host] = command[2]
+      puts "ATTACKHOST => #{vultest_processing.attack[:host]}"
     elsif command[1] =~ /attackuser/i 
-      attack[:user] = command[2]
-      puts "ATTACKERUSER => #{attack[:user]}"
+      vultest_processing.attack[:user] = command[2]
+      puts "ATTACKERUSER => #{vultest_processing.attack[:user]}"
     elsif command[1] =~ /attackpasswd/i 
-      attack[:passwd] = command[2]
-      puts "ATTACKPASSWD => #{attack[:passwd]}"
+      vultest_processing.attack[:passwd] = command[2]
+      puts "ATTACKPASSWD => #{vultest_processing.attack[:passwd]}"
     else puts "Not fund option (#{command[1]})"
     end
 
   when /report/i
-    if cve.nil?
-      Utility.print_message('error', 'You have to set CVE.')
-      next
-    end
-
-    if config_path[:vulenv].nil?
-      Utility.print_message('error', 'Cannot have vulnerable environmently configure')
-      next
-    end
-
-    VultestReport.report(cve, test_dir, config_path)
-    Exploit.verify
+    vultest_processing.create_report
 
   when /destroy/i
-    if cve.nil?
-      Utility.print_message('error', 'Firstly, executing test command')
-      next
-    end
-
-    Vulenv.destroy(test_dir)
+    vultest_processing.destroy_vulenv!
 
   when /back/i
     prompt = 'vultest'
+    vultest_processing = ProcessVultest.new
 
   when nil
     next

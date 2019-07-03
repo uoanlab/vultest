@@ -70,7 +70,7 @@ module Vulenv
     end
   end
 
-  def destroy(vulenv_dir)
+  def destroy!(vulenv_dir)
     Dir.chdir(vulenv_dir) do
       Utility.tty_spinner_begin('Vulnerable environment destroy')
       stdout, stderr, status = Open3.capture3('vagrant destroy -f')
@@ -123,10 +123,6 @@ module Vulenv
       vulenv: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}", 
       attack: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}"
     }
-
   end
 
-  module_function :create
-  module_function :select
-  module_function :destroy
 end
