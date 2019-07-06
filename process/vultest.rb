@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative './attack/exploit'
-require_relative './env/vulenv'
-require_relative './report/vultest_report'
-require_relative './utility'
+require_relative '../attack/exploit'
+require_relative '../env/vulenv'
+require_relative '../report/vultest_report'
+require_relative '../utility'
 
 class ProcessVultest
   attr_reader :cve
