@@ -17,7 +17,7 @@ require 'optparse'
 require 'pastel'
 require 'tty-font'
 
-require_relative './process_vultest'
+require_relative './process'
 require_relative './utility'
 
 vultest_processing = ProcessVultest.new
