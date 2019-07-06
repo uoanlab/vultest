@@ -14,7 +14,7 @@
 
 require_relative '../attack/exploit'
 require_relative '../env/vulenv'
-require_relative '../report/vultest_report'
+require_relative '../report/vultest'
 require_relative '../utility'
 
 class ProcessVultest
