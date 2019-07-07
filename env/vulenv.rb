@@ -18,111 +18,131 @@ require_relative '../utility'
 require_relative './tools/vagrant'
 require_relative './tools/ansible'
 
-module Vulenv
+class Vulenv
+  attr_reader vulenv_config, attack_config
 
-  def create(vulenv_config_path, vulenv_dir)
+  def initialize(cve, vulenv_dir)
+    @config = Utility.get_config
+    @vulenv_dirr = vulenv_dir
+    FileUtils.mkdir_p(@vulenv_dir)
 
-    FileUtils.mkdir_p(vulenv_dir)
-    Vagrant.create(vulenv_config_path, vulenv_dir)
-    Ansible.create(vulenv_config_path, vulenv_dir)
+    select(cve)
+  end
 
-    vulenv_config = YAML.load_file(vulenv_config_path)
+  def create
+    create_vagrant
+    create_ansible
 
     Utility.print_message('execute', 'Create vulnerability environment')
-    Dir.chdir(vulenv_dir) do
+    Dir.chdir(@vulenv_dir) do
       Utility.tty_spinner_begin('Start up')
-      stdout, stderr, status = Open3.capture3('vagrant up')
+      start_vulenv == 'success' ? Utility.tty_spinner_end('success') : Utility.tty_spinner_end('error')
 
-      if status.exitstatus != 0
-        reload_stdout, reload_stderr, reload_status = Open3.capture3('vagrant reload')
-
-        if reload_status.exitstatus != 0
-          Utility.tty_spinner_end('error')
-          return 'error'
-        end
+      if @vulenv_config.key?('reload')
+        Utility.tty_spinner_begin('Reload')
+        reload_vulenv == 'success' ? Utility.tty_spinner_end('success') : Utility.tty_spinner_end('error')
       end
-
-      if vulenv_config.key?('reload')
-        reload_status, reload_stderr, reload_status = Open3.capture3('vagrant reload')
-        if reload_status.exitstatus != 0 
-          Utility.tty_spinner_end('error')
-          return 'error'
-        end
-      end
-
-      Utility.tty_spinner_end('success')
 
       if vulenv_config['construction'].key?('hard_setup')
         vulenv_config['construction']['hard_setup']['msg'].each { |msg| Utility.print_message('caution', msg) }
         Open3.capture3('vagrant halt')
 
-        puts 'Please enter key when ready'
-        input = gets
+        puts('Please enter key when ready')
+        gets
 
         Utility.tty_spinner_begin('Reload')
-        stdout, stderr, status = Open3.capture3('vagrant up')
-        if status.exitstatus != 0
-          Utility.tty_spinner_end('error')
-          return 'error'
-        end
-        Utility.tty_spinner_end('success')
+        hard_setup == 'success' ? Utility.tty_spinner_end('success') : Utility.tty_spinner_end('error')
       end
     end
   end
 
-  def destroy!(vulenv_dir)
-    Dir.chdir(vulenv_dir) do
+  def destroy!
+    Dir.chdir(@vulenv_dir) do
       Utility.tty_spinner_begin('Vulnerable environment destroy')
-      stdout, stderr, status = Open3.capture3('vagrant destroy -f')
-      if status.exitstatus != 0
+      _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
+      unless status.exitstatus.zero?
         Utility.tty_spinner_end('error')
-        exit!
+        return
       end
     end
 
-    stdout, stderr, status = Open3.capture3("rm -rf #{vulenv_dir}")
-    if status.exitstatus != 0
+    _stdout, _stderr, status = Open3.capture3("rm -rf #{vulenv_dir}")
+    unless status.exitstatus.zero?
       Utility.tty_spinner_end('error')
-      exit!
+      return
     end
-
     Utility.tty_spinner_end('success')
   end
 
-  def select(cve)
-    vul_configs = DB.get_vul_configs(cve)
+  class << self
+    def select(cve)
+      vul_configs = DB.get_vul_configs(cve)
 
-    table_index = 1
-    vulenv_name_list = []
-    vulenv_table = []
-    vulenv_index_info = {}
-    vul_configs.each do |vul_config|
-      vulenv_table.push([table_index, vul_config['name']])
-      vulenv_index_info[vul_config['name']] = table_index
-      vulenv_name_list << vul_config['name']
-      table_index += 1
+      if vul_configs.empty?
+        puts('Cannot test vulnerability because the software doesn\'t have config file')
+        return
+      end
+
+      vulenv_table = create_table
+      message = 'Select an id for testing vulnerability envrionment?'
+      select_vulenv_name = Utility.tty_prompt(message, vulenv_table[:name_list])
+      select_id = vulenv_index_info[:index_info][select_vulenv_name]
+
+      @vulenv_config = YAML.load_file("#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}")
+      @attack_config = YAML.load_file("#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}")
     end
 
-    return nil, nil if table_index == 1
+    def create_table
+      name_list = []
+      table = []
+      index_info = {}
+      vul_configs.each do |vul_config|
+        table.push([table_index, vul_config['name']])
+        index_info[vul_config['name']] = table_index
+        name_list << vul_config['name']
+      end
 
-    puts 'Vulnerability environment list'
-    header = ['id', 'vulenv name']
-    table = TTY::Table.new header, vulenv_table
-    table.render(:ascii).each_line do |line|
-      puts line.chomp
+      puts('Vulnerability environment list')
+      header = ['id', 'vulenv name']
+      table = TTY::Table.new header, table
+      table.render(:ascii).each_line do |line|
+        puts line.chomp
+      end
+
+      { name_list: name_list, index_info: index_info }
     end
-    print "\n"
 
-    message = 'Select an id for testing vulnerability envrionment?'
-    select_vulenv_name = Utility.tty_prompt(message, vulenv_name_list)
-    select_id = vulenv_index_info[select_vulenv_name]
+    def create_vagrant
+      puts 'vagrant'
+    end
 
-    config = Utility.get_config
+    def create_ansible
+      puts 'heeloo'
+    end
 
-    {
-      vulenv: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}", 
-      attack: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}"
-    }
+    def start_vulenv
+      _stdout, _stderr, status = Open3.capture3('vagrant up')
+      reload_vulenv unless status.exitstatus.zero?
+
+      'success'
+    end
+
+    def reload_vulenv
+      _stdout, _stderr, status = Open3.capture3('vagrant reload')
+      return 'error' unless status.exitstatus.zero?
+
+      'success'
+    end
+
+    def hard_setup
+      @vulenv_config['construction']['hard_setup']['msg'].each { |msg| Utility.print_message('caution', msg) }
+      Open3.capture3('vagrant halt')
+
+      puts('Please enter key when ready')
+      gets
+
+      Utility.tty_spinner_begin('Reload')
+      start_vulenv
+    end
   end
-
 end
