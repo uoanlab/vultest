@@ -18,7 +18,7 @@ require 'pastel'
 require 'tty-font'
 
 require_relative './process/vultest'
-require_relative './utility'
+require_relative './ui'
 
 vultest_processing = ProcessVultest.new
 
@@ -38,7 +38,7 @@ if ARGV.size != 0
 
   sleep(10)
   vultest_processing.attack_vulenv
-  vultest_processing.create_report
+  vultest_processing.create_vultest_report
 
   vultest_processing.destroy_vulenv! if options['destroy'] == 'yes'
   exit!
@@ -66,13 +66,13 @@ loop do
 
   when /set/i
     if command.length != 3
-      Utility.print_message('error', 'Inadequate option')
+      VultestUI.print_vultest_message('error', 'Inadequate option')
       next
     end
 
     if command[1] =~ /testdir/i
       unless vultest_processing::cve.nil?
-        Utility.print_message('error', 'Cannot execute set command')
+        VultestUI.print_vultest_message('error', 'Cannot execute set command')
         next
       end
 
@@ -102,7 +102,7 @@ loop do
     end
 
   when /report/i
-    vultest_processing.create_report
+    vultest_processing.execute_vultest_report
 
   when /destroy/i
     vultest_processing.destroy_vulenv!
@@ -115,7 +115,7 @@ loop do
     next
 
   else
-    Utility.print_message('error', 'command not found')
+    VultestUI.print_vultest_message('error', 'command not found')
   end
 
 end
