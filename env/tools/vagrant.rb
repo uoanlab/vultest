@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative '../../utility'
+require 'fileutils'
 
-module Vagrant
-
-  def create(vul_config_file, vulenv_dir)
-    vul_config = YAML.load_file(vul_config_file)
-
-    FileUtils.cp_r("./build/vagrant/#{vul_config['construction']['os']['name']}/#{vul_config['construction']['os']['version']}/Vagrantfile", "#{vulenv_dir}/Vagrantfile")
+class Vagrant
+  def initialize(config, env_dir)
+    @env_dir = env_dir
+    @os_name = config['construction']['os']['name']
+    @os_version = config['construction']['os']['version']
   end
 
-  module_function :create
-
+  def create
+    FileUtils.cp_r("./build/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
+  end
 end

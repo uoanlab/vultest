@@ -13,116 +13,113 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative '../db'
-require_relative '../utility'
+require 'bundler/setup'
+require 'fileutils'
+require 'open3'
+require 'tty-table'
+require 'yaml'
+
+require_relative './params'
 require_relative './tools/vagrant'
 require_relative './tools/ansible'
+require_relative '../db'
+require_relative '../ui'
 
-module Vulenv
+class Vulenv
+  attr_reader :vulenv_config, :attack_config
 
-  def create(vulenv_config_path, vulenv_dir)
+  include VulenvParams
 
-    FileUtils.mkdir_p(vulenv_dir)
-    Vagrant.create(vulenv_config_path, vulenv_dir)
-    Ansible.create(vulenv_config_path, vulenv_dir)
-
-    vulenv_config = YAML.load_file(vulenv_config_path)
-
-    Utility.print_message('execute', 'Create vulnerability environment')
-    Dir.chdir(vulenv_dir) do
-      Utility.tty_spinner_begin('Start up')
-      stdout, stderr, status = Open3.capture3('vagrant up')
-
-      if status.exitstatus != 0
-        reload_stdout, reload_stderr, reload_status = Open3.capture3('vagrant reload')
-
-        if reload_status.exitstatus != 0
-          Utility.tty_spinner_end('error')
-          return 'error'
-        end
-      end
-
-      if vulenv_config.key?('reload')
-        reload_status, reload_stderr, reload_status = Open3.capture3('vagrant reload')
-        if reload_status.exitstatus != 0 
-          Utility.tty_spinner_end('error')
-          return 'error'
-        end
-      end
-
-      Utility.tty_spinner_end('success')
-
-      if vulenv_config['construction'].key?('hard_setup')
-        vulenv_config['construction']['hard_setup']['msg'].each { |msg| Utility.print_message('caution', msg) }
-        Open3.capture3('vagrant halt')
-
-        puts 'Please enter key when ready'
-        input = gets
-
-        Utility.tty_spinner_begin('Reload')
-        stdout, stderr, status = Open3.capture3('vagrant up')
-        if status.exitstatus != 0
-          Utility.tty_spinner_end('error')
-          return 'error'
-        end
-        Utility.tty_spinner_end('success')
-      end
-    end
+  def initialize(cve, vulenv_dir)
+    @config = YAML.load_file('./config.yml')
+    @vulenv_dir = vulenv_dir
+    FileUtils.mkdir_p(@vulenv_dir)
+    select_vulenv(cve)
   end
 
-  def destroy!(vulenv_dir)
-    Dir.chdir(vulenv_dir) do
-      Utility.tty_spinner_begin('Vulnerable environment destroy')
-      stdout, stderr, status = Open3.capture3('vagrant destroy -f')
-      if status.exitstatus != 0
-        Utility.tty_spinner_end('error')
-        exit!
-      end
-    end
-
-    stdout, stderr, status = Open3.capture3("rm -rf #{vulenv_dir}")
-    if status.exitstatus != 0
-      Utility.tty_spinner_end('error')
-      exit!
-    end
-
-    Utility.tty_spinner_end('success')
-  end
-
-  def select(cve)
+  def select_vulenv(cve)
     vul_configs = DB.get_vul_configs(cve)
 
+    if vul_configs.empty?
+      puts('Cannot test vulnerability because the software doesn\'t have config file')
+      return
+    end
+
+    vulenv_table = create_table(vul_configs)
+    message = 'Select an id for testing vulnerability envrionment?'
+    select_vulenv_name = VultestUI.tty_prompt(message, vulenv_table[:name_list])
+    select_id = vulenv_table[:index_info][select_vulenv_name]
+
+    @vulenv_config = YAML.load_file("#{@config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}")
+    @attack_config = YAML.load_file("#{@config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}")
+  end
+
+  def create
+    prepare_vulenv
+
+    VultestUI.print_vultest_message('execute', 'Create vulnerability environment')
+    Dir.chdir(@vulenv_dir) do
+      start_vulenv
+      reload_vulenv if @vulenv_config.key?('reload')
+      hard_setup if @vulenv_config['construction'].key?('hard_setup')
+    end
+  end
+
+  def destroy!
+    Dir.chdir(@vulenv_dir) do
+      VultestUI.tty_spinner_begin('Vulnerable environment destroy')
+      _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
+      unless status.exitstatus.zero?
+        VultestUI.tty_spinner_end('error')
+        return
+      end
+    end
+
+    _stdout, _stderr, status = Open3.capture3("rm -rf #{@vulenv_dir}")
+    unless status.exitstatus.zero?
+      VultestUI.tty_spinner_end('error')
+      return
+    end
+
+    VultestUI.tty_spinner_end('success')
+  end
+
+  private
+
+  def create_table(vul_configs)
     table_index = 1
-    vulenv_name_list = []
-    vulenv_table = []
-    vulenv_index_info = {}
+    name_list = []
+    table = []
+    index_info = {}
     vul_configs.each do |vul_config|
-      vulenv_table.push([table_index, vul_config['name']])
-      vulenv_index_info[vul_config['name']] = table_index
-      vulenv_name_list << vul_config['name']
+      table.push([table_index, vul_config['name']])
+      index_info[vul_config['name']] = table_index
+      name_list << vul_config['name']
       table_index += 1
     end
 
-    return nil, nil if table_index == 1
-
-    puts 'Vulnerability environment list'
+    puts('Vulnerability environment list')
     header = ['id', 'vulenv name']
-    table = TTY::Table.new header, vulenv_table
+    table = TTY::Table.new header, table
     table.render(:ascii).each_line do |line|
       puts line.chomp
     end
-    print "\n"
 
-    message = 'Select an id for testing vulnerability envrionment?'
-    select_vulenv_name = Utility.tty_prompt(message, vulenv_name_list)
-    select_id = vulenv_index_info[select_vulenv_name]
-
-    config = Utility.get_config
-
-    {
-      vulenv: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}", 
-      attack: "#{config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}"
-    }
+    { name_list: name_list, index_info: index_info }
   end
 
+  def prepare_vulenv
+    create_vagrant
+    create_ansible
+  end
+
+  def create_vagrant
+    vagrant = Vagrant.new(@vulenv_config, @vulenv_dir)
+    vagrant.create
+  end
+
+  def create_ansible
+    ansible = Ansible.new(@config, @vulenv_config, @vulenv_dir)
+    ansible.create
+  end
 end
