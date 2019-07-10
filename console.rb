@@ -27,7 +27,7 @@ class VultestConsole
     pastel = Pastel.new
     puts pastel.red(font.write('VULTEST'))
 
-    @prompt = TTY::Prompt.new(active_color: :cyan, track_history: true)
+    @prompt = TTY::Prompt.new(active_color: :cyan, help_color: :bright_white, track_history: true)
     @prompt_name = 'vultest'
     @vultest_processing = ProcessVultest.new
   end
@@ -67,7 +67,7 @@ class VultestConsole
   end
 
   def destroy_command
-    @vultest_processing.destroy_vulenv!
+    @vultest_processing.destroy_vulenv! unless @prompt.no?('Delete vulnerable environment?')
   end
 
   def back_command
