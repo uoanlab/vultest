@@ -14,43 +14,29 @@
 
 require 'bundler/setup'
 require 'optparse'
-require 'pastel'
-require 'tty-font'
 
-require_relative './process/vultest'
 require_relative './console'
 require_relative './option'
-require_relative './ui'
 
 unless ARGV.size.zero?
   options = ARGV.getopts('h', 'cve:', 'test:yes', 'attack_user:', 'attack_passwd:', 'attack_host:', 'dir:', 'destroy:')
-  VultestOptionExecute.execute(options)
+  VultestOptionExecute.execute_vultest(options)
   exit!
 end
 
 console = VultestConsole.new
 loop do
-  print "#{console.prompt} > "
-  command = gets.chomp.split(' ')
+  command = console.prompt.ask("#{console.prompt_name} >").split(' ')
 
   case command[0]
-  when /test/i
-    console.test_command(command[1])
-  when /exit/i
-    break
-  when /exploit/i
-    console.exploit_command
-  when /set/i
-    console.option_command(command)
-  when /report/i
-    console.report_command
-  when /destroy/i
-    console.destroy_command
-  when /back/i
-    console = VultestConsole.new
-  when nil
-    next
-  else
-    VultestUI.print_vultest_message('error', 'command not found')
+  when /test/i then console.execute_test_command(command[1])
+  when /exit/i then break
+  when /exploit/i then console.execute_exploit_command
+  when /set/i then console.execute_option_command(command)
+  when /report/i then console.execute_report_command
+  when /destroy/i then console.execute_destroy_command
+  when /back/i then console.execute_back_command
+  when nil then next
+  else console.prompt.error("vultest: command not found: #{command[0]}")
   end
 end

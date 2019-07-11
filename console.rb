@@ -15,34 +15,35 @@
 require 'bundler/setup'
 require 'pastel'
 require 'tty-font'
+require 'tty-prompt'
 
 require_relative './process/vultest'
-require_relative './ui'
 
 class VultestConsole
-  attr_reader :prompt
+  attr_reader :prompt, :prompt_name
 
   def initialize
     font = TTY::Font.new(:"3d")
     pastel = Pastel.new
     puts pastel.red(font.write('VULTEST'))
 
-    @prompt = 'vultest'
+    @prompt = TTY::Prompt.new(active_color: :cyan, help_color: :bright_white, track_history: true)
+    @prompt_name = 'vultest'
     @vultest_processing = ProcessVultest.new
   end
 
-  def test_command(cve)
+  def execute_test_command(cve)
     @vultest_processing.create_vulenv(cve)
-    @prompt = @vultest_processing.cve unless @vultest_processing.cve.nil?
+    @prompt_name = @vultest_processing.cve unless @vultest_processing.cve.nil?
   end
 
-  def exploit_command
+  def execute_exploit_command
     @vultest_processing.attack_vulenv
   end
 
-  def option_command(command)
+  def execute_option_command(command)
     if command.length != 3
-      VultestUI.print_vultest_message('error', 'Inadequate option')
+      @prompt.error('Don\'t use set command by wrong way')
       return
     end
 
@@ -50,30 +51,35 @@ class VultestConsole
       option_testdir(command[2])
     elsif command[1] =~ /attackhost/i
       @vultest_processing.attack[:host] = command[2]
-      puts("ATTACKHOST => #{@vultest_processing.attack[:host]}")
+      @prompt.ok("ATTACKHOST => #{@vultest_processing.attack[:host]}")
     elsif command[1] =~ /attackuser/i
       @vultest_processing.attack[:user] = command[2]
-      puts("ATTACKERUSER => #{@vultest_processing.attack[:user]}")
+      @prompt.ok("ATTACKERUSER => #{@vultest_processing.attack[:user]}")
     elsif command[1] =~ /attackpasswd/i
       @vultest_processing.attack[:passwd] = command[2]
-      puts("ATTACKPASSWD => #{@vultest_processing.attack[:passwd]}")
-    else puts("Not fund option (#{command[1]})")
+      @prompt.ok("ATTACKPASSWD => #{@vultest_processing.attack[:passwd]}")
+    else @prompt.error("Invalid option (#{command[1]})")
     end
   end
 
-  def report_command
+  def execute_report_command
     @vultest_processing.execute_vultest_report
   end
 
-  def destroy_command
-    @vultest_processing.destroy_vulenv!
+  def execute_destroy_command
+    @vultest_processing.destroy_vulenv! unless @prompt.no?('Delete vulnerable environment?')
+  end
+
+  def execute_back_command
+    @prompt_name = 'vultest'
+    @vultest_processing = ProcessVultest.new
   end
 
   private
 
   def option_testdir(option_value)
     unless @vultest_processing.cve.nil?
-      VultestUI.print_vultest_message('error', 'Cannot execute set command')
+      @prompt.error('Cannot execute set command after you executed test command')
       return
     end
 
@@ -90,6 +96,6 @@ class VultestConsole
       end
     end
     @vultest_processing.test_dir = path
-    puts("TESTDIR => #{@vultest_processing.test_dir}")
+    @prompt.ok("TESTDIR => #{@vultest_processing.test_dir}")
   end
 end

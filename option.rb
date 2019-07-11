@@ -16,7 +16,7 @@ require_relative './process/vultest'
 
 module VultestOptionExecute
   class << self
-    def execute(options)
+    def execute_vultest(options)
       vultest_processing = ProcessVultest.new
       return if options['cve'].nil?
 

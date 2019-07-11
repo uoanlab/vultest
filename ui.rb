@@ -15,11 +15,9 @@
 require 'bundler/setup'
 require 'rainbow'
 require 'tty-spinner'
-require 'tty-prompt'
 
 module VultestUI
   @execute_symbol = Rainbow('[*]').blue
-  @caution_symbol = Rainbow('[>]').indianred
   @error_symbol = Rainbow('[-]').red
   @output_symbol = Rainbow('[o]').magenta
   @success_mark = Rainbow('+').cyan
@@ -45,11 +43,6 @@ module VultestUI
 
     def tty_spinner_end(status)
       status == 'success' ? @spinner.success : @spinner.error
-    end
-
-    def tty_prompt(message, list)
-      prompt = TTY::Prompt.new
-      prompt.enum_select("#{@caution_symbol} #{message}", list)
     end
   end
 end
