@@ -32,16 +32,16 @@ class VultestConsole
     @vultest_processing = ProcessVultest.new
   end
 
-  def test_command(cve)
+  def execute_test_command(cve)
     @vultest_processing.create_vulenv(cve)
     @prompt_name = @vultest_processing.cve unless @vultest_processing.cve.nil?
   end
 
-  def exploit_command
+  def execute_exploit_command
     @vultest_processing.attack_vulenv
   end
 
-  def option_command(command)
+  def execute_option_command(command)
     if command.length != 3
       @prompt.error('Don\'t use set command by wrong way')
       return
@@ -62,15 +62,15 @@ class VultestConsole
     end
   end
 
-  def report_command
+  def execute_report_command
     @vultest_processing.execute_vultest_report
   end
 
-  def destroy_command
+  def execute_destroy_command
     @vultest_processing.destroy_vulenv! unless @prompt.no?('Delete vulnerable environment?')
   end
 
-  def back_command
+  def execute_back_command
     @prompt_name = 'vultest'
     @vultest_processing = ProcessVultest.new
   end

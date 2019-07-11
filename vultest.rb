@@ -29,13 +29,13 @@ loop do
   command = console.prompt.ask("#{console.prompt_name} >").split(' ')
 
   case command[0]
-  when /test/i then console.test_command(command[1])
+  when /test/i then console.execute_test_command(command[1])
   when /exit/i then break
-  when /exploit/i then console.exploit_command
-  when /set/i then console.option_command(command)
-  when /report/i then console.report_command
-  when /destroy/i then console.destroy_command
-  when /back/i then console.back_command
+  when /exploit/i then console.execute_exploit_command
+  when /set/i then console.execute_option_command(command)
+  when /report/i then console.execute_report_command
+  when /destroy/i then console.execute_destroy_command
+  when /back/i then console.execute_back_command
   when nil then next
   else console.prompt.error("vultest: command not found: #{command[0]}")
   end
