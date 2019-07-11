@@ -17,6 +17,7 @@ require 'bundler/setup'
 require 'fileutils'
 require 'open3'
 require 'tty-table'
+require 'tty-prompt'
 require 'yaml'
 
 require_relative './params'
@@ -47,7 +48,9 @@ class Vulenv
 
     vulenv_table = create_table(vul_configs)
     message = 'Select an id for testing vulnerability envrionment?'
-    select_vulenv_name = VultestUI.tty_prompt(message, vulenv_table[:name_list])
+    select_prompt = TTY::Prompt.new
+    select_vulenv_name = select_prompt.enum_select(message, vulenv_table[:name_list])
+
     select_id = vulenv_table[:index_info][select_vulenv_name]
 
     @vulenv_config = YAML.load_file("#{@config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}")
