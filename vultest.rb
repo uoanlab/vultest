@@ -20,7 +20,7 @@ require_relative './option'
 
 unless ARGV.size.zero?
   options = ARGV.getopts('h', 'cve:', 'test:yes', 'attack_user:', 'attack_passwd:', 'attack_host:', 'dir:', 'destroy:')
-  VultestOptionExecute.execute(options)
+  VultestOptionExecute.execute_vultest(options)
   exit!
 end
 
