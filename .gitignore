@@ -5,6 +5,3 @@
 .bundle
 vendor
 Gemfile.lock
-
-#rubcop
-.rubocop.yml
