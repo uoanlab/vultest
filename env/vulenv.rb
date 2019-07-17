@@ -127,7 +127,7 @@ class Vulenv
     ansible = Ansible.new(
       cve: @vulenv_config['cve'],
       db_path: @config['vultest_db_path'],
-      attack_vector: @config['attack_vector'],
+      attack_vector: @vulenv_config['attack_vector'],
       env_config: @vulenv_config['construction'],
       env_dir: @vulenv_dir
     )
