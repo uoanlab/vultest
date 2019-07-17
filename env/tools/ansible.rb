@@ -13,18 +13,21 @@
 # limitations under the License.
 
 require 'fileutils'
+
 require_relative '../../build/params'
 
 class Ansible
   include ConstructionParams
 
-  def initialize(config, env_config, env_dir)
-    @config = config
-    @env_config = env_config
-    @env_dir = env_dir
+  def initialize(args = {})
+    @cve = args[:cve]
+    @db_path = args[:db_path]
+    @env_config = args[:env_config]
+
+    @attack_vector = args[:attack_vector]
 
     @ansible_dir = {}
-    @ansible_dir[:base] = "#{@env_dir}/ansible"
+    @ansible_dir[:base] = "#{args[:env_dir]}/ansible"
     @ansible_dir[:hosts] = "#{@ansible_dir[:base]}/hosts"
     @ansible_dir[:playbook] = "#{@ansible_dir[:base]}/playbook"
     @ansible_dir[:roles] =  "#{@ansible_dir[:base]}/roles"
@@ -39,11 +42,18 @@ class Ansible
   end
 
   def create
-    local(@ansible_dir) if @env_config['attack_vector'] == 'local'
-    user(@env_config, @ansible_dir) if @env_config['construction'].key?('user')
-    related_software(@env_config, @ansible_dir) if @env_config['construction'].key?('related_software')
-    vul_software(@env_config, @ansible_dir) if @env_config['construction'].key?('vul_software')
-    content(@config, @env_config, @ansible_dir) if @env_config['construction'].key?('content')
+    local(@ansible_dir[:roles]) if @attack_vector == 'local'
+
+    user(users: @env_config['user'], role_dir: @ansible_dir[:roles]) if @env_config.key?('user')
+
+    default_method = @env_config['os'].key?('default_method') ? @env_config['os']['default_method'] : nil
+    if @env_config.key?('related_software')
+      related_software(default_method: default_method, softwares: @env_config['related_software'], role_dir: @ansible_dir[:roles])
+    end
+    vul_software(default_method: default_method, vul_software: @env_config['vul_software'], role_dir: @ansible_dir[:roles]) if @env_config.key?('vul_software')
+
+    content(db: @db_path, cve: @cve, content_info: @env_config['content'], role_dir: @ansible_dir[:roles]) if @env_config.key?('content')
+
     create_playbook
   end
 
@@ -52,17 +62,17 @@ class Ansible
   def create_playbook
     File.open("#{@ansible_dir[:playbook]}/main.yml", 'w') do |playbook_file|
       playbook_file.puts("---\n- hosts: vagrant\n  connection: local \n  become: yes \n  roles: ")
-      playbook_file.puts('    - ../roles/user') if @env_config['construction'].key?('user')
+      playbook_file.puts('    - ../roles/user') if @env_config.key?('user')
 
-      if @env_config['construction'].key?('related_software')
-        @env_config['construction']['related_software'].each do |software|
+      if @env_config.key?('related_software')
+        @env_config['related_software'].each do |software|
           playbook_file.puts("    - ../roles/#{software['name']} ")
         end
       end
 
-      playbook_file.puts("    - ../roles/#{@env_config['construction']['vul_software']['name']} ") if @env_config['construction'].key?('vul_software')
-      playbook_file.puts("    - ../roles/#{@env_config['cve']} ") if @env_config['construction'].key?('content')
-      playbook_file.puts('    - ../roles/metasploit') if @env_config['attack_vector'] == 'local'
+      playbook_file.puts("    - ../roles/#{@env_config['vul_software']['name']} ") if @env_config.key?('vul_software')
+      playbook_file.puts("    - ../roles/#{@cve} ") if @env_config.key?('content')
+      playbook_file.puts('    - ../roles/metasploit') if @attack_vector == 'local'
     end
   end
 end

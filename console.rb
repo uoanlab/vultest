@@ -29,11 +29,14 @@ class VultestConsole
 
     @prompt = TTY::Prompt.new(active_color: :cyan, help_color: :bright_white, track_history: true)
     @prompt_name = 'vultest'
+  end
+
+  def initialize_vultest_processing
     @vultest_processing = ProcessVultest.new
   end
 
-  def execute_test_command(cve)
-    @vultest_processing.create_vulenv(cve)
+  def execute_test_command(args)
+    @vultest_processing.create_vulenv(args[:cve])
     @prompt_name = @vultest_processing.cve unless @vultest_processing.cve.nil?
   end
 
@@ -41,24 +44,19 @@ class VultestConsole
     @vultest_processing.attack_vulenv
   end
 
-  def execute_option_command(command)
-    if command.length != 3
-      @prompt.error('Don\'t use set command by wrong way')
-      return
-    end
-
-    if command[1] =~ /testdir/i
-      option_testdir(command[2])
-    elsif command[1] =~ /attackhost/i
-      @vultest_processing.attack[:host] = command[2]
+  def execute_option_command(args)
+    if args[:option_type] =~ /testdir/i
+      option_testdir(dir: args[:option_value])
+    elsif args[:option_type] =~ /attackhost/i
+      @vultest_processing.attack[:host] = args[:option_value]
       @prompt.ok("ATTACKHOST => #{@vultest_processing.attack[:host]}")
-    elsif command[1] =~ /attackuser/i
-      @vultest_processing.attack[:user] = command[2]
+    elsif args[:option_type] =~ /attackuser/i
+      @vultest_processing.attack[:user] = args[:option_value]
       @prompt.ok("ATTACKERUSER => #{@vultest_processing.attack[:user]}")
-    elsif command[1] =~ /attackpasswd/i
-      @vultest_processing.attack[:passwd] = command[2]
+    elsif args[:option_type] =~ /attackpasswd/i
+      @vultest_processing.attack[:passwd] = args[:option_value]
       @prompt.ok("ATTACKPASSWD => #{@vultest_processing.attack[:passwd]}")
-    else @prompt.error("Invalid option (#{command[1]})")
+    else @prompt.error("Invalid option (#{args[:option_type]})")
     end
   end
 
@@ -77,14 +75,14 @@ class VultestConsole
 
   private
 
-  def option_testdir(option_value)
+  def option_testdir(args)
     unless @vultest_processing.cve.nil?
       @prompt.error('Cannot execute set command after you executed test command')
       return
     end
 
     path = ''
-    path_elm = option_value.split('/')
+    path_elm = args[:dir].split('/')
 
     path_elm.each do |elm|
       path.concat('/') unless path.empty?

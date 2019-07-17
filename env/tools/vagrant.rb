@@ -15,10 +15,10 @@
 require 'fileutils'
 
 class Vagrant
-  def initialize(config, env_dir)
-    @env_dir = env_dir
-    @os_name = config['construction']['os']['name']
-    @os_version = config['construction']['os']['version']
+  def initialize(args = {})
+    @env_dir = args[:env_dir]
+    @os_name = args[:os_name]
+    @os_version = args[:os_version]
   end
 
   def create

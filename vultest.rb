@@ -25,14 +25,21 @@ unless ARGV.size.zero?
 end
 
 console = VultestConsole.new
+console.initialize_vultest_processing
+
 loop do
   command = console.prompt.ask("#{console.prompt_name} >").split(' ')
 
   case command[0]
-  when /test/i then console.execute_test_command(command[1])
+  when /test/i then console.execute_test_command(cve: command[1])
   when /exit/i then break
   when /exploit/i then console.execute_exploit_command
-  when /set/i then console.execute_option_command(command)
+  when /set/i
+    if command.length != 3
+      console.prompt.error('Don\'t use set command by wrong way')
+      return
+    end
+    console.execute_option_command(option_type: command[1], option_value: command[2])
   when /report/i then console.execute_report_command
   when /destroy/i then console.execute_destroy_command
   when /back/i then console.execute_back_command

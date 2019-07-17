@@ -31,11 +31,11 @@ class Vulenv
 
   include VulenvParams
 
-  def initialize(cve, vulenv_dir)
+  def initialize(args)
     @config = YAML.load_file('./config.yml')
-    @vulenv_dir = vulenv_dir
+    @vulenv_dir = args[:vulenv_dir]
     FileUtils.mkdir_p(@vulenv_dir)
-    select_vulenv(cve)
+    select_vulenv(args[:cve])
   end
 
   def select_vulenv(cve)
@@ -117,12 +117,20 @@ class Vulenv
   end
 
   def create_vagrant
-    vagrant = Vagrant.new(@vulenv_config, @vulenv_dir)
+    os_name = @vulenv_config['construction']['os']['name']
+    os_version = @vulenv_config['construction']['os']['version']
+    vagrant = Vagrant.new(os_name: os_name, os_version: os_version, env_dir: @vulenv_dir)
     vagrant.create
   end
 
   def create_ansible
-    ansible = Ansible.new(@config, @vulenv_config, @vulenv_dir)
+    ansible = Ansible.new(
+      cve: @vulenv_config['cve'],
+      db_path: @config['vultest_db_path'],
+      attack_vector: @config['attack_vector'],
+      env_config: @vulenv_config['construction'],
+      env_dir: @vulenv_dir
+    )
     ansible.create
   end
 end

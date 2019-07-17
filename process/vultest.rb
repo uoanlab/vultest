@@ -40,7 +40,7 @@ class ProcessVultest
       return
     end
 
-    @vulenv = Vulenv.new(@cve, @test_dir)
+    @vulenv = Vulenv.new(cve: @cve, vulenv_dir: @test_dir)
     @vulenv.create
   end
 
