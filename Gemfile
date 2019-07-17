@@ -25,3 +25,6 @@ gem 'msgpack'
 
 # ssh
 gem 'net-ssh'
+
+# RuboCop
+gem 'rubocop'
