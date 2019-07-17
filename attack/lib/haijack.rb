@@ -15,18 +15,18 @@
 module HaijackMethod
   private
 
-  def shell(msf_api, session_id)
+  def shell(args)
     loop do
       print 'shell > '
       command = gets.chomp.split(' ')[0]
       next if command.nil?
       return if command == 'exit'
 
-      msf_api.shell_write(session_id, command)
+      args[:api].shell_write(id: args[:id], command: command)
       success_flag = false
       60.times do
         sleep(1)
-        res = msf_api.shell_read(session_id)
+        res = args[:api].shell_read(args[:id])
         next if res['data'].empty?
 
         puts res['data']
@@ -37,18 +37,18 @@ module HaijackMethod
     end
   end
 
-  def meterpreter(msf_api, session_id)
+  def meterpreter(args)
     loop do
       print 'meterpreter > '
       command = gets.chomp.split(' ')[0]
       next if command.nil?
       break if command == 'exit'
 
-      msf_api.meterpreter_write(session_id, command)
+      args[:api].meterpreter_write(id: args[:id], command: command)
       success_flag = false
       60.times do
         sleep(1)
-        res = @msf_api.meterpreter_read(session_id)
+        res = args[:api].meterpreter_read(args[:id])
         next if res['data'].empty?
 
         puts res['data']

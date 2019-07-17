@@ -50,9 +50,19 @@ class ProcessVultest
     @attack[:host] = '192.168.33.10' if @vulenv.vulenv_config['attack_vector'] == 'local'
 
     @exploit = Exploit.new
-    @exploit.prepare_exploit(@attack, @test_dir, @vulenv.vulenv_config) if @vulenv.vulenv_config['attack_vector'] == 'remote'
+
+    if @vulenv.vulenv_config['attack_vector'] == 'remote'
+      @exploit.prepare_exploit(
+        host: @attack[:host],
+        user: @attack[:user],
+        passwd: @attack[:passwd],
+        target_dir: @test_dir,
+        target_config: @vulenv.vulenv_config
+      )
+    end
+
     @exploit.connect_metasploit(@attack[:host])
-    @exploit.execute_exploit(@attack[:host], @vulenv.attack_config)
+    @exploit.execute_exploit(attack_host: @attack[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
   end
 
   def execute_vultest_report

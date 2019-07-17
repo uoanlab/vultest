@@ -80,11 +80,11 @@ module ConstructionParams
     content_files(args) if Dir.exist?(select_content_files_dir)
   end
 
-  def prepare(env_dir, env_config)
+  def prepare(args)
     VultestUI.print_vultest_message('caution', 'Following execute command')
-    puts("  [1] cd #{env_dir}")
+    puts("  [1] cd #{args[:env_dir]}")
     puts('  [2] vagrant ssh')
-    env_config['construction']['prepare']['msg'].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
+    args[:prepare_msg].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
 
     VultestUI.print_vultest_message('caution', 'Press ENTER when you prepare vulnerable environment.')
     gets
