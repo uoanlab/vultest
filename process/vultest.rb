@@ -71,7 +71,7 @@ class ProcessVultest
       return
     end
 
-    create_report(@cve, @test_dir, @vulenv.vulenv_config, @vulenv.attack_config)
+    create_report(cve: @cve, test_dir: @test_dir, vulenv_config: @vulenv.vulenv_config, attack_config: @vulenv.attack_config)
     @exploit.verify_exploit
   end
 

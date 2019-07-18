@@ -18,13 +18,13 @@ require_relative '../db'
 module VultestReport
   private
 
-  def create_report(cve, test_dir, vulenv_config, attack_config)
+  def create_report(args = {})
     File.open("#{test_dir}/report.md", 'w') do |report_file|
       report_file.puts("# Vultest Report\n\n")
-      report_target_host(report_file, vulenv_config)
-      report_attack_method(report_file, attack_config)
-      report_cve_description(report_file, cve)
-      report_cpe(report_file, cve)
+      report_target_host(report_file, args[:vulenv_config])
+      report_attack_method(report_file, args[:attack_config])
+      report_cve_description(report_file, args[:cve])
+      report_cpe(report_file, args[:cve])
     end
 
     parsed = TTY::Markdown.parse_file("#{test_dir}/report.md")
