@@ -26,7 +26,9 @@ class VultestConsole
     font = TTY::Font.new(:"3d")
     pastel = Pastel.new
     puts pastel.red(font.write('VULTEST'))
+  end
 
+  def initialize_prompt
     @prompt = TTY::Prompt.new(active_color: :cyan, help_color: :bright_white, track_history: true)
     @prompt_name = 'vultest'
   end
@@ -36,7 +38,18 @@ class VultestConsole
   end
 
   def execute_test_command(args)
-    @vultest_processing.create_vulenv(args[:cve])
+    unless args[:cve] =~ /^(CVE|cve)-\d+\d+/i
+      @prompt.error('The CVE entered is incorrect')
+      return
+    end
+
+    unless @vultest_processing.cve.nil?
+      @prompt.error('Cannot run multiple vulnerable tests at the same time')
+      @prompt.error("Running the vulnerable test for #{@vultest_processing.cve}")
+      return
+    end
+
+    @vultest_processing.start_vultest(args[:cve])
     @prompt_name = @vultest_processing.cve unless @vultest_processing.cve.nil?
   end
 

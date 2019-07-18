@@ -32,16 +32,9 @@ class ProcessVultest
     @attack[:passwd] = ENV['ATTACKPASSWD'] if ENV.key?('ATTACKPASSWD')
   end
 
-  def create_vulenv(cve)
-    if cve =~ /^(CVE|cve)-\d+\d+/i
-      @cve = cve
-    else
-      VultestUI.print_vultest_message('error', 'Incorrect CVE')
-      return
-    end
-
-    @vulenv = Vulenv.new(cve: @cve, vulenv_dir: @test_dir)
-    @vulenv.create
+  def start_vultest(cve)
+    @cve = cve
+    create_vulenv
   end
 
   def attack_vulenv
@@ -81,9 +74,12 @@ class ProcessVultest
       return
     end
     @vulenv.destroy!
+  end
 
-    @cve = nil
-    @vulenv = nil
-    @exploit = nil
+  private
+
+  def create_vulenv
+    @vulenv = Vulenv.new(cve: @cve, vulenv_dir: @test_dir)
+    @vulenv.create
   end
 end
