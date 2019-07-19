@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'bundler/setup'
 require 'open3'
 require 'tty-prompt'
 
@@ -37,7 +38,7 @@ module VulenvParams
   end
 
   def hard_setup
-    @vulenv_config['construction']['hard_setup']['msg'].each { |msg| VultestUI.print_vultest_message('caution', msg) }
+    @vulenv_config['construction']['hard_setup']['msg'].each { |msg| puts(" #{msg}") }
     Open3.capture3('vagrant halt')
 
     p = TTY::Prompt.new

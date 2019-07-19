@@ -62,7 +62,7 @@ class Vulenv
   def create
     prepare_vulenv
 
-    VultestUI.print_vultest_message('execute', 'Create vulnerability environment')
+    VultestUI.execute('Create vulnerability environment')
     Dir.chdir(@vulenv_dir) do
       start_vulenv
       reload_vulenv if @vulenv_config.key?('reload')

@@ -18,7 +18,7 @@ require_relative '../report/vultest'
 require_relative '../ui'
 
 class ProcessVultest
-  attr_reader :cve, :vulenv, :exploit
+  attr_reader :cve
   attr_accessor :attack, :test_dir
 
   include VultestReport
@@ -33,13 +33,18 @@ class ProcessVultest
   end
 
   def start_vultest(cve)
+    unless cve =~ /^(CVE|cve)-\d+\d+/i
+      VultestUI.error('The CVE entered is incorrect')
+      return
+    end
+
     @cve = cve
     create_vulenv
   end
 
   def start_attack
     if @vulenv.nil?
-      VultestUI.print_vultest_message('error', 'There is not the vulnerable environment which is attack target')
+      VultestUI.error('There is not the vulnerable environment which is attack target')
       return
     end
 
@@ -48,12 +53,12 @@ class ProcessVultest
 
   def start_vultest_report
     if @vulenv.nil?
-      VultestUI.print_vultest_message('error', 'There is no a vulnerable environment')
+      VultestUI.error('There is no a vulnerable environment')
       return
     end
 
     if @exploit.nil?
-      VultestUI.print_vultest_message('error', 'Execute exploit command')
+      VultestUI.error('Execute exploit command')
       return
     end
 
@@ -62,10 +67,23 @@ class ProcessVultest
   end
 
   def destroy_vulenv!
+    if @vulenv.nil?
+      VultestUI.error("There is not the vulnerable environment for #{@cve}")
+      return
+    end
+
     @vulenv.destroy!
     @vulenv = nil
 
-    VultestUI.print_vultest_message('execute', "Delete the vulnerable environment by #{@cve}")
+    VultestUI.execute("Delete the vulnerable environment for #{@cve}")
+  end
+
+  def connection_attack_host?
+    return false if @exploit.nil?
+
+    return false if @exploit.msf_api.nil?
+
+    true
   end
 
   private
@@ -82,8 +100,8 @@ class ProcessVultest
       @attack[:host] = '192.168.33.10'
     elsif @vulenv.vulenv_config['attack_vector']
       if @attack[:host].nil?
-        VultestUI.print_vultest_message('error', 'Cannot find the attack host')
-        VultestUI.print_vultest_message('warring', 'Execute : SET ATTACKHOST attack_host_ip_address')
+        VultestUI.error('Cannot find the attack host')
+        VultestUI.warring('Execute : SET ATTACKHOST attack_host_ip_address')
         return false
       end
       @exploit.prepare_exploit(host: @attack[:host], user: @attack[:user], passwd: @attack[:passwd])

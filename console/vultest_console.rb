@@ -41,27 +41,14 @@ class VultestConsole
   end
 
   def execute_test_command(args)
-    unless args[:cve] =~ /^(CVE|cve)-\d+\d+/i
-      @prompt.error('The CVE entered is incorrect')
-      return
+    during_vultest?(false, 'Cannot run multiple vulnerable tests at the same time') do
+      @vultest_processing.start_vultest(args[:cve])
+      @prompt_name = @vultest_processing.cve unless @vultest_processing.cve.nil?
     end
-
-    unless @vultest_processing.cve.nil?
-      @prompt.error('Cannot run multiple vulnerable tests at the same time')
-      @prompt.error("Running the vulnerable test for #{@vultest_processing.cve}")
-      return
-    end
-
-    @vultest_processing.start_vultest(args[:cve])
-    @prompt_name = @vultest_processing.cve unless @vultest_processing.cve.nil?
   end
 
   def execute_exploit_command
-    if @vultest_processing.cve.nil?
-      @prompt.error('Not during the execution of vulnerable test')
-      return
-    end
-    @vultest_processing.start_attack
+    during_vultest? { @vultest_processing.start_attack }
   end
 
   def execute_option_command(args)
@@ -80,26 +67,11 @@ class VultestConsole
   end
 
   def execute_report_command
-    if @vultest_processing.cve.nil?
-      @prompt.error('Not during the execution of vulnerable test')
-      return
-    end
-
-    @vultest_processing.start_vultest_report
+    during_vultest? { @vultest_processing.start_vultest_report }
   end
 
   def execute_destroy_command
-    if @vultest_processing.cve.nil?
-      @prompt.error('Not during the execution of vulnerable test')
-      return
-    end
-
-    if @vultest_processing.vulenv.nil?
-      @prompt.error("There is not the vulnerable environment by #{@vultest_processing.cve}")
-      return
-    end
-
-    @vultest_processing.destroy_vulenv! unless @prompt.no?('Delete vulnerable environment?')
+    during_vultest? { @vultest_processing.destroy_vulenv! unless @prompt.no?('Delete vulnerable environment?') }
   end
 
   def execute_back_command
@@ -110,16 +82,14 @@ class VultestConsole
   private
 
   def configure_testdir(dir)
-    unless @vultest_processing.cve.nil?
-      @prompt.error('Cannot change a environment of test in a vulnerable test')
-      return
+    during_vultest?(false, 'Cannot change a environment of test in a vulnerable test') do
+      @vultest_processing.test_dir = create_vulenv_dir(dir)
+      @prompt.ok("TESTDIR => #{@vultest_processing.test_dir}")
     end
-    @vultest_processing.test_dir = create_vulenv_dir(dir)
-    @prompt.ok("TESTDIR => #{@vultest_processing.test_dir}")
   end
 
   def configure_attack(option, value, &block)
-    if connection_attack_host?
+    if @vultest_processing.connection_attack_host?
       @prompt.error('Cannot change the attack option in attack')
       return
     end
@@ -127,11 +97,17 @@ class VultestConsole
     @prompt.ok("#{option} => #{value}")
   end
 
-  def connection_attack_host?
-    return false if @vultest_processing.exploit.nil?
+  def during_vultest?(flag = true, msg = 'Not during the execution of vulnerable test', &block)
+    if flag && @vultest_processing.cve.nil?
+      @prompt.error(msg)
+      return
+    end
 
-    return false if @vultest_processing.exploit.msf_api.nil?
+    unless flag || @vultest_processing.cve.nil?
+      @prompt.error(msg)
+      return
+    end
 
-    true
+    block.call
   end
 end
