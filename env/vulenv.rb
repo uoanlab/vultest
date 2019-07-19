@@ -21,6 +21,7 @@ require 'tty-prompt'
 require 'yaml'
 
 require_relative './params'
+require_relative '../build/params'
 require_relative './tools/vagrant'
 require_relative './tools/ansible'
 require_relative '../db'
@@ -30,6 +31,7 @@ class Vulenv
   attr_reader :vulenv_config, :attack_config
 
   include VulenvParams
+  include ConstructionParams
 
   def initialize(args)
     @config = YAML.load_file('./config.yml')
@@ -66,6 +68,8 @@ class Vulenv
       reload_vulenv if @vulenv_config.key?('reload')
       hard_setup if @vulenv_config['construction'].key?('hard_setup')
     end
+
+    prepare(env_dir: @vulenv_dir, prepare_msg: @vulenv_config['construction']['prepare']['msg']) if @vulenv_config['construction'].key?('prepare')
   end
 
   def destroy!

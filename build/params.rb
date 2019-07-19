@@ -81,12 +81,9 @@ module ConstructionParams
   end
 
   def prepare(args)
-    VultestUI.print_vultest_message('caution', 'Following execute command')
+    VultestUI.print_vultest_message('warring', 'Following execute command')
     puts("  [1] cd #{args[:env_dir]}")
     puts('  [2] vagrant ssh')
     args[:prepare_msg].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
-
-    VultestUI.print_vultest_message('caution', 'Press ENTER when you prepare vulnerable environment.')
-    gets
   end
 end
