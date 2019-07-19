@@ -38,7 +38,11 @@ loop do
   when /set/i then console.execute_option_command(option_type: command[1], option_value: command[2])
   when /report/i then console.execute_report_command
   when /destroy/i then console.execute_destroy_command
-  when /back/i then console.execute_back_command
+  when /back/i
+    if console.execute_back_command
+      console.prompt_name = 'vultest'
+      console.initialize_vultest_processing
+    end
   when nil then next
   else console.prompt.error("vultest: command not found: #{command[0]}")
   end

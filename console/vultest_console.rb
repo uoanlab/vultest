@@ -21,7 +21,8 @@ require_relative '../process/vultest'
 require_relative './lib/option_set'
 
 class VultestConsole
-  attr_reader :prompt, :prompt_name
+  attr_reader :prompt
+  attr_accessor :prompt_name
 
   include OptionSet
 
@@ -75,8 +76,7 @@ class VultestConsole
   end
 
   def execute_back_command
-    @prompt_name = 'vultest'
-    @vultest_processing = ProcessVultest.new
+    @prompt.yes?("Finish the vultest for #{@cve}")
   end
 
   private
