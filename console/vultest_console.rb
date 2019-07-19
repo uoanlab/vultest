@@ -57,7 +57,11 @@ class VultestConsole
   end
 
   def execute_exploit_command
-    @vultest_processing.attack_vulenv
+    if @vultest_processing.cve.nil?
+      @prompt.error('Not during the execution of vulnerable test')
+      return
+    end
+    @vultest_processing.start_attack
   end
 
   def execute_option_command(args)

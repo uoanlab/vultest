@@ -19,7 +19,7 @@ require 'tty-spinner'
 module VultestUI
   @execute_symbol = Rainbow('[*]').blue
   @error_symbol = Rainbow('[-]').red
-  @output_symbol = Rainbow('[o]').magenta
+  @warring_symbol = Rainbow('[!]').yellow
   @success_mark = Rainbow('+').cyan
   @error_mark = Rainbow('-').red
 
@@ -31,8 +31,10 @@ module VultestUI
         puts("#{@caution_symbol} #{message}")
       elsif type == 'error'
         puts("#{@error_symbol} #{message}")
-      elsif type == 'output'
-        puts("#{@output_symbol} #{message}")
+      elsif type == 'warring'
+        puts("#{@warring_symbol} #{message}")
+      else
+        puts(" #{message}")
       end
     end
 

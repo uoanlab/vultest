@@ -18,7 +18,7 @@ require_relative '../report/vultest'
 require_relative '../ui'
 
 class ProcessVultest
-  attr_reader :cve, :exploit
+  attr_reader :cve,:exploit
   attr_accessor :attack, :test_dir
 
   include VultestReport
@@ -37,25 +37,9 @@ class ProcessVultest
     create_vulenv
   end
 
-  def attack_vulenv
-    return if @vulenv.nil?
-
-    @attack[:host] = '192.168.33.10' if @vulenv.vulenv_config['attack_vector'] == 'local'
-
-    @exploit = Exploit.new
-
-    if @vulenv.vulenv_config['attack_vector'] == 'remote'
-      @exploit.prepare_exploit(
-        host: @attack[:host],
-        user: @attack[:user],
-        passwd: @attack[:passwd],
-        target_dir: @test_dir,
-        target_config: @vulenv.vulenv_config
-      )
-    end
-
-    @exploit.connect_metasploit(@attack[:host])
-    @exploit.execute_exploit(attack_host: @attack[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
+  def start_attack
+    prepare_attack_host
+    execute_attack
   end
 
   def execute_vultest_report
@@ -81,5 +65,36 @@ class ProcessVultest
   def create_vulenv
     @vulenv = Vulenv.new(cve: @cve, vulenv_dir: @test_dir)
     @vulenv.create
+  end
+
+  def prepare_attack_host
+    @exploit = Exploit.new
+
+    if @vulenv.vulenv_config['attack_vector'] == 'local'
+      @attack[:host] = '192.168.33.10'
+    elsif @vulenv.vulenv_config['attack_vector']
+      if @attack[:host].nil?
+        VultestUI.print_vultest_message('error', 'Cannot find the attack host')
+        VultestUI.print_vultest_message('warring', 'Execute : SET ATTACKHOST attack_host_ip_address')
+        return
+      end
+      @exploit.prepare_exploit(
+        host: @attack[:host],
+        user: @attack[:user],
+        passwd: @attack[:passwd],
+        target_dir: @test_dir,
+        target_config: @vulenv.vulenv_config
+      )
+    end
+
+    @exploit.connect_metasploit(@attack[:host])
+  end
+
+  def execute_attack
+    if @vulenv.nil?
+      VultestUI.print_vultest_message('error', "There is not the Vulnerable environment by #{@cve}")
+      return
+    end
+    @exploit.execute_exploit(attack_host: @attack[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
   end
 end
