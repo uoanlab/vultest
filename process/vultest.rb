@@ -18,7 +18,7 @@ require_relative '../report/vultest'
 require_relative '../ui'
 
 class ProcessVultest
-  attr_reader :cve, :exploit
+  attr_reader :cve, :vulenv, :exploit
   attr_accessor :attack, :test_dir
 
   include VultestReport
@@ -62,11 +62,10 @@ class ProcessVultest
   end
 
   def destroy_vulenv!
-    if @cve.nil?
-      VultestUI.print_vultest_message('error', 'Firstly, executing test command')
-      return
-    end
     @vulenv.destroy!
+    @vulenv = nil
+
+    VultestUI.print_vultest_message('execute', "Delete the vulnerable environment by #{@cve}")
   end
 
   private

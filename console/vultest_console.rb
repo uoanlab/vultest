@@ -72,9 +72,9 @@ class VultestConsole
 
     case args[:option_type]
     when /testdir/i then configure_testdir(args[:option_value])
-    when /attackhost/i then configure_attack_host(args[:option_value])
-    when /attackuser/i then configure_attack_user(args[:option_value])
-    when /attackpasswd/i then configure_attack_passwd(args[:option_value])
+    when /attackhost/i then configure_attack(args[:option_type], args[:option_value]) { @vultest_processing.attack[:host] = args[:option_value] }
+    when /attackuser/i then configure_attack(args[:option_type], args[:option_value]) { @vultest_processing.attack[:user] = args[:option_value] }
+    when /attackpasswd/i then configure_attack(args[:option_type], args[:option_value]) { @vultest_processing.attack[:passwd] = args[:option_value] }
     else @prompt.error("Invalid option (#{args[:option_type]})")
     end
   end
@@ -84,10 +84,21 @@ class VultestConsole
       @prompt.error('Not during the execution of vulnerable test')
       return
     end
+
     @vultest_processing.start_vultest_report
   end
 
   def execute_destroy_command
+    if @vultest_processing.cve.nil?
+      @prompt.error('Not during the execution of vulnerable test')
+      return
+    end
+
+    if @vultest_processing.vulenv.nil?
+      @prompt.error("There is not the vulnerable environment by #{@vultest_processing.cve}")
+      return
+    end
+
     @vultest_processing.destroy_vulenv! unless @prompt.no?('Delete vulnerable environment?')
   end
 
@@ -107,31 +118,13 @@ class VultestConsole
     @prompt.ok("TESTDIR => #{@vultest_processing.test_dir}")
   end
 
-  def configure_attack_host(host)
+  def configure_attack(option, value, &block)
     if connection_attack_host?
-      @prompt.error('Cannot change the attack host in attack')
+      @prompt.error('Cannot change the attack option in attack')
       return
     end
-    @vultest_processing.attack[:host] = host
-    @prompt.ok("ATTACKHOST => #{@vultest_processing.attack[:host]}")
-  end
-
-  def configure_attack_user(user)
-    if connection_attack_host?
-      @prompt.error('Cannot change the attack user in attack')
-      return
-    end
-    @vultest_processing.attack[:user] = user
-    @prompt.ok("ATTACKUSER => #{@vultest_processing.attack[:user]}")
-  end
-
-  def configure_attack_passwd(passwd)
-    if connection_attack_host?
-      @prompt.error('Cannot change the password of attack user in attack')
-      return
-    end
-    @vultest_processing.attack[:passwd] = passwd
-    @prompt.ok("ATTACKPASSWD => #{@vultest_processing.attack[:passwd]}")
+    block.call
+    @prompt.ok("#{option} => #{value}")
   end
 
   def connection_attack_host?
