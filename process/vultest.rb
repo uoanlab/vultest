@@ -18,7 +18,7 @@ require_relative '../report/vultest'
 require_relative '../ui'
 
 class ProcessVultest
-  attr_reader :cve,:exploit
+  attr_reader :cve, :exploit
   attr_accessor :attack, :test_dir
 
   include VultestReport
@@ -38,13 +38,22 @@ class ProcessVultest
   end
 
   def start_attack
-    prepare_attack_host
-    execute_attack
+    if @vulenv.nil?
+      VultestUI.print_vultest_message('error', 'There is not the vulnerable environment which is attack target')
+      return
+    end
+
+    execute_attack if prepare_attack_host
   end
 
-  def execute_vultest_report
-    if @cve.nil?
-      VultestUI.print_vultest_message('error', 'You have to set CVE.')
+  def start_vultest_report
+    if @vulenv.nil?
+      VultestUI.print_vultest_message('error', 'There is no a vulnerable environment')
+      return
+    end
+
+    if @exploit.nil?
+      VultestUI.print_vultest_message('error', 'Execute exploit command')
       return
     end
 
@@ -76,25 +85,16 @@ class ProcessVultest
       if @attack[:host].nil?
         VultestUI.print_vultest_message('error', 'Cannot find the attack host')
         VultestUI.print_vultest_message('warring', 'Execute : SET ATTACKHOST attack_host_ip_address')
-        return
+        return false
       end
-      @exploit.prepare_exploit(
-        host: @attack[:host],
-        user: @attack[:user],
-        passwd: @attack[:passwd],
-        target_dir: @test_dir,
-        target_config: @vulenv.vulenv_config
-      )
+      @exploit.prepare_exploit(host: @attack[:host], user: @attack[:user], passwd: @attack[:passwd])
     end
 
     @exploit.connect_metasploit(@attack[:host])
+    true
   end
 
   def execute_attack
-    if @vulenv.nil?
-      VultestUI.print_vultest_message('error', "There is not the Vulnerable environment by #{@cve}")
-      return
-    end
     @exploit.execute_exploit(attack_host: @attack[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
   end
 end

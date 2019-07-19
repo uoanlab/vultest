@@ -80,7 +80,11 @@ class VultestConsole
   end
 
   def execute_report_command
-    @vultest_processing.execute_vultest_report
+    if @vultest_processing.cve.nil?
+      @prompt.error('Not during the execution of vulnerable test')
+      return
+    end
+    @vultest_processing.start_vultest_report
   end
 
   def execute_destroy_command
