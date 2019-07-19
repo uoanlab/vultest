@@ -18,7 +18,7 @@ require_relative '../report/vultest'
 require_relative '../ui'
 
 class ProcessVultest
-  attr_reader :cve
+  attr_reader :cve, :exploit
   attr_accessor :attack, :test_dir
 
   include VultestReport
