@@ -37,15 +37,14 @@ class Vulenv
     @config = YAML.load_file('./config.yml')
     @vulenv_dir = args[:vulenv_dir]
     FileUtils.mkdir_p(@vulenv_dir)
-    select_vulenv(args[:cve])
   end
 
   def select_vulenv(cve)
     vul_configs = DB.get_vul_configs(cve)
 
     if vul_configs.empty?
-      puts('Cannot test vulnerability because the software doesn\'t have config file')
-      return
+      VultestUI.error('Cannot test vulnerability because the software doesn\'t have config file')
+      return false
     end
 
     vulenv_table = create_table(vul_configs)
@@ -57,6 +56,7 @@ class Vulenv
 
     @vulenv_config = YAML.load_file("#{@config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['config_path']}")
     @attack_config = YAML.load_file("#{@config['vultest_db_path']}/#{vul_configs[select_id.to_i - 1]['module_path']}")
+    true
   end
 
   def create

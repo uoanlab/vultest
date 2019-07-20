@@ -38,8 +38,7 @@ class ProcessVultest
       return
     end
 
-    @cve = cve
-    create_vulenv
+    create_vulenv(cve)
   end
 
   def start_attack
@@ -88,9 +87,13 @@ class ProcessVultest
 
   private
 
-  def create_vulenv
-    @vulenv = Vulenv.new(cve: @cve, vulenv_dir: @test_dir)
+  def create_vulenv(cve)
+    @vulenv = Vulenv.new(cve: cve, vulenv_dir: @test_dir)
+
+    return unless @vulenv.select_vulenv(cve)
+
     @vulenv.create
+    @cve = cve
   end
 
   def prepare_attack_host
