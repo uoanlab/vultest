@@ -18,14 +18,37 @@ require 'tty-prompt'
 
 require_relative '../ui'
 
-module VulenvParams
+module ControlVulenv
   private
 
   def start_vulenv
     VultestUI.tty_spinner_begin('Start up')
-    _stdout, _stderr, status = Open3.capture3('vagrant up')
+    stdout, stderr, status = Open3.capture3('vagrant up')
     if status.exitstatus.zero? then VultestUI.tty_spinner_end('success')
-    else VultestUI.tty_spinner_end('error')
+    else
+      VultestUI.tty_spinner_end('error')
+      output = stdout.split("\n")
+      software = {}
+      o_flag = false
+      output.each do |o|
+        software = {} unless o_flag
+        if s = o.match(/^TASK \[(?<software>.*)\s:\s(?<install_method>.*)\].*/)
+          software[:path] = s[:software]
+          software[:method] = s[:install_method]
+          o_flag = true
+        end
+        if e = o.match(/^fatal:.*"stderr": "(?<err>.*)",\s"stderr_lines".*/)
+          software[:path] = software[:path].split('/')[2]
+          print software[:path]
+          print "\n"
+          print software[:method]
+          print "\n"
+          print e[:err]
+          print "\n"
+          o_flag = false
+        end
+      end
+      p stderr
     end
   end
 
