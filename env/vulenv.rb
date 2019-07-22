@@ -20,7 +20,7 @@ require 'tty-table'
 require 'tty-prompt'
 require 'yaml'
 
-require_relative './params'
+require_relative './control_vulenv'
 require_relative '../build/params'
 require_relative './tools/vagrant'
 require_relative './tools/ansible'
@@ -28,9 +28,9 @@ require_relative '../db'
 require_relative '../ui'
 
 class Vulenv
-  attr_reader :vulenv_config, :attack_config
+  attr_reader :stderr, :vulenv_config, :attack_config
 
-  include VulenvParams
+  include ControlVulenv
   include ConstructionParams
 
   def initialize(args)
@@ -64,9 +64,14 @@ class Vulenv
 
     VultestUI.execute('Create vulnerability environment')
     Dir.chdir(@vulenv_dir) do
-      start_vulenv
-      reload_vulenv if @vulenv_config.key?('reload')
-      hard_setup if @vulenv_config['construction'].key?('hard_setup')
+      @stderr = start_vulenv
+      return unless @stderr.nil?
+
+      @stderr = reload_vulenv if @vulenv_config.key?('reload')
+      return unless @stderr.nil?
+
+      @stderr = hard_setup if @vulenv_config['construction'].key?('hard_setup')
+      return unless @stderr.nil?
     end
 
     prepare(env_dir: @vulenv_dir, prepare_msg: @vulenv_config['construction']['prepare']['msg']) if @vulenv_config['construction'].key?('prepare')
@@ -74,7 +79,7 @@ class Vulenv
 
   def destroy!
     Dir.chdir(@vulenv_dir) do
-      VultestUI.tty_spinner_begin('Vulnerable environment destroy')
+      VultestUI.tty_spinner_begin('Destroy vulnerable environment')
       _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
       unless status.exitstatus.zero?
         VultestUI.tty_spinner_end('error')

@@ -15,13 +15,12 @@
 require_relative '../env/vulenv'
 require_relative '../attack/exploit'
 require_relative '../report/vultest'
+require_relative '../report/error/vulenv'
 require_relative '../ui'
 
 class ProcessVultest
   attr_reader :cve
   attr_accessor :attack, :test_dir
-
-  include VultestReport
 
   def initialize
     @cve = nil
@@ -39,6 +38,7 @@ class ProcessVultest
     end
 
     create_vulenv(cve)
+    VultestUI.warring('Can look at a report about failer of creating the vulnerable environment') unless @vulenv.stderr.nil?
   end
 
   def start_attack
@@ -56,12 +56,22 @@ class ProcessVultest
       return
     end
 
+    unless @vulenv.stderr.nil?
+      VultestUI.warring('Fail the vulnerable test: Cannot create the vulnerable environment')
+      VultestUI.execute('Output error report about vulnerable environment')
+      error_report = ErrorVulenvReport.new(report_dir: @test_dir, stderr: @vulenv.stderr, vulenv_config: @vulenv.vulenv_config)
+      error_report.create_report
+      return
+    end
+
     if @exploit.nil?
       VultestUI.error('Execute exploit command')
       return
     end
 
-    create_report(cve: @cve, test_dir: @test_dir, vulenv_config: @vulenv.vulenv_config, attack_config: @vulenv.attack_config)
+    vultest_report = VultestReport.new(cve: @cve, report_dir: @test_dir, vulenv_config: @vulenv.vulenv_config, attack_config: @vulenv.attack_config)
+    vultest_report.create_report
+
     @exploit.verify_exploit
   end
 
