@@ -29,7 +29,8 @@ console.initialize_prompt
 console.initialize_vultest_processing
 
 loop do
-  command = console.prompt.ask("#{console.prompt_name} >").split(' ')
+  command = console.prompt.ask("#{console.prompt_name} >")
+  command.nil? ? next : command = command.split(' ')
 
   case command[0]
   when /test/i then console.execute_test_command(cve: command[1])
@@ -43,7 +44,6 @@ loop do
       console.prompt_name = 'vultest'
       console.initialize_vultest_processing
     end
-  when nil then next
   else console.prompt.error("vultest: command not found: #{command[0]}")
   end
 end

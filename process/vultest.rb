@@ -15,6 +15,7 @@
 require_relative '../env/vulenv'
 require_relative '../attack/exploit'
 require_relative '../report/vultest'
+require_relative '../report/error/attack'
 require_relative '../report/error/vulenv'
 require_relative '../ui'
 
@@ -38,7 +39,7 @@ class ProcessVultest
     end
 
     create_vulenv(cve)
-    VultestUI.warring('Can look at a report about failer of creating the vulnerable environment') unless @vulenv.stderr.nil?
+    VultestUI.warring('Can look at a report about failure of creating the vulnerable environment') unless @vulenv.stderr.nil?
   end
 
   def start_attack
@@ -47,27 +48,14 @@ class ProcessVultest
       return
     end
 
-    execute_attack if prepare_attack_host
+    return unless prepare_attack_host
+
+    VultestUI.warring('Can look at a report about failure of attack') unless execute_attack
   end
 
   def start_vultest_report
-    if @vulenv.nil?
-      VultestUI.error('There is no a vulnerable environment')
-      return
-    end
-
-    unless @vulenv.stderr.nil?
-      VultestUI.warring('Fail the vulnerable test: Cannot create the vulnerable environment')
-      VultestUI.execute('Output error report about vulnerable environment')
-      error_report = ErrorVulenvReport.new(report_dir: @test_dir, stderr: @vulenv.stderr, vulenv_config: @vulenv.vulenv_config)
-      error_report.create_report
-      return
-    end
-
-    if @exploit.nil?
-      VultestUI.error('Execute exploit command')
-      return
-    end
+    return if error_vulenv_report
+    return if error_attack_report
 
     vultest_report = VultestReport.new(cve: @cve, report_dir: @test_dir, vulenv_config: @vulenv.vulenv_config, attack_config: @vulenv.attack_config)
     vultest_report.create_report
@@ -126,5 +114,37 @@ class ProcessVultest
 
   def execute_attack
     @exploit.execute_exploit(attack_host: @attack[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
+  end
+
+  def error_vulenv_report
+    if @vulenv.nil?
+      VultestUI.error('There is no a vulnerable environment')
+      return true
+    end
+
+    unless @vulenv.stderr.nil?
+      VultestUI.execute('Output error report about vulnerable environment')
+      error_report = ErrorVulenvReport.new(report_dir: @test_dir, stderr: @vulenv.stderr, vulenv_config: @vulenv.vulenv_config)
+      error_report.create_report
+      return true
+    end
+
+    false
+  end
+
+  def error_attack_report
+    if @exploit.nil?
+      VultestUI.error('Execute exploit command')
+      return true
+    end
+
+    unless @exploit.error_module.empty?
+      VultestUI.execute('Output error report about attack')
+      error_report = ErrorAttackReport.new(report_dir: @test_dir, vulenv_config: @vulenv.vulenv_config, attack_config: @vulenv.attack_config)
+      error_report.create_report(@exploit.error_module)
+      return true
+    end
+
+    false
   end
 end

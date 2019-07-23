@@ -33,7 +33,7 @@ class ErrorVulenvReport
   def create_report
     File.open("#{@report_dir}/error_vulenv_report.md", 'w') do |report_file|
       report_file.puts("# Error Report about Vulnerable Environment\n\n")
-      report_file.puts("## Failuer Case\n\n")
+      report_file.puts("## Failure Case\n\n")
       error_message_report(report_file, @stderr)
 
       report_file.puts("## Vulnerable Environment\n\n")
