@@ -3,6 +3,7 @@
   get_url:
     url: "https://archive.apache.org/dist/httpd/httpd-{{version}}.tar.gz"
     dest: "{{src_dir}}"
+    validate_certs: no
 - name: unarchive apache-httpd
   unarchive:
     src: "{{src_dir}}/httpd-{{version}}.tar.gz"

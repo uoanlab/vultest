@@ -15,76 +15,78 @@
 module AssistSoftware
   private
 
-  def select_method(software, software_ansible_dir, method)
-    case method
-    when 'apt' then method_apt(software, software_ansible_dir)
-    when 'yum' then method_yum(software, software_ansible_dir)
-    when 'gem' then method_gem(software, software_ansible_dir)
-    when 'source' then method_source(software, software_ansible_dir)
+  def select_method(args = {})
+    case args[:method]
+    when 'apt' then method_apt(name: args[:software]['name'], version: args[:software]['version'], role_dir: args[:role_dir])
+    when 'yum' then method_yum(name: args[:software]['name'], version: args[:software]['version'], role_dir: args[:role_dir])
+    when 'gem' then method_gem(software: args[:software], role_dir: args[:role_dir])
+    when 'source' then method_source(software: args[:software], role_dir: args[:role_dir])
     end
   end
 
-  def method_apt(software, software_ansible_dir)
-    FileUtils.mkdir_p("#{software_ansible_dir}/#{software['name']}/tasks")
-    FileUtils.cp_r('./build/ansible/roles/apt/tasks/main.yml', "#{software_ansible_dir}/#{software['name']}/tasks/main.yml")
+  def method_apt(args = {})
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/tasks")
+    FileUtils.cp_r('./build/ansible/roles/apt/tasks/main.yml', "#{args[:role_dir]}/#{args[:name]}/tasks/main.yml")
 
-    FileUtils.mkdir_p("#{software_ansible_dir}/#{software['name']}/vars")
-    File.open("#{software_ansible_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/vars")
+    File.open("#{args[:role_dir]}/#{args[:name]}/vars/main.yml", 'w') do |vars_file|
       vars_file.puts('---')
-      vars_file.puts("name_and_version: #{software['name']}=#{software['version']}")
+      vars_file.puts("name_and_version: #{args[:name]}=#{args[:version]}")
     end
   end
 
-  def method_yum(software, software_ansible_dir)
-    FileUtils.mkdir_p("#{software_ansible_dir}/#{software['name']}/tasks")
-    FileUtils.cp_r('./build/ansible/roles/yum/tasks/main.yml', "#{software_ansible_dir}/#{software['name']}/tasks/main.yml")
+  def method_yum(args = {})
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/tasks")
+    FileUtils.cp_r('./build/ansible/roles/yum/tasks/main.yml', "#{args[:role_dir]}/#{args[:name]}/tasks/main.yml")
 
-    FileUtils.mkdir_p("#{software_ansible_dir}/#{software['name']}/vars")
-    File.open("#{software_ansible_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/vars")
+    File.open("#{args[:role_dir]}/#{args[:name]}/vars/main.yml", 'w') do |vars_file|
       vars_file.puts('---')
-      vars_file.puts("name_and_version: #{software['name']}-#{software['version']}")
+      vars_file.puts("name_and_version: #{args[:name]}-#{args[:version]}")
     end
   end
 
-  def method_gem(software, software_ansible_dir)
-    FileUtils.mkdir_p("#{software_ansible_dir}/#{software['name']}/tasks")
+  def method_gem(args = {})
+    software_name = args[:software]['name']
+    software_version = args[:software]['version']
+
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{software_name}/tasks")
     FileUtils.cp_r(
       './build/ansible/roles/gem/tasks/main.yml',
-      "#{software_ansible_dir}/#{software['name']}/tasks/main.yml"
+      "#{args[:role_dir]}/#{software_name}/tasks/main.yml"
     )
 
-    FileUtils.mkdir_p("#{software_ansible_dir}/#{software['name']}/vars")
-    File.open("#{software_ansible_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{software_name}/vars")
+    File.open("#{args[:role_dir]}/#{software_name}/vars/main.yml", 'w') do |vars_file|
       vars_file.puts('---')
-      vars_file.puts("name: #{software['name']}")
-      vars_file.puts("version: #{software['version']}")
-      option_user(vars_file, software)
+      vars_file.puts("name: #{software_name}")
+      vars_file.puts("version: #{software_version}")
+      option_user(vars_file, args[:software])
     end
   end
 
-  def method_source(software, software_ansible_dir)
-    FileUtils.mkdir_p("#{software_ansible_dir}/#{software['name']}/tasks")
+  def method_source(args = {})
+    software_name = args[:software]['name']
+    software_version = args[:software]['version']
+
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{software_name}/tasks")
     FileUtils.cp_r(
-      "./build/ansible/roles/source/#{software['name']}/tasks/main.yml",
-      "#{software_ansible_dir}/#{software['name']}/tasks/main.yml"
+      "./build/ansible/roles/source/#{software_name}/tasks/main.yml",
+      "#{args[:role_dir]}/#{software_name}/tasks/main.yml"
     )
 
-    FileUtils.mkdir_p("#{software_ansible_dir}/#{software['name']}/vars")
-    File.open("#{software_ansible_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{software_name}/vars")
+    File.open("#{args[:role_dir]}/#{software_name}/vars/main.yml", 'w') do |vars_file|
       vars_file.puts('---')
-
-      if software['name'] == 'bash' then source_bash(vars_file, software)
-      else vars_file.puts("version: #{software['version']}")
-      end
-
-      option_configure_command(vars_file, software)
-      option_src_dir(vars_file, software)
-      option_user(vars_file, software)
+      software_name == 'bash' ? source_bash(vars_file, software_version) : vars_file.puts("version: #{software_version}")
+      option_configure_command(vars_file, args[:software])
+      option_src_dir(vars_file, args[:software])
+      option_user(vars_file, args[:software])
     end
   end
 
-  def source_bash(vars_file, software)
-    version = software['version'].split('.')
+  def source_bash(vars_file, version)
+    version = version.split('.')
     vars_file.puts("version: #{version[0] + '.' + version[1]}")
     vars_file.puts('patches:')
     version[2].to_i.times do |index|

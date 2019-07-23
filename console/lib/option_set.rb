@@ -12,16 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fileutils'
+module OptionSet
+  private
 
-class Vagrant
-  def initialize(args = {})
-    @env_dir = args[:env_dir]
-    @os_name = args[:os_name]
-    @os_version = args[:os_version]
-  end
+  def create_vulenv_dir(dir)
+    path = ''
+    path_elm = dir.split('/')
 
-  def create
-    FileUtils.cp_r("./build/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
+    path_elm.each do |elm|
+      path.concat('/') unless path.empty?
+      if elm[0] == '$'
+        elm.slice!(0)
+        ENV.key?(elm) ? path.concat(ENV[elm]) : path.concat(elm)
+      else
+        path.concat(elm)
+      end
+    end
+    path
   end
 end

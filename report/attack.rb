@@ -12,16 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'fileutils'
+module AttackReport
+  private
 
-class Vagrant
-  def initialize(args = {})
-    @env_dir = args[:env_dir]
-    @os_name = args[:os_name]
-    @os_version = args[:os_version]
-  end
-
-  def create
-    FileUtils.cp_r("./build/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
+  def report_attack_method(report_file, attack_config)
+    report_file.puts("## Attack Method\n\n")
+    if attack_config.key?('metasploit_module')
+      report_file.puts("### Metasploit\n\n")
+      attack_methods = attack_config['metasploit_module']
+      attack_methods.each do |attack_method|
+        report_file.puts("#### Module Name : #{attack_method['module_name']}\n")
+        attack_method['options'].each { |option| report_file.puts("- #{option['name']} : #{option['var']}\n") }
+        report_file.puts("\n")
+      end
+    end
+    report_file.puts("\n")
   end
 end

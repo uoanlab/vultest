@@ -17,27 +17,21 @@ require 'rainbow'
 require 'tty-spinner'
 
 module VultestUI
-  @execute_symbol = Rainbow('[*]').blue
-  @error_symbol = Rainbow('[-]').red
-  @output_symbol = Rainbow('[o]').magenta
-  @success_mark = Rainbow('+').cyan
-  @error_mark = Rainbow('-').red
-
   class << self
-    def print_vultest_message(type, message)
-      if type == 'execute'
-        puts("#{@execute_symbol} #{message}")
-      elsif type == 'caution'
-        puts("#{@caution_symbol} #{message}")
-      elsif type == 'error'
-        puts("#{@error_symbol} #{message}")
-      elsif type == 'output'
-        puts("#{@output_symbol} #{message}")
-      end
+    def execute(msg)
+      puts("[#{Rainbow('*').blue}] #{msg}")
     end
 
-    def tty_spinner_begin(message)
-      @spinner = TTY::Spinner.new("[:spinner] #{message}", success_mark: @success_mark.to_s, error_mark: @error_mark.to_s)
+    def error(msg)
+      puts("[#{Rainbow('-').red}] #{msg}")
+    end
+
+    def warring(msg)
+      puts("[#{Rainbow('!').yellow}] #{msg}")
+    end
+
+    def tty_spinner_begin(msg)
+      @spinner = TTY::Spinner.new("[:spinner] #{msg}", success_mark: Rainbow('+').cyan.to_s, error_mark: Rainbow('-').red.to_s)
       @spinner.auto_spin
     end
 

@@ -15,29 +15,29 @@
 module AssistContent
   private
 
-  def content_tasks(db_path, env_config, content_ansible_dir)
-    FileUtils.mkdir_p("#{content_ansible_dir}/#{env_config['cve']}/tasks")
+  def content_tasks(args = {})
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:cve]}/tasks")
     FileUtils.cp_r(
-      "#{db_path}/data/#{env_config['construction']['content']}/tasks/main.yml",
-      "#{content_ansible_dir}/#{env_config['cve']}/tasks/main.yml"
+      "#{args[:db]}/data/#{args[:content_info]}/tasks/main.yml",
+      "#{args[:role_dir]}/#{args[:cve]}/tasks/main.yml"
     )
   end
 
-  def content_vars(db_path, env_config, content_ansible_dir)
-    FileUtils.mkdir_p("#{content_ansible_dir}/#{env_config['cve']}/tasks/vars")
+  def content_vars(args = {})
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:cve]}/tasks/vars")
     FileUtils.cp_r(
-      "#{db_path}/data/#{env_config['construction']['content']}/vars/main.yml",
-      "#{content_ansible_dir}/#{env_config['cve']}/vars/main.yml"
+      "#{args[:db]}/data/#{args[:content_info]}/vars/main.yml",
+      "#{args[:role_dir]}/#{args[:cve]}/var/main.yml"
     )
   end
 
-  def content_files(db_path, env_config, content_ansible_dir)
-    FileUtils.mkdir_p("#{content_ansible_dir}/#{env_config['cve']}/files")
-    Dir.glob("#{db_path}/data/#{env_config['construction']['content']}/files/*") do |path|
+  def content_files(args = {})
+    FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:cve]}/files")
+    Dir.glob("#{args[:db]}/data/#{args[:content_info]}/files/*") do |path|
       content = path.split('/')
       FileUtils.cp_r(
-        "#{db_path}/data/#{env_config['construction']['content']}/files/#{content[content.size - 1]}",
-        "#{content_ansible_dir}/#{env_config['cve']}/files/#{content[content.size - 1]}"
+        "#{args[:db]}/data/#{args[:content_info]}/files/#{content[content.size - 1]}",
+        "#{args[:role_dir]}/#{args[:cve]}/files/#{content[content.size - 1]}"
       )
     end
   end

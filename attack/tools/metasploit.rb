@@ -62,8 +62,8 @@ class Metasploit
     msf_api(params)
   end
 
-  def module_execute(module_type, module_name, options)
-    params = ['module.execute', @token, module_type, module_name, options]
+  def module_execute(args = {})
+    params = ['module.execute', @token, args[:type], args[:name], args[:option]]
     msf_api(params)
   end
 
@@ -72,8 +72,8 @@ class Metasploit
     msf_api(params)
   end
 
-  def shell_write(session_id, command)
-    params = ['session.shell_write', @token, session_id, "#{command}\n"]
+  def shell_write(args)
+    params = ['session.shell_write', @token, args[:id], "#{args[:command]}\n"]
     msf_api(params)
   end
 
@@ -82,8 +82,8 @@ class Metasploit
     msf_api(params)
   end
 
-  def meterpreter_write(session_id, command)
-    params = ['session.meterpreter_run_single', @token, session_id, command]
+  def meterpreter_write(args)
+    params = ['session.meterpreter_run_single', @token, args[:id], args[:command]]
     msf_api(params)
   end
 

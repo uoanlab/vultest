@@ -12,32 +12,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'bundler/setup'
 require 'open3'
 require 'tty-prompt'
 
 require_relative '../ui'
 
-module VulenvParams
+module ControlVulenv
   private
 
   def start_vulenv
     VultestUI.tty_spinner_begin('Start up')
-    _stdout, _stderr, status = Open3.capture3('vagrant up')
-    if status.exitstatus.zero? then VultestUI.tty_spinner_end('success')
-    else VultestUI.tty_spinner_end('error')
+    stdout, _stderr, status = Open3.capture3('vagrant up')
+    if status.exitstatus.zero?
+      VultestUI.tty_spinner_end('success')
+      return nil
     end
+
+    VultestUI.tty_spinner_end('error')
+    stdout
   end
 
   def reload_vulenv
     VultestUI.tty_spinner_begin('Reload')
-    _stdout, _stderr, status = Open3.capture3('vagrant reload')
-    if status.exitstatus.zero? then VultestUI.tty_spinner_end('success')
-    else VultestUI.tty_spinner_end('error')
+    stdout, _stderr, status = Open3.capture3('vagrant reload')
+    if status.exitstatus.zero?
+      VultestUI.tty_spinner_end('success')
+      return nil
     end
+
+    VultestUI.tty_spinner_end('error')
+    stdout
   end
 
   def hard_setup
-    @vulenv_config['construction']['hard_setup']['msg'].each { |msg| VultestUI.print_vultest_message('caution', msg) }
+    @vulenv_config['construction']['hard_setup']['msg'].each { |msg| puts(" #{msg}") }
     Open3.capture3('vagrant halt')
 
     p = TTY::Prompt.new

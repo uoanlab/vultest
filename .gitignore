@@ -1,6 +1,9 @@
 #.vagrant
 .vagrant
 
+# RubyMine
+.idea
+
 # gem package
 .bundle
 vendor
