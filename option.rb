@@ -26,7 +26,7 @@ module VultestOptionExecute
       vultest_processing.attack[:passwd] = args['attack_passwd'] unless args['attack_passwd'].nil?
       vultest_processing.test_dir = args['dir'] unless args['dir'].nil?
 
-      vultest_processing.create_vulenv(cve)
+      vultest_processing.start_vultest(cve)
       return if args['test'] == 'no'
 
       sleep(10)
