@@ -26,7 +26,7 @@ end
 
 console = VultestConsole.new
 console.initialize_prompt
-console.initialize_vultest_processing
+console.initialize_vultest_process
 
 loop do
   command = console.prompt.ask("#{console.prompt_name} >")
@@ -42,7 +42,7 @@ loop do
   when /back/i
     if console.execute_back_command
       console.prompt_name = 'vultest'
-      console.initialize_vultest_processing
+      console.initialize_vultest_process
     end
   else console.prompt.error("vultest: command not found: #{command[0]}")
   end

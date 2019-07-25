@@ -17,22 +17,22 @@ require_relative './process/vultest'
 module VultestOptionExecute
   class << self
     def execute_vultest(args)
-      vultest_processing = ProcessVultest.new
+      vultest_process = ProcessVultest.new
       return if args['cve'].nil?
 
       cve = args['cve']
-      vultest_processing.attack[:host] = args['attack_host'] unless args['attack_host'].nil?
-      vultest_processing.attack[:user] = args['attack_user'] unless args['attack_user'].nil?
-      vultest_processing.attack[:passwd] = args['attack_passwd'] unless args['attack_passwd'].nil?
-      vultest_processing.test_dir = args['dir'] unless args['dir'].nil?
+      vultest_process.attack[:host] = args['attack_host'] unless args['attack_host'].nil?
+      vultest_process.attack[:user] = args['attack_user'] unless args['attack_user'].nil?
+      vultest_process.attack[:passwd] = args['attack_passwd'] unless args['attack_passwd'].nil?
+      vultest_process.test_dir = args['dir'] unless args['dir'].nil?
 
-      vultest_processing.start_vultest(cve)
+      vultest_process.start_vultest(cve)
       return if args['test'] == 'no'
 
       sleep(10)
-      vultest_processing.start_attack
-      vultest_processing.start_vultest_report
-      vultest_processing.destroy_vulenv! if args['destroy'] == 'yes'
+      vultest_process.start_attack
+      vultest_process.start_vultest_report
+      vultest_process.destroy_vulenv! if args['destroy'] == 'yes'
     end
   end
 end
