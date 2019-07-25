@@ -30,8 +30,8 @@ module VultestOptionExecute
       return if args['test'] == 'no'
 
       sleep(10)
-      vultest_processing.attack_vulenv
-      vultest_processing.execute_vultest_report
+      vultest_processing.start_attack
+      vultest_processing.start_vultest_report
       vultest_processing.destroy_vulenv! if args['destroy'] == 'yes'
     end
   end
