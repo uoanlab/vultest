@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'optparse'
 
-require_relative './console/vultest_console'
+require_relative './console/console'
 require_relative './option'
 
 unless ARGV.size.zero?
@@ -24,7 +24,7 @@ unless ARGV.size.zero?
   exit!
 end
 
-console = VultestConsole.new
+console = Console.new
 console.initialize_prompt
 console.initialize_vultest_process
 

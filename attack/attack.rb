@@ -15,17 +15,16 @@
 require 'bundler/setup'
 require 'net/ssh'
 
-require_relative './lib/haijack'
+require_relative './method/haijack'
 require_relative './tools/metasploit'
-require_relative '../build/params'
 require_relative '../ui'
 
-class Exploit
+class Attack
   attr_reader :msf_api, :error_module
 
-  include HaijackMethod
+  include Haijack
 
-  EXPOLIT_TIME = 300
+  ATTACK_TIME = 300
 
   def initialize
     @msf_api = nil
@@ -38,7 +37,7 @@ class Exploit
     @msf_api.console_create
   end
 
-  def execute_exploit(args)
+  def execute(args)
     msf_modules = args[:msf_modules]
 
     VultestUI.execute('Exploit attack')
@@ -47,7 +46,7 @@ class Exploit
       msf_module_info = @msf_api.module_execute(type: msf_module['module_type'], name: msf_module['module_name'], option: msf_module_option)
 
       VultestUI.tty_spinner_begin(msf_module['module_name'])
-      connection = execute_exploit_module(msf_module_info)
+      connection = connection?(msf_module_info)
 
       unless connection
         VultestUI.tty_spinner_end('error')
@@ -64,7 +63,7 @@ class Exploit
     true
   end
 
-  def verify_exploit
+  def verify
     VultestUI.execute('Execute verify')
     VultestUI.execute('Brake into target machine')
 
@@ -83,7 +82,7 @@ class Exploit
     end
   end
 
-  def prepare_exploit(args = {})
+  def prepare(args = {})
     begin
       VultestUI.tty_spinner_begin('Metasploit server')
       startup_metasploit_server(host: args[:host], user: args[:user], passwd: args[:passwd])
@@ -107,8 +106,8 @@ class Exploit
     msf_module_option
   end
 
-  def execute_exploit_module(module_info)
-    EXPOLIT_TIME.times do
+  def connection?(module_info)
+    ATTACK_TIME.times do
       sleep(1)
       @msf_api.module_session_list.each do |_key, value|
         return true if module_info['uuid'] == value['exploit_uuid']

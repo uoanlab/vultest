@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module AssistSoftware
+module Software
   private
 
   def select_method(args = {})
@@ -26,7 +26,7 @@ module AssistSoftware
 
   def method_apt(args = {})
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/tasks")
-    FileUtils.cp_r('./build/ansible/roles/apt/tasks/main.yml', "#{args[:role_dir]}/#{args[:name]}/tasks/main.yml")
+    FileUtils.cp_r('./vulenv/tools/config/ansible/roles/apt/tasks/main.yml', "#{args[:role_dir]}/#{args[:name]}/tasks/main.yml")
 
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/vars")
     File.open("#{args[:role_dir]}/#{args[:name]}/vars/main.yml", 'w') do |vars_file|
@@ -37,7 +37,7 @@ module AssistSoftware
 
   def method_yum(args = {})
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/tasks")
-    FileUtils.cp_r('./build/ansible/roles/yum/tasks/main.yml', "#{args[:role_dir]}/#{args[:name]}/tasks/main.yml")
+    FileUtils.cp_r('./vulenv/tools/config/ansible/roles/yum/tasks/main.yml', "#{args[:role_dir]}/#{args[:name]}/tasks/main.yml")
 
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/vars")
     File.open("#{args[:role_dir]}/#{args[:name]}/vars/main.yml", 'w') do |vars_file|
@@ -52,7 +52,7 @@ module AssistSoftware
 
     FileUtils.mkdir_p("#{args[:role_dir]}/#{software_name}/tasks")
     FileUtils.cp_r(
-      './build/ansible/roles/gem/tasks/main.yml',
+      './vulenv/tools/config/ansible/roles/gem/tasks/main.yml',
       "#{args[:role_dir]}/#{software_name}/tasks/main.yml"
     )
 
@@ -71,7 +71,7 @@ module AssistSoftware
 
     FileUtils.mkdir_p("#{args[:role_dir]}/#{software_name}/tasks")
     FileUtils.cp_r(
-      "./build/ansible/roles/source/#{software_name}/tasks/main.yml",
+      "./vulenv/tools/config/ansible/roles/source/#{software_name}/tasks/main.yml",
       "#{args[:role_dir]}/#{software_name}/tasks/main.yml"
     )
 

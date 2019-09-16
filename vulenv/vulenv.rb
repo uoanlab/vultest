@@ -20,8 +20,8 @@ require 'tty-table'
 require 'tty-prompt'
 require 'yaml'
 
-require_relative './control_vulenv'
-require_relative '../build/params'
+require_relative './mgmt'
+require_relative './config/const'
 require_relative './tools/vagrant'
 require_relative './tools/ansible'
 require_relative '../db'
@@ -30,8 +30,8 @@ require_relative '../ui'
 class Vulenv
   attr_reader :stderr, :vulenv_config, :attack_config
 
-  include ControlVulenv
-  include ConstructionParams
+  include Mgmt
+  include Const
 
   def initialize(args)
     @config = YAML.load_file('./config.yml')

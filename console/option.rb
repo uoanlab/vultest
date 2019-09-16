@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module OptionSet
+module Option
   private
 
   def create_vulenv_dir(dir)

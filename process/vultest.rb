@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative '../env/vulenv'
-require_relative '../attack/exploit'
+require_relative '../vulenv/vulenv'
+require_relative '../attack/attack'
 require_relative '../report/vultest'
 require_relative '../report/error/attack'
 require_relative '../report/error/vulenv'
@@ -21,15 +21,15 @@ require_relative '../ui'
 
 class ProcessVultest
   attr_reader :cve
-  attr_accessor :attack, :test_dir
+  attr_accessor :attacker, :test_dir
 
   def initialize
     @cve = nil
     @test_dir = ENV.key?('TESTDIR') ? ENV['TESTDIR'] : './test_dir'
-    @attack = { host: nil, user: 'root', passwd: 'toor' }
-    @attack[:host] = ENV['ATTACKHOST'] if ENV.key?('ATTACKHOST')
-    @attack[:user] = ENV['ATTACKERUSER'] if ENV.key?('ATTACKERUSER')
-    @attack[:passwd] = ENV['ATTACKPASSWD'] if ENV.key?('ATTACKPASSWD')
+    @attacker = { host: nil, user: 'root', passwd: 'toor' }
+    @attacker[:host] = ENV['ATTACKHOST'] if ENV.key?('ATTACKHOST')
+    @attacker[:user] = ENV['ATTACKERUSER'] if ENV.key?('ATTACKERUSER')
+    @attacker[:passwd] = ENV['ATTACKPASSWD'] if ENV.key?('ATTACKPASSWD')
   end
 
   def start_vultest(cve)
@@ -60,7 +60,7 @@ class ProcessVultest
     vultest_report = VultestReport.new(cve: @cve, report_dir: @test_dir, vulenv_config: @vulenv.vulenv_config, attack_config: @vulenv.attack_config)
     vultest_report.create_report
 
-    @exploit.verify_exploit
+    @attack.verify
   end
 
   def destroy_vulenv!
@@ -76,9 +76,9 @@ class ProcessVultest
   end
 
   def connection_attack_host?
-    return false if @exploit.nil?
+    return false if @attack.nil?
 
-    return false if @exploit.msf_api.nil?
+    return false if @attack.msf_api.nil?
 
     true
   end
@@ -95,25 +95,25 @@ class ProcessVultest
   end
 
   def prepare_attack_host
-    @exploit = Exploit.new
+    @attack = Attack.new
 
     if @vulenv.vulenv_config['attack_vector'] == 'local'
-      @attack[:host] = '192.168.33.10'
+      @attacker[:host] = '192.168.33.10'
     elsif @vulenv.vulenv_config['attack_vector']
-      if @attack[:host].nil?
+      if @attacker[:host].nil?
         VultestUI.error('Cannot find the attack host')
         VultestUI.warring('Execute : SET ATTACKHOST attack_host_ip_address')
         return false
       end
-      @exploit.prepare_exploit(host: @attack[:host], user: @attack[:user], passwd: @attack[:passwd])
+      @attack.prepare(host: @attacker[:host], user: @attacker[:user], passwd: @attacker[:passwd])
     end
 
-    @exploit.connect_metasploit(@attack[:host])
+    @attack.connect_metasploit(@attacker[:host])
     true
   end
 
   def execute_attack
-    @exploit.execute_exploit(attack_host: @attack[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
+    @attack.execute(attack_host: @attacker[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
   end
 
   def error_vulenv_report
@@ -133,15 +133,15 @@ class ProcessVultest
   end
 
   def error_attack_report
-    if @exploit.nil?
+    if @attack.nil?
       VultestUI.error('Execute exploit command')
       return true
     end
 
-    unless @exploit.error_module.empty?
+    unless @attack.error_module.empty?
       VultestUI.execute('Output error report about attack')
       error_report = ErrorAttackReport.new(report_dir: @test_dir, vulenv_config: @vulenv.vulenv_config, attack_config: @vulenv.attack_config)
-      error_report.create_report(@exploit.error_module)
+      error_report.create_report(@attack.error_module)
       return true
     end
 

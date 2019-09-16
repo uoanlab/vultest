@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative './lib/software'
-require_relative './lib/content'
-require_relative '../ui'
+require_relative './software'
+require_relative './content'
+require_relative '../../ui'
 
-module ConstructionParams
-  include AssistContent
-  include AssistSoftware
+module Const
+  include Content
+  include Software
 
   private
 
@@ -28,15 +28,15 @@ module ConstructionParams
     FileUtils.mkdir_p("#{role_dir}/metasploit/vars")
     FileUtils.mkdir_p("#{role_dir}/metasploit/files")
     FileUtils.cp_r(
-      './build/ansible/roles/metasploit/tasks/main.yml',
+      './vulenv/tools/config/ansible/roles/metasploit/tasks/main.yml',
       "#{role_dir}/metasploit/tasks/main.yml"
     )
     FileUtils.cp_r(
-      './build/ansible/roles/metasploit/vars/main.yml',
+      './vulenv/tools/config/ansible/roles/metasploit/vars/main.yml',
       "#{role_dir}/metasploit/vars/main.yml"
     )
     FileUtils.cp_r(
-      './build/ansible/roles/metasploit/files/database.yml',
+      './vulenv/tools/config/ansible/roles/metasploit/files/database.yml',
       "#{role_dir}/metasploit/files/database.yml"
     )
   end
@@ -47,7 +47,7 @@ module ConstructionParams
     FileUtils.mkdir_p("#{args[:role_dir]}/user/vars")
 
     FileUtils.cp_r(
-      './build/ansible/roles/user/tasks/main.yml',
+      './vulenv/tools/config/ansible/roles/user/tasks/main.yml',
       "#{args[:role_dir]}/user/tasks/main.yml"
     )
 

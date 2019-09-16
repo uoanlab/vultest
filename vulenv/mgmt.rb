@@ -18,7 +18,7 @@ require 'tty-prompt'
 
 require_relative '../ui'
 
-module ControlVulenv
+module Mgmt
   private
 
   def start_vulenv
