@@ -48,14 +48,14 @@ class ProcessVultest
       return
     end
 
-    return unless prepare_attack_host
+    return unless prepare_attack_host?
 
     VultestUI.warring('Can look at a report about failure of attack') unless execute_attack
   end
 
   def start_vultest_report
-    return if error_vulenv_report
-    return if error_attack_report
+    return if error_vulenv_report?
+    return if error_attack_report?
 
     vultest_report = VultestReport.new(cve: @cve, report_dir: @test_dir, vulenv_config: @vulenv.vulenv_config, attack_config: @vulenv.attack_config)
     vultest_report.create_report
@@ -94,7 +94,7 @@ class ProcessVultest
     @cve = cve
   end
 
-  def prepare_attack_host
+  def prepare_attack_host?
     @attack = Attack.new
 
     if @vulenv.vulenv_config['attack_vector'] == 'local'
@@ -116,7 +116,7 @@ class ProcessVultest
     @attack.execute(attack_host: @attacker[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
   end
 
-  def error_vulenv_report
+  def error_vulenv_report?
     if @vulenv.nil?
       VultestUI.error('There is no a vulnerable environment')
       return true
@@ -132,7 +132,7 @@ class ProcessVultest
     false
   end
 
-  def error_attack_report
+  def error_attack_report?
     if @attack.nil?
       VultestUI.error('Execute exploit command')
       return true
