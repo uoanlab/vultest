@@ -37,8 +37,8 @@ class Ansible
     FileUtils.mkdir_p(@ansible_dir[:playbook].to_s)
     FileUtils.mkdir_p(@ansible_dir[:roles].to_s)
 
-    FileUtils.cp_r('./vulenv/tools/config/ansible/ansible.cfg', "#{@ansible_dir[:base]}/ansible.cfg")
-    FileUtils.cp_r('./vulenv/tools/config/ansible/hosts/hosts.yml', "#{@ansible_dir[:hosts]}/hosts.yml")
+    FileUtils.cp_r('./lib/vulenv/tools/config/ansible/ansible.cfg', "#{@ansible_dir[:base]}/ansible.cfg")
+    FileUtils.cp_r('./lib/vulenv/tools/config/ansible/hosts/hosts.yml', "#{@ansible_dir[:hosts]}/hosts.yml")
   end
 
   def create

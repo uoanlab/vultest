@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative '../vulenv/vulenv'
-require_relative '../attack/attack'
-require_relative '../report/vultest'
-require_relative '../report/error/attack'
-require_relative '../report/error/vulenv'
-require_relative '../ui'
+require_relative '../../lib/vulenv/vulenv'
+require_relative '../../lib/attack/attack'
+require_relative '../../lib/report/vultest'
+require_relative '../../lib/report/error/attack'
+require_relative '../../lib/report/error/vulenv'
+require_relative '../../lib/ui'
 
 class ProcessVultest
   attr_reader :cve
