@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative '../../lib/vulenv/vulenv'
-require_relative '../../lib/attack/attack'
-require_relative '../../lib/report/vultest'
-require_relative '../../lib/report/error/attack'
-require_relative '../../lib/report/error/vulenv'
-require_relative '../../lib/ui'
+require_relative '../lib/vulenv/vulenv'
+require_relative '../lib/attack/attack'
+require_relative '../lib/report/vultest'
+require_relative '../lib/report/error/attack'
+require_relative '../lib/report/error/vulenv'
+require_relative '../lib/ui'
 
 class ProcessVultest
   attr_reader :cve
@@ -88,7 +88,7 @@ class ProcessVultest
   def create_vulenv(cve)
     @vulenv = Vulenv.new(cve: cve, vulenv_dir: @test_dir)
 
-    return unless @vulenv.select_vulenv(cve)
+    return unless @vulenv.select_vulenv?(cve)
 
     @vulenv.create
     @cve = cve
@@ -113,7 +113,7 @@ class ProcessVultest
   end
 
   def execute_attack
-    @attack.execute(attack_host: @attacker[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
+    @attack.execute?(attack_host: @attacker[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
   end
 
   def error_vulenv_report?

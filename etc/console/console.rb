@@ -17,7 +17,7 @@ require 'pastel'
 require 'tty-font'
 require 'tty-prompt'
 
-require_relative '../process/vultest'
+require_relative '../../proc/vultest'
 require_relative './option'
 
 class Console
