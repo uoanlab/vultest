@@ -88,7 +88,7 @@ class ProcessVultest
   def create_vulenv(cve)
     @vulenv = Vulenv.new(cve: cve, vulenv_dir: @test_dir)
 
-    return unless @vulenv.select_vulenv(cve)
+    return unless @vulenv.select_vulenv?(cve)
 
     @vulenv.create
     @cve = cve

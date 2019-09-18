@@ -39,7 +39,7 @@ class Vulenv
     FileUtils.mkdir_p(@vulenv_dir)
   end
 
-  def select_vulenv(cve)
+  def select_vulenv?(cve)
     vul_configs = DB.get_vul_configs(cve)
 
     if vul_configs.empty?
