@@ -113,7 +113,7 @@ class ProcessVultest
   end
 
   def execute_attack
-    @attack.execute(attack_host: @attacker[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
+    @attack.execute?(attack_host: @attacker[:host], msf_modules: @vulenv.attack_config['metasploit_module'])
   end
 
   def error_vulenv_report?

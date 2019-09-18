@@ -37,7 +37,7 @@ class Attack
     @msf_api.console_create
   end
 
-  def execute(args)
+  def execute?(args)
     msf_modules = args[:msf_modules]
 
     VultestUI.execute('Exploit attack')
