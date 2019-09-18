@@ -15,8 +15,8 @@
 require 'bundler/setup'
 require 'optparse'
 
-require_relative './etc/console/console'
-require_relative './etc/option'
+require_relative './app/console/console'
+require_relative './app/option'
 
 unless ARGV.size.zero?
   options = ARGV.getopts('h', 'cve:', 'test:yes', 'attack_user:', 'attack_passwd:', 'attack_host:', 'dir:', 'destroy:')
