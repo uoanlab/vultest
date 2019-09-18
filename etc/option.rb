@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative './process/vultest'
+require_relative '../proc/vultest'
 
 module VultestOptionExecute
   class << self
