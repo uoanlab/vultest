@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative './local'
-require_relative './user'
-require_relative './related_software'
-require_relative './vul_software'
-require_relative './content'
-require_relative './prepare'
-require_relative '../../ui'
+require './lib/vulenv/config/local'
+require './lib/vulenv/config/user'
+require './lib/vulenv/config/related_software'
+require './lib/vulenv/config/vul_software'
+require './lib/vulenv/config/content'
+require './lib/vulenv/config/prepare'
+require './lib/ui'
 
 module Const
   include Local

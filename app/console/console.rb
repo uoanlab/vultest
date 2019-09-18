@@ -17,8 +17,8 @@ require 'pastel'
 require 'tty-font'
 require 'tty-prompt'
 
-require_relative '../../proc/vultest'
-require_relative './option'
+require './proc/vultest'
+require './app/console/option'
 
 class Console
   attr_reader :prompt

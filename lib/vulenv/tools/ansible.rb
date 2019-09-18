@@ -14,7 +14,7 @@
 
 require 'fileutils'
 
-require_relative '../config/const'
+require './lib/vulenv/config/const'
 
 class Ansible
   include Const

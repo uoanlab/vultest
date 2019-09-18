@@ -14,10 +14,10 @@
 
 require 'tty-markdown'
 
-require_relative '../db'
-require_relative './attack'
-require_relative './cve'
-require_relative './vulenv'
+require './lib/db'
+require './lib/report/attack'
+require './lib/report/cve'
+require './lib/report/vulenv'
 
 class VultestReport
   include AttackReport

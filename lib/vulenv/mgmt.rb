@@ -16,7 +16,7 @@ require 'bundler/setup'
 require 'open3'
 require 'tty-prompt'
 
-require_relative '../ui'
+require './lib/ui'
 
 module Mgmt
   private

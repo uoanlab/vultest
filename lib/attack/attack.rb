@@ -15,9 +15,9 @@
 require 'bundler/setup'
 require 'net/ssh'
 
-require_relative './method/haijack'
-require_relative './tools/metasploit'
-require_relative '../ui'
+require './lib/attack/method/haijack'
+require './lib/attack/tools/metasploit'
+require './lib/ui'
 
 class Attack
   attr_reader :msf_api, :error_module

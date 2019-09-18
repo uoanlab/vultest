@@ -15,9 +15,9 @@
 
 require 'tty-markdown'
 
-require_relative '../attack'
-require_relative '../cve'
-require_relative '../vulenv'
+require './lib/report/attack'
+require './lib/report/cve'
+require './lib/report/vulenv'
 
 class ErrorAttackReport
   include AttackReport

@@ -20,12 +20,12 @@ require 'tty-table'
 require 'tty-prompt'
 require 'yaml'
 
-require_relative './mgmt'
-require_relative './config/const'
-require_relative './tools/vagrant'
-require_relative './tools/ansible'
-require_relative '../db'
-require_relative '../ui'
+require './lib/vulenv/mgmt'
+require './lib/vulenv/config/const'
+require './lib/vulenv/tools/vagrant'
+require './lib/vulenv/tools/ansible'
+require './lib/db'
+require './lib/ui'
 
 class Vulenv
   attr_reader :stderr, :vulenv_config, :attack_config
