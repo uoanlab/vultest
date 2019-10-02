@@ -21,15 +21,15 @@ module Local
     FileUtils.mkdir_p("#{role_dir}/metasploit/vars")
     FileUtils.mkdir_p("#{role_dir}/metasploit/files")
     FileUtils.cp_r(
-      './lib/vulenv/tools/config/ansible/roles/metasploit/tasks/main.yml',
+      './lib/vulenv/tools/data/ansible/roles/metasploit/tasks/main.yml',
       "#{role_dir}/metasploit/tasks/main.yml"
     )
     FileUtils.cp_r(
-      './lib/vulenv/tools/config/ansible/roles/metasploit/vars/main.yml',
+      './lib/vulenv/tools/data/ansible/roles/metasploit/vars/main.yml',
       "#{role_dir}/metasploit/vars/main.yml"
     )
     FileUtils.cp_r(
-      './lib/vulenv/tools/config/ansible/roles/metasploit/files/database.yml',
+      './lib/vulenv/tools/data/ansible/roles/metasploit/files/database.yml',
       "#{role_dir}/metasploit/files/database.yml"
     )
   end

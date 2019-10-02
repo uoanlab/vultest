@@ -22,6 +22,6 @@ class Vagrant
   end
 
   def create
-    FileUtils.cp_r("./lib/vulenv/tools/config/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
+    FileUtils.cp_r("./lib/vulenv/tools/data/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
   end
 end

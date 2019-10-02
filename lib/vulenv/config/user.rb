@@ -21,7 +21,7 @@ module User
     FileUtils.mkdir_p("#{args[:role_dir]}/user/vars")
 
     FileUtils.cp_r(
-      './lib/vulenv/tools/config/ansible/roles/user/tasks/main.yml',
+      './lib/vulenv/tools/data/ansible/roles/user/tasks/main.yml',
       "#{args[:role_dir]}/user/tasks/main.yml"
     )
 
