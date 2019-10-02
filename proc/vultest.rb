@@ -98,7 +98,7 @@ class ProcessVultest
     @attack = Attack.new
 
     if @vulenv.vulenv_config['attack_vector'] == 'local'
-      @attacker[:host] = '192.168.33.10'
+      @attacker[:host] = '192.168.177.177'
     elsif @vulenv.vulenv_config['attack_vector']
       if @attacker[:host].nil?
         VultestUI.error('Cannot find the attack host')
