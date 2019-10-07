@@ -39,7 +39,7 @@ class ProcessVultest
     end
 
     create_vulenv(cve)
-    VultestUI.warring('Can look at a report about failure of creating the vulnerable environment') unless @vulenv.stderr.nil?
+    VultestUI.warring('Can look at a report about error in construction of vulnerable environment') unless @vulenv.stderr.nil?
   end
 
   def start_attack
@@ -50,7 +50,7 @@ class ProcessVultest
 
     return unless prepare_attack_host?
 
-    VultestUI.warring('Can look at a report about failure of attack') unless execute_attack
+    VultestUI.warring('Can look at a report about error in attack execution') unless execute_attack
   end
 
   def start_vultest_report
