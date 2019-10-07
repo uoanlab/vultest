@@ -32,13 +32,12 @@ class ErrorAttackReport
 
   def create_report(error_module)
     File.open("#{@report_dir}/error_attack_report.md", 'w') do |report_file|
-      report_file.puts("# Error Report about attack\n\n")
+      report_file.puts("# Vultest Report: Error in Attack Execution\n\n")
       error_attack_module_report(report_file, error_module)
 
       report_file.puts("## Target Host\n\n")
       report_os_and_vul_software(report_file, @vulenv_config)
       report_related_software(report_file, @vulenv_config)
-      report_attack_method(report_file, @attack_config)
     end
 
     parsed = TTY::Markdown.parse_file("#{@report_dir}/error_attack_report.md")
@@ -48,7 +47,7 @@ class ErrorAttackReport
   private
 
   def error_attack_module_report(report_file, error_module)
-    report_file.puts("## Failure Attack Method\n\n")
+    report_file.puts("## Root Cause\n\n")
     report_file.puts("### Metasploit\n\n")
     report_file.puts("####Module Name: #{error_module[:name]}\n")
     error_module[:option].each { |key, var| report_file.puts("- #{key} : #{var}\n\n") }
