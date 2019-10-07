@@ -15,8 +15,8 @@ University of Aizu, 2019
 - CVE-2017-11467
 
 # Releases
-- [20190617, v0.1.0](https://github.com/uoanlab/vultest/releases/tag/v0.1.0)
 - [20190628, v0.1.1](https://github.com/uoanlab/vultest/releases/tag/v0.1.1)
+- [20190617, v0.1.0](https://github.com/uoanlab/vultest/releases/tag/v0.1.0)
 
 
 # Related product
