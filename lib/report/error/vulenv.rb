@@ -32,8 +32,8 @@ class ErrorVulenvReport
 
   def create_report
     File.open("#{@report_dir}/error_vulenv_report.md", 'w') do |report_file|
-      report_file.puts("# Error Report about Vulnerable Environment\n\n")
-      report_file.puts("## Failure Case\n\n")
+      report_file.puts("# Vultest Report: Error in Construction of Vulnerable Environment\n\n")
+      report_file.puts("## Root Cause\n\n")
       error_message_report(report_file, @stderr)
 
       report_file.puts("## Vulnerable Environment\n\n")
@@ -63,9 +63,9 @@ class ErrorVulenvReport
 
       error[:msg] = error_msg[:err].gsub(/(['"])/, '')
 
-      report_file.puts("- software : #{error[:software_path].split('/')[2]}\n")
-      report_file.puts("  - install method : #{error[:software_install_method]}\n")
-      report_file.puts("  - msg : #{error[:msg]}\n")
+      report_file.puts("- Software Name : #{error[:software_path].split('/')[2]}\n")
+      report_file.puts("- Install Method : #{error[:software_install_method]}\n")
+      report_file.puts("- Error Message : #{error[:msg]}\n")
       error = {}
     end
 
