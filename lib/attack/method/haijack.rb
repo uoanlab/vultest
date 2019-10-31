@@ -24,8 +24,8 @@ module Haijack
 
       args[:api].shell_write(id: args[:id], command: command)
       success_flag = false
-      60.times do
-        sleep(1)
+      10.times do
+        sleep(10)
         res = args[:api].shell_read(args[:id])
         next if res['data'].empty?
 

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require 'fileutils'
+require 'open3'
 
 class Vagrant
   def initialize(args = {})
@@ -23,5 +24,11 @@ class Vagrant
 
   def create
     FileUtils.cp_r("./lib/vulenv/tools/data/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
+
+    return unless @os_name == 'windows'
+
+    Dir.chdir("#{@env_dir}") do
+      Open3.capture3('wget https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1')
+    end
   end
 end
