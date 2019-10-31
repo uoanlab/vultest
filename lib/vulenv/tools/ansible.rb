@@ -67,7 +67,7 @@ class Ansible
   def create_playbook
     File.open("#{@ansible_dir[:playbook]}/main.yml", 'w') do |playbook_file|
       playbook_file.puts("---\n- hosts: vagrant\n  ")
-      playbook_file.puts("connection: local \n  become: yes \n  roles: ") unless @target_os == 'windows'
+      playbook_file.puts("  connection: local \n  become: yes \n  roles: ") unless @target_os == 'windows'
       playbook_file.puts('    - ../roles/user') if @env_config.key?('user')
 
       if @env_config.key?('related_software')

@@ -1,5 +1,4 @@
 # Copyright [2019] [University of Aizu]
-
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -112,7 +111,7 @@ class Vulenv
 
     puts('Vulnerability environment list')
     header = ['id', 'vulenv name']
-    table = TTY::Table.new header, table
+    table = TTY::Table.new(header, table)
     table.render(:ascii).each_line do |line|
       puts line.chomp
     end
