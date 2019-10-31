@@ -21,6 +21,7 @@ class Ansible
 
   def initialize(args = {})
     @cve = args[:cve]
+    @target_os = args[:os_name]
     @db_path = args[:db_path]
     @env_config = args[:env_config]
 
@@ -37,8 +38,12 @@ class Ansible
     FileUtils.mkdir_p(@ansible_dir[:playbook].to_s)
     FileUtils.mkdir_p(@ansible_dir[:roles].to_s)
 
-    FileUtils.cp_r('./lib/vulenv/tools/data/ansible/ansible.cfg', "#{@ansible_dir[:base]}/ansible.cfg")
-    FileUtils.cp_r('./lib/vulenv/tools/data/ansible/hosts/hosts.yml', "#{@ansible_dir[:hosts]}/hosts.yml")
+    if @target_os == 'windows'
+      FileUtils.cp_r('./lib/vulenv/tools/data/ansible/hosts/windows/hosts.yml', "#{@ansible_dir[:hosts]}/hosts.yml")
+    else
+      FileUtils.cp_r('./lib/vulenv/tools/data/ansible/ansible.cfg', "#{@ansible_dir[:base]}/ansible.cfg")
+      FileUtils.cp_r('./lib/vulenv/tools/data/ansible/hosts/linux/hosts.yml', "#{@ansible_dir[:hosts]}/hosts.yml")
+    end
   end
 
   def create
@@ -61,7 +66,8 @@ class Ansible
 
   def create_playbook
     File.open("#{@ansible_dir[:playbook]}/main.yml", 'w') do |playbook_file|
-      playbook_file.puts("---\n- hosts: vagrant\n  connection: local \n  become: yes \n  roles: ")
+      playbook_file.puts("---\n- hosts: vagrant\n  ")
+      playbook_file.puts("  connection: local \n  become: yes \n  roles: ") unless @target_os == 'windows'
       playbook_file.puts('    - ../roles/user') if @env_config.key?('user')
 
       if @env_config.key?('related_software')
