@@ -11,29 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
 module Haijack
   private
 
   def shell(args)
     loop do
-      print 'shell > '
       command = gets.chomp.split(' ')[0]
       next if command.nil?
       return if command == 'exit'
 
       args[:api].shell_write(id: args[:id], command: command)
-      success_flag = false
-      10.times do
-        sleep(10)
+      loop do
         res = args[:api].shell_read(args[:id])
-        next if res['data'].empty?
+        break if res['data'].empty?
 
-        puts res['data']
-        success_flag = true
-        break
+        print res['data']
       end
-      puts 'Command not fund or incorrect how to use the command' unless success_flag
     end
   end
 
@@ -45,17 +40,12 @@ module Haijack
       break if command == 'exit'
 
       args[:api].meterpreter_write(id: args[:id], command: command)
-      success_flag = false
-      60.times do
-        sleep(1)
+      loop do
         res = args[:api].meterpreter_read(args[:id])
-        next if res['data'].empty?
+        break if res['data'].empty?
 
         puts res['data']
-        success_flag = true
-        break
       end
-      puts 'Command not fund or incorrect how to use the command' unless success_flag
     end
   end
 end
