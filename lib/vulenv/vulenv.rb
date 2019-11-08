@@ -82,17 +82,18 @@ class Vulenv
       _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
       unless status.exitstatus.zero?
         VultestUI.tty_spinner_end('error')
-        return
+        return false
       end
     end
 
     _stdout, _stderr, status = Open3.capture3("rm -rf #{@vulenv_dir}")
     unless status.exitstatus.zero?
       VultestUI.tty_spinner_end('error')
-      return
+      return false
     end
 
     VultestUI.tty_spinner_end('success')
+    true
   end
 
   private

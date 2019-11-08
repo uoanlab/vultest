@@ -69,9 +69,9 @@ class ProcessVultest
       return
     end
 
-    @vulenv.destroy!
-    @vulenv = nil
+    return unless @vulenv.destroy!
 
+    @vulenv = nil
     VultestUI.execute("Delete the vulnerable environment for #{@cve}")
   end
 
