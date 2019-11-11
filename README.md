@@ -1,3 +1,7 @@
+![GitHub](https://img.shields.io/github/license/uoanlab/vultest)
+![GitHub repo size](https://img.shields.io/github/repo-size/uoanlab/vultest)
+![GitHub All Releases](https://img.shields.io/github/downloads/uoanlab/vultest/total)
+
 # Copyright
 University of Aizu, 2019
 
