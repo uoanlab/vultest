@@ -1,5 +1,3 @@
-![GitHub](https://img.shields.io/github/license/uoanlab/vultest)
-
 # Copyright
 University of Aizu, 2019
 
