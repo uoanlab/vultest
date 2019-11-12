@@ -40,11 +40,13 @@ module Haijack
       break if command == 'exit'
 
       args[:api].meterpreter_write(id: args[:id], command: command)
+      flag = false
       loop do
         res = args[:api].meterpreter_read(args[:id])
-        break if res['data'].empty?
+        break if res['data'].empty? && flag
 
         puts res['data']
+        flag = true
       end
     end
   end
