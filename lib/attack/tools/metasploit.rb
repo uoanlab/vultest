@@ -91,4 +91,9 @@ class Metasploit
     params = ['session.meterpreter_read', @token, session_id]
     msf_api(params)
   end
+
+  def session_stop(session_id)
+    params = ['session.stop', @token, session_id]
+    msf_api(params)
+  end
 end

@@ -30,6 +30,7 @@ module Haijack
         print res['data']
       end
     end
+    args[:api].session_stop(args[:id])
   end
 
   def meterpreter(args)
@@ -44,10 +45,12 @@ module Haijack
       loop do
         res = args[:api].meterpreter_read(args[:id])
         break if res['data'].empty? && flag
+        next if res['data'].empty?
 
         puts res['data']
         flag = true
       end
     end
+    args[:api].session_stop(args[:id])
   end
 end
