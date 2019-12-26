@@ -26,26 +26,20 @@ class Vagrant
   end
 
   def create
-    if File.exist?("./lib/vulenv/tools/data/vagrant/#{@os_name}/#{@os_version}/Vagrantfile")
-      FileUtils.cp_r("./lib/vulenv/tools/data/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
-    else
-      box_list = create_table_of_vagrant
-      list = []
-      box_list.each { |b| list << "#{b[1]}:#{b[2]}" }
+    if @os_name == 'windows' || TTY::Prompt.new.yes?('Do you select a vagrant image in local?')
+      puts('Please you select a vagrant image below:')
+      puts("  OS name: #{@os_name}")
+      puts("  OS version: #{@os_version}")
+      box = select_vagrant_image_in_local
 
-      message = 'Select an id for testing vagrant image?'
-      select_prompt = TTY::Prompt.new
-      select_box = select_prompt.enum_select(message, list)
+      create_base_vagrantfile(box)
+      return unless @os_name == 'windows'
 
-      if @os_name == 'windows' then create_vagrantfile_of_windows(box_name: select_box.split(':')[0], box_version: select_box.split(':')[1])
-      else create_vagrantfile_of_linux(box_name: select_box.split(':')[0], box_version: select_box.split(':')[1])
+      Dir.chdir(@env_dir) do
+        Open3.capture3('wget https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1')
       end
-    end
-
-    return unless @os_name == 'windows'
-
-    Dir.chdir(@env_dir) do
-      Open3.capture3('wget https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1')
+    elsif File.exist?("./lib/vulenv/tools/data/vagrant/#{@os_name}/#{@os_version}/Vagrantfile")
+      FileUtils.cp_r("./lib/vulenv/tools/data/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
     end
   end
 
@@ -76,25 +70,29 @@ class Vagrant
     box_list
   end
 
-  def create_vagrantfile_of_windows(args = {})
+  def select_vagrant_image_in_local
+    box_list = create_table_of_vagrant
+    list = []
+    box_list.each { |b| list << "#{b[1]}:#{b[2]}" }
+
+    message = 'Select an id for testing vagrant image?'
+    select_box = TTY::Prompt.new.enum_select(message, list)
+
+    { box_name: select_box.split(':')[0], box_version: select_box.split(':')[1] }
+  end
+
+  def create_base_vagrantfile(args = {})
     File.open("#{@env_dir}/Vagrantfile", 'w') do |file|
       file.puts("# -*- mode: ruby -*-\n")
       file.puts("# vi: set ft=ruby :\n\n")
       file.puts("Vagrant.configure(2) do |config|\n")
-      file.puts("  config.vm.box = '#{args[:box_name]}'\n  config.vm.box_version = '#{args[:box_version]}'\n\n")
+      file.puts("  config.vm.box = '#{args[:box_name]}'\n")
+      file.puts("  config.vm.box_version = '#{args[:box_version]}'\n\n") if args.key?(:box_version)
 
-      file.puts("  config.vm.guest = :windows\n  config.vm.communicator = 'winrm'\n  config.winrm.username = 'vagrant'\n")
-      file.puts("  config.winrm.password = 'vagrant'\n  config.winrm.retry_limit = 30\n\n")
+      if @os_name == 'windows' then detail_vagrantfile_of_windows(file)
+      else detail_vagrantfile_of_linux(file)
+      end
 
-      file.puts("  config.vm.network 'private_network', ip: '192.168.177.177'\n")
-      file.puts("  config.vm.network :forwarded_port, guest: 3389, host: 13_389\n")
-      file.puts("  config.vm.network :forwarded_port, guest: 5985, host: 15_985, id: 'winrm', auto_correct: true\n\n")
-
-      file.puts("  config.vm.provider 'virtualbox' do |vb|\n    vb.gui = true\n  end\n\n")
-
-      file.puts("  config.vm.provision 'shell' do |shell|\n    shell.path = 'ConfigureRemotingForAnsible.ps1'\n  end\n\n")
-
-      file.puts("  config.vm.provision 'ansible', run: 'always' do |ansible|\n")
       file.puts("    ansible.playbook = './ansible/playbook/main.yml'\n")
       file.puts("    ansible.inventory_path = './ansible/hosts/hosts.yml'\n")
       file.puts("    ansible.limit = 'vagrant'\n")
@@ -103,26 +101,27 @@ class Vagrant
     end
   end
 
-  def create_vagrantfile_of_linux(args = {})
-    File.open("#{@env_dir}/Vagrantfile", 'w') do |file|
-      file.puts("# -*- mode: ruby -*-\n")
-      file.puts("# vi: set ft=ruby :\n\n")
-      file.puts("Vagrant.configure(2) do |config|\n")
-      file.puts("  config.vm.box = '#{args[:box_name]}'\n")
-      file.puts("  config.vm.box_version = '#{args[:box_version]}'\n\n")
+  def detail_vagrantfile_of_windows(file)
+    file.puts("  config.vm.guest = :windows\n  config.vm.communicator = 'winrm'\n  config.winrm.username = 'vagrant'\n")
+    file.puts("  config.winrm.password = 'vagrant'\n  config.winrm.retry_limit = 30\n\n")
 
-      file.puts("  config.ssh.username = 'vagrant'\n")
-      file.puts("  config.ssh.password = 'vagrant'\n")
+    file.puts("  config.vm.network 'private_network', ip: '192.168.177.177'\n")
+    file.puts("  config.vm.network :forwarded_port, guest: 3389, host: 13_389\n")
+    file.puts("  config.vm.network :forwarded_port, guest: 5985, host: 15_985, id: 'winrm', auto_correct: true\n\n")
 
-      file.puts("  config.vm.network 'private_network', ip: '192.168.177.177'\n")
-      file.puts("  config.vm.network :forwarded_port, guest: 80, host: 65_434\n")
+    file.puts("  config.vm.provider 'virtualbox' do |vb|\n    vb.gui = true\n  end\n\n")
 
-      file.puts("  config.vm.provision 'ansible', run: 'always' do |ansible|\n")
-      file.puts("    ansible.playbook = './ansible/playbook/main.yml'\n")
-      file.puts("    ansible.inventory_path = './ansible/hosts/hosts.yml'\n")
-      file.puts("    ansible.limit = 'vagrant'\n")
-      file.puts("  end\n\n")
-      file.puts('end')
-    end
+    file.puts("  config.vm.provision 'shell' do |shell|\n    shell.path = 'ConfigureRemotingForAnsible.ps1'\n  end\n\n")
+
+    file.puts("  config.vm.provision 'ansible', run: 'always' do |ansible|\n")
+  end
+
+  def detail_vagrantfile_of_linux(file)
+    file.puts("  config.vm.network 'private_network', ip: '192.168.177.177'\n")
+    file.puts("  config.vm.network 'forwarded_port', guest: 80, host: 65_434\n")
+
+    file.puts("  config.vm.provision 'shell', inline: <<-SHELL\n    yum update nss -y\n  SHELL") if @os_name.scan(/CentOS/i)
+
+    file.puts("  config.vm.provision 'ansible_local', run: 'always' do |ansible|\n")
   end
 end
