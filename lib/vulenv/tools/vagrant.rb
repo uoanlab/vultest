@@ -27,9 +27,7 @@ class Vagrant
 
   def create
     if @os_name == 'windows' || TTY::Prompt.new.yes?('Do you select a vagrant image in local?')
-      puts('Please you select a vagrant image below:')
-      puts("  OS name: #{@os_name}")
-      puts("  OS version: #{@os_version}")
+      puts("Please, you select a vagrant image below:\n  OS name: #{@os_name}\n  OS version: #{@os_version}")
       box = select_vagrant_image_in_local
 
       create_base_vagrantfile(box)
@@ -38,6 +36,19 @@ class Vagrant
       Dir.chdir(@env_dir) do
         Open3.capture3('wget https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1')
       end
+    elsif TTY::Prompt.new.yes?('Do you select a vagrant image in Vagrant Cloud?')
+      box = {}
+
+      puts("Please, you input a vagrant image below:\n  OS name: #{@os_name}\n  OS version: #{@os_version}")
+
+      print('Name of Vagrant image: ')
+      box[:box_name] = gets.chomp!
+
+      print('Version of Vagrant image: ')
+      box[:box_version] = gets.chomp!
+
+      create_base_vagrantfile(box)
+
     elsif File.exist?("./lib/vulenv/tools/data/vagrant/#{@os_name}/#{@os_version}/Vagrantfile")
       FileUtils.cp_r("./lib/vulenv/tools/data/vagrant/#{@os_name}/#{@os_version}/Vagrantfile", "#{@env_dir}/Vagrantfile")
     end
@@ -87,7 +98,7 @@ class Vagrant
       file.puts("# vi: set ft=ruby :\n\n")
       file.puts("Vagrant.configure(2) do |config|\n")
       file.puts("  config.vm.box = '#{args[:box_name]}'\n")
-      file.puts("  config.vm.box_version = '#{args[:box_version]}'\n\n") if args.key?(:box_version)
+      file.puts("  config.vm.box_version = '#{args[:box_version]}'\n\n") if args.key?(:box_version) && !args[:box_version].empty?
 
       if @os_name == 'windows' then detail_vagrantfile_of_windows(file)
       else detail_vagrantfile_of_linux(file)
