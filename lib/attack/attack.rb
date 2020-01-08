@@ -14,6 +14,7 @@
 
 require 'bundler/setup'
 require 'net/ssh'
+require 'tty-prompt'
 
 require './lib/attack/method/haijack'
 require './lib/attack/tools/metasploit'
@@ -24,11 +25,10 @@ class Attack
 
   include Haijack
 
-  ATTACK_TIME = 300
-
   def initialize
     @msf_api = nil
     @error_module = {}
+    @execute_job_list = []
   end
 
   def connect_metasploit(attack_host)
@@ -45,19 +45,15 @@ class Attack
       msf_module_option = configure_module_option(attack_host: args[:attack_host], msf_module: msf_module)
       msf_module_info = @msf_api.module_execute(type: msf_module['module_type'], name: msf_module['module_name'], option: msf_module_option)
 
-      VultestUI.tty_spinner_begin(msf_module['module_name'])
-      connection = connection?(msf_module_info)
+      connection = connection?(msf_module['module_name'], msf_module_info)
+      @execute_job_list << msf_module_info['job_id']
 
-      unless connection
-        VultestUI.tty_spinner_end('error')
+      next if connection
 
-        @error_module[:name] = msf_module['module_name']
-        @error_module[:option] = msf_module_option
-
-        return false
-      end
-
-      VultestUI.tty_spinner_end('success')
+      @error_module[:name] = msf_module['module_name']
+      @error_module[:option] = msf_module_option
+      @execute_job_list.each { |id| @msf_api.job_stop(id) }
+      return false
     end
 
     true
@@ -106,14 +102,31 @@ class Attack
     msf_module_option
   end
 
-  def connection?(module_info)
-    ATTACK_TIME.times do
+  def connection?(module_name, module_info)
+    VultestUI.tty_spinner_begin(module_name)
+    continue_flag = true
+    success_flag = false
+    time_count = 0
+
+    while continue_flag
       sleep(1)
-      @msf_api.module_session_list.each do |_key, value|
-        return true if module_info['uuid'] == value['exploit_uuid']
+      time_count += 1
+      unless @msf_api.module_session_list.empty?
+        @msf_api.module_session_list.each do |_key, value|
+          success_flag = true if module_info['uuid'] == value['exploit_uuid']
+        end
       end
+      break if success_flag
+
+      next unless (time_count % 10).zero? && time_count >= 10
+
+      VultestUI.tty_spinner_end('error')
+      continue_flag = TTY::Prompt.new.yes?('There\'s a possibility that attack is fail. Are you still going to continue that?')
+      VultestUI.tty_spinner_begin(module_name)
     end
-    false
+
+    success_flag ? VultestUI.tty_spinner_end('success') : VultestUI.tty_spinner_end('error')
+    success_flag
   end
 
   def startup_metasploit_server(args = {})
