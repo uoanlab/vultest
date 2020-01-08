@@ -96,4 +96,19 @@ class Metasploit
     params = ['session.stop', @token, session_id]
     msf_api(params)
   end
+
+  def job_list
+    params = ['job.list', @token]
+    msf_api(params)
+  end
+
+  def job_info(job_id)
+    params = ['job.info', @token, job_id]
+    msf_api(params)
+  end
+
+  def job_stop(job_id)
+    params = ['job.stop', @token, job_id]
+    msf_api(params)
+  end
 end
