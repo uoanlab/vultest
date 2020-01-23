@@ -9,6 +9,9 @@ Style/FrozenStringLiteralComment:
 Style/Documentation:
   Enabled: false
 
+Style/RedundantReturn:
+  Enabled: false
+
 Metrics/AbcSize:
   Max: 30
 
@@ -19,7 +22,12 @@ Layout/LineLength:
   Max: 160
 
 Metrics/MethodLength:
-  Max: 20
+  Max: 25
 
 Metrics/PerceivedComplexity:
   Max: 8
+
+Metrics/BlockLength:
+  Exclude:
+    - 'vultest.rb'
+    - './lib/command.rb'
