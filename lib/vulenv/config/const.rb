@@ -18,7 +18,6 @@ require './lib/vulenv/config/related_software'
 require './lib/vulenv/config/vul_software'
 require './lib/vulenv/config/content'
 require './lib/vulenv/config/prepare'
-require './lib/ui'
 
 module Const
   include Local
