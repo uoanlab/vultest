@@ -62,7 +62,7 @@ class Metasploit
     msf_api(params)
   end
 
-  def module_execute(args = {})
+  def module_execute(args)
     params = ['module.execute', @token, args[:type], args[:name], args[:option]]
     msf_api(params)
   end
