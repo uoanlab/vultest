@@ -22,7 +22,7 @@ Layout/LineLength:
   Max: 160
 
 Metrics/MethodLength:
-  Max: 25
+  Max: 20
 
 Metrics/PerceivedComplexity:
   Max: 8
@@ -30,4 +30,4 @@ Metrics/PerceivedComplexity:
 Metrics/BlockLength:
   Exclude:
     - 'vultest.rb'
-    - './lib/command.rb'
+    - './bin/command.rb'

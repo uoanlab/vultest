@@ -62,7 +62,7 @@ module VulenvReport
       report_file.puts("### Software Name : #{error[:software_path].split('/')[2]}\n\n")
       report_file.puts("### Install Method : #{error[:software_install_method]}\n\n")
       report_file.puts("### Error Message (Ansible Message)\n")
-      error[:msg].each { |key, value| report_file.puts("- #{key} => #{value}\n")}
+      error[:msg].each { |key, value| report_file.puts("- #{key} => #{value}\n") }
       error = {}
     end
 

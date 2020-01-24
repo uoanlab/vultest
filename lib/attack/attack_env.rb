@@ -39,10 +39,7 @@ class AttackEnv
     msf_api.auth_login
     msf_api.console_create
 
-    @error = {}
-    error[:flag] = false
-    error[:moddule_name] = nil
-    error[:module_option] = {}
+    @error = { flag: false, module_name: nil, module_option: {} }
   end
 
   def execute_attack?(msf_modules)

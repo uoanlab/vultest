@@ -32,9 +32,7 @@ class Vulenv
 
     FileUtils.mkdir_p(@vulenv_dir)
 
-    @error = {}
-    error[:flag] = false
-    error[:cause] = nil
+    @error = { flag: false, cause: nil }
   end
 
   def start_up
@@ -75,24 +73,16 @@ class Vulenv
     VultestUI.execute('Create vulnerability environment')
     Dir.chdir(vulenv_dir) do
       error[:cause] = start_up
-      unless error[:cause].nil?
-        error[:flag] = true
-        return false
-      end
+      return false unless error[:cause].nil?
 
       error[:cause] = reload if vulenv_config.key?('reload')
-      unless error[:cause].nil?
-        error[:flag] = true
-        return false
-      end
+      return false unless error[:cause].nil?
 
       error[:cause] = hard_setup if vulenv_config['construction'].key?('hard_setup')
-      unless error[:cause].nil?
-        error[:flag] = true
-        return false
-      end
+      return false unless error[:cause].nil?
     end
 
+    error[:cause] = nil
     true
   end
 
