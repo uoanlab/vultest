@@ -17,7 +17,7 @@ require 'pastel'
 require 'tty-font'
 require 'optparse'
 
-require './bin/command'
+require './cmd/command'
 require './lib/ui'
 
 puts Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST'))

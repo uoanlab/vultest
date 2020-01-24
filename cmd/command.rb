@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './bin/test'
-require './bin/destroy'
-require './bin/exploit'
-require './bin/set'
-require './bin/back'
-require './bin/report'
+require './cmd/test'
+require './cmd/destroy'
+require './cmd/exploit'
+require './cmd/set'
+require './cmd/back'
+require './cmd/report'
 
 module Command
   class << self
