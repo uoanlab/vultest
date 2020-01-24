@@ -30,4 +30,3 @@ Metrics/PerceivedComplexity:
 Metrics/BlockLength:
   Exclude:
     - 'vultest.rb'
-    - './bin/command.rb'
