@@ -27,8 +27,8 @@ class VultestReport
 
   def initialize(args)
     @cve = args[:vultest_case].cve
-    @vulenv = args[:vulenv]
-    @attack_env = args[:attack_env]
+    @vulenv = args.fetch(:vulenv, nil)
+    @attack_env = args.fetch(:attack_env, nil)
     @vulenv_config = args[:vultest_case].vulenv_config
     @attack_config = args[:vultest_case].attack_config
     @report_dir = args[:report_dir]
