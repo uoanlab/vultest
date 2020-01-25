@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Option
-  private
+require './cmd/test'
+require './cmd/destroy'
+require './cmd/exploit'
+require './cmd/set'
+require './cmd/back'
+require './cmd/report'
 
-  def create_vulenv_dir(dir)
-    path = ''
-    path_elm = dir.split('/')
-
-    path_elm.each do |elm|
-      path.concat('/') unless path.empty?
-      if elm[0] == '$'
-        elm.slice!(0)
-        ENV.key?(elm) ? path.concat(ENV[elm]) : path.concat(elm)
-      else
-        path.concat(elm)
-      end
-    end
-    path
+module Command
+  class << self
+    include Test
+    include Destroy
+    include Exploit
+    include Setting
+    include Back
+    include Report
   end
 end

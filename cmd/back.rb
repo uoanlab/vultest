@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/vulenv/config/local'
-require './lib/vulenv/config/user'
-require './lib/vulenv/config/related_software'
-require './lib/vulenv/config/vul_software'
-require './lib/vulenv/config/content'
-require './lib/vulenv/config/prepare'
+module Back
+  def back(args)
+    prompt = args[:prompt]
+    console_name = args[:name]
+    vultest_case = args[:vultest_case]
+    vulenv = args[:vulenv]
+    attack_env = args[:attack_env]
 
-module Const
-  include Local
-  include User
-  include RelatedSoftware
-  include VulSoftware
-  include Content
-  include Prepare
+    if prompt.yes?("Finish the vultest for #{vultest_case.cve}")
+      console_name = 'vultest'
+      vultest_case = vulenv = attack_env = nil
+    end
+
+    return console_name, vultest_case, vulenv, attack_env
+  end
 end

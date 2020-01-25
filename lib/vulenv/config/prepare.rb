@@ -13,8 +13,6 @@
 # limitations under the License.
 
 module Prepare
-  private
-
   def prepare(args)
     VultestUI.warring('Following execute command')
     puts("  [1] cd #{args[:env_dir]}")

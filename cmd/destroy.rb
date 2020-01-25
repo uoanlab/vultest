@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/vulenv/config/local'
-require './lib/vulenv/config/user'
-require './lib/vulenv/config/related_software'
-require './lib/vulenv/config/vul_software'
-require './lib/vulenv/config/content'
-require './lib/vulenv/config/prepare'
+require './lib/ui'
 
-module Const
-  include Local
-  include User
-  include RelatedSoftware
-  include VulSoftware
-  include Content
-  include Prepare
+module Destroy
+  def destroy(args)
+    prompt = args[:prompt]
+    vulenv = args.fetch(:vulenv, nil)
+
+    if vulenv.nil?
+      VultestUI.error('Doesn\'t exist a vulnerabule environment')
+      return vulenv
+    end
+    return vulenv if prompt.no?('Delete vulnerable environment?')
+
+    return vulenv unless vulenv.destroy!
+
+    VultestUI.execute("Delete the vulnerable environment for #{vulenv.cve}")
+    return nil
+  end
 end

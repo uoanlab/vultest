@@ -95,7 +95,7 @@ module DB
       cvss_v3
     end
 
-    def get_vul_configs(cve)
+    def get_vultest_configs(cve)
       db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/data/vultest.sqlite3")
       db.results_as_hash = true
 

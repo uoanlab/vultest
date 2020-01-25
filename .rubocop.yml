@@ -9,6 +9,9 @@ Style/FrozenStringLiteralComment:
 Style/Documentation:
   Enabled: false
 
+Style/RedundantReturn:
+  Enabled: false
+
 Metrics/AbcSize:
   Max: 30
 
@@ -23,3 +26,8 @@ Metrics/MethodLength:
 
 Metrics/PerceivedComplexity:
   Max: 8
+
+Metrics/BlockLength:
+  Exclude:
+    - 'vultest.rb'
+    - 'simple_vultest.rb'
