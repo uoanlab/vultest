@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'pastel'
 require 'tty-font'
-require 'optparse'
+require 'tty-prompt'
 
 require './cmd/command'
 require './lib/ui'
@@ -29,7 +29,7 @@ setting = {}
 setting[:test_dir] = ENV.key?('TESTDIR') ? ENV['TESTDIR'] : './test_dir'
 setting[:attack_host] = ENV.key?('ATTACKHOST') ? ENV['ATTACKHOST'] : nil
 setting[:attack_user] = ENV.key?('ATTACKERUSER') ? ENV['ATTACKERUSER'] : 'root'
-setting [:attack_passwd] = ENV.key?('ATTACKPASSWD') ? ENV['ATTACKPASSWD'] : nil
+setting [:attack_passwd] = ENV.key?('ATTACKPASSWD') ? ENV['ATTACKPASSWD'] : 'toor'
 
 vultest_case = nil
 vulenv = nil
