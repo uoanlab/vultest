@@ -63,9 +63,7 @@ class AttackEnv
   def rob_shell
     VultestUI.execute('Brake into target machine')
 
-    session = {}
-    session[:type] = nil
-    session[:id] = nil
+    session = { type: nil, id: nil }
 
     msf_api.module_session_list.each do |key, value|
       session[:id] = key if value['type'] == 'meterpreter' || value['type'] == 'shell'
