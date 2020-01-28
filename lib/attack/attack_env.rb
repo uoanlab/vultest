@@ -28,9 +28,7 @@ class AttackEnv
 
   def initialize(args)
     @host = args[:attack_host]
-    @user = {}
-    @user[:name] = args[:attack_user]
-    @user[:passwd] = args[:attack_passwd]
+    @user = { name: args[:attack_user], passwd: args[:attack_passwd] }
 
     @attack_vector = args[:attack_vector]
     start_up_msfserver if attack_vector == 'remote'
