@@ -28,9 +28,7 @@ class AttackEnv
 
   def initialize(args)
     @host = args[:attack_host]
-    @user = {}
-    @user[:name] = args[:attack_user]
-    @user[:passwd] = args[:attack_passwd]
+    @user = { name: args[:attack_user], passwd: args[:attack_passwd] }
 
     @attack_vector = args[:attack_vector]
     start_up_msfserver if attack_vector == 'remote'
@@ -63,9 +61,7 @@ class AttackEnv
   def rob_shell
     VultestUI.execute('Brake into target machine')
 
-    session = {}
-    session[:type] = nil
-    session[:id] = nil
+    session = { type: nil, id: nil }
 
     msf_api.module_session_list.each do |key, value|
       session[:id] = key if value['type'] == 'meterpreter' || value['type'] == 'shell'
