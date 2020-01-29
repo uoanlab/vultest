@@ -73,7 +73,7 @@ class Metasploit
   end
 
   def shell_write(args)
-    params = ['session.shell_write', @token, args[:id], "#{args[:command]}\n"]
+    params = ['session.shell_write', @token, args[:id], "#{args[:cmd]}\n"]
     msf_api(params)
   end
 
@@ -83,7 +83,7 @@ class Metasploit
   end
 
   def meterpreter_write(args)
-    params = ['session.meterpreter_run_single', @token, args[:id], args[:command]]
+    params = ['session.meterpreter_run_single', @token, args[:id], args[:cmd]]
     msf_api(params)
   end
 
