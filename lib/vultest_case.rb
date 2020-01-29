@@ -17,7 +17,7 @@ require 'tty-table'
 require 'tty-prompt'
 require 'yaml'
 
-require './lib/db'
+require './modules/db'
 require './lib/ui'
 
 class VultestCase
