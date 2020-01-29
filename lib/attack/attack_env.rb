@@ -49,7 +49,7 @@ class AttackEnv
       msf_module_option['LHOST'] = host
       msf_module_info = msf_api.module_execute(type: msf_module['module_type'], name: msf_module['module_name'], option: msf_module_option)
 
-      next if success_of_attack_module?(msf_module['module_name'], msf_module_info)
+      next if success_of_attack_module?(msf_module['module_type'], msf_module['module_name'], msf_module_info)
 
       error[:flag] = true
       error[:module_name] = msf_module['module_name']
@@ -59,26 +59,15 @@ class AttackEnv
     return true
   end
 
-  def execute_cmd_of_attack(cmd)
-    output = nil
-    sessions_in_executing_module.each do |value|
-      case value[:type]
-      when 'meterpreter' then output = execute_cmd_of_meterpreter(id: value[:id], cmd: cmd)
-      when 'shell' then output = execute_cmd_of_shell(id: value[:id], cmd: cmd)
-      else next
-      end
-      break unless output.nil?
-    end
-    output
-  end
-
   def rob_shell
     VultestUI.execute('Brake into target machine')
 
     sessions_in_executing_module.each do |value|
-      case value[:type]
-      when 'meterpreter' then meterpreter(id: value[:id])
-      when 'shell' then shell(id: value[:id])
+      next unless value[:module_type] == 'exploit'
+
+      case value[:shell_type]
+      when 'meterpreter' then meterpreter(id: value[:session_id])
+      when 'shell' then shell(id: value[:session_id])
       else next
       end
     end
@@ -86,7 +75,7 @@ class AttackEnv
 
   private
 
-  def success_of_attack_module?(module_name, module_info)
+  def success_of_attack_module?(module_type, module_name, module_info)
     VultestUI.tty_spinner_begin(module_name)
     success_flag = false
     time_count = 0
@@ -99,7 +88,7 @@ class AttackEnv
           next unless module_info['uuid'] == value['exploit_uuid'] || value['via_exploit'] == module_name
 
           success_flag = true
-          sessions_in_executing_module.push(id: key, type: value['type'])
+          sessions_in_executing_module.push(session_id: key, module_type: module_type, shell_type: value['type'])
         end
       end
       break if success_flag

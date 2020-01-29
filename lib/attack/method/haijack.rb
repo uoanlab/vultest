@@ -18,9 +18,9 @@ module Haijack
 
   def shell(args)
     loop do
-      cmd = gets.chomp.split(' ')[0]
+      cmd = gets.chomp
       next if cmd.nil?
-      return if cmd == 'exit'
+      return if cmd.split(' ')[0] == 'exit'
 
       puts execute_cmd_of_shell(id: args[:id], cmd: cmd)
     end
@@ -30,9 +30,9 @@ module Haijack
   def meterpreter(args)
     loop do
       print 'meterpreter > '
-      cmd = gets.chomp.split(' ')[0]
+      cmd = gets.chomp
       next if cmd.nil?
-      break if cmd == 'exit'
+      break if cmd.split(' ')[0] == 'exit'
 
       puts execute_cmd_of_meterpreter(id: args[:id], cmd: cmd)
     end
