@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/ui'
+require './modules/ui'
 
 module Destroy
   def destroy(args)

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 require './lib/report/vultest_report'
-require './lib/ui'
+require './modules/ui'
 
 module Report
   def report(args)

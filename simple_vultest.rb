@@ -20,7 +20,7 @@ require './lib/vultest_case'
 require './lib/vulenv/vulenv'
 require './lib/attack/attack_env'
 require './lib/report/vultest_report'
-require './lib/ui'
+require './modules/ui'
 
 opts = ARGV.getopts('', 'cve:', 'test:yes', 'attack_user:', 'attack_passwd:', 'attack_host:', 'dir:', 'destroy:no')
 

@@ -18,7 +18,7 @@ require 'tty-font'
 require 'tty-prompt'
 
 require './cmd/command'
-require './lib/ui'
+require './modules/ui'
 
 puts Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST'))
 console = {}

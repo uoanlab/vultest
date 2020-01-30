@@ -18,7 +18,7 @@ require 'tty-prompt'
 
 require './lib/vulenv/tools/vagrant'
 require './lib/vulenv/tools/ansible'
-require './lib/ui'
+require './modules/ui'
 
 class Vulenv
   attr_reader :cve, :config, :vulenv_config, :vulenv_dir

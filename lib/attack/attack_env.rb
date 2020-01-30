@@ -18,7 +18,7 @@ require 'tty-prompt'
 
 require './lib/attack/method/haijack'
 require './lib/attack/tools/metasploit'
-require './lib/ui'
+require './modules/ui'
 
 class AttackEnv
   attr_reader :msf_api, :host, :user, :attack_vector

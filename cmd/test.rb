@@ -14,7 +14,7 @@
 
 require './lib/vultest_case'
 require './lib/vulenv/vulenv'
-require './lib/ui'
+require './modules/ui'
 
 module Test
   def test(args)

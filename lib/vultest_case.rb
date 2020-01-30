@@ -18,7 +18,7 @@ require 'tty-prompt'
 require 'yaml'
 
 require './modules/db'
-require './lib/ui'
+require './modules/ui'
 
 class VultestCase
   attr_reader :cve, :config, :vulenv_config, :attack_config
