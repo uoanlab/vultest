@@ -19,10 +19,15 @@ module Haijack
   def shell(args)
     loop do
       cmd = gets.chomp
-      next if cmd.nil?
       return if cmd.split(' ')[0] == 'exit'
 
-      puts execute_cmd_of_shell(id: args[:id], cmd: cmd)
+      msf_api.shell_write(id: args[:id], cmd: cmd)
+      loop do
+        res = msf_api.shell_read(args[:id])
+        break if res['data'].empty?
+
+        print res['data']
+      end
     end
     msf_api.session_stop(args[:id])
   end
@@ -31,38 +36,20 @@ module Haijack
     loop do
       print 'meterpreter > '
       cmd = gets.chomp
-      next if cmd.nil?
+      next if cmd.empty?
       break if cmd.split(' ')[0] == 'exit'
 
-      puts execute_cmd_of_meterpreter(id: args[:id], cmd: cmd)
+      msf_api.meterpreter_write(id: args[:id], cmd: cmd)
+      next if cmd.split(' ')[0] =~ /cd/i || cmd.split(' ')[0] =~ /lcd/i
+
+      loop do
+        sleep(1)
+        res = msf_api.meterpreter_read(args[:id])
+        break if res['data'].empty?
+
+        puts res['data']
+      end
     end
     msf_api.session_stop(args[:id])
-  end
-
-  def execute_cmd_of_shell(args)
-    msf_api.shell_write(id: args[:id], cmd: args[:cmd])
-    output = ''
-    loop do
-      res = msf_api.shell_read(args[:id])
-      break if res['data'].empty?
-
-      output = res['data']
-    end
-    output
-  end
-
-  def execute_cmd_of_meterpreter(args)
-    msf_api.meterpreter_write(id: args[:id], cmd: args[:cmd])
-    flag = false
-    output = ''
-    loop do
-      res = msf_api.meterpreter_read(args[:id])
-      break if flag
-      next if res['data'].empty?
-
-      output = res['data']
-      flag = true
-    end
-    output
   end
 end
