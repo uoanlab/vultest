@@ -81,7 +81,7 @@ attack_env = AttackEnv.new(
   attack_vector: vultest_case.vulenv_config['attack_vector']
 )
 
-unless attack_env.execute_attack?(vultest_case.attack_config['metasploit_module'])
+unless attack_env.execute_attack?(vultest_case.attack_config['metasploit'])
   VultestReport.new(
     vultest_case: vultest_case,
     vulenv: vulenv,

@@ -17,11 +17,11 @@ module AttackEnvReport
 
   def write_attack_env_report(report_file)
     report_file.puts("## Attack Method\n\n")
-    write_metasploit_module(report_file) if attack_config.key?('metasploit_module')
+    write_metasploit_module(report_file) if attack_config.key?('metasploit')
   end
 
   def write_metasploit_module(report_file)
-    attack_methods = attack_config['metasploit_module']
+    attack_methods = attack_config['metasploit']
     attack_methods.each do |attack_method|
       report_file.puts("#### Module Name : #{attack_method['module_name']}\n")
       attack_method['options'].each { |option| report_file.puts("- #{option['name']} : #{option['var']}\n") }
@@ -32,7 +32,7 @@ module AttackEnvReport
 
   def write_error_of_attack_env(report_file)
     report_file.puts("## Root Case\n\n")
-    return unless attack_config.key?('metasploit_module')
+    return unless attack_config.key?('metasploit')
 
     report_file.puts("#### Module Name : #{attack_env.error[:module_name]}\n")
     attack_env.error[:module_option].each { |key, value| report_file.puts("- #{key} : #{value}\n") }
