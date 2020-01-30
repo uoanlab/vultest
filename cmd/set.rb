@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/util'
+require './modules/util'
 
 module Setting
   def set(args)
