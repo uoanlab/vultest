@@ -44,8 +44,8 @@ class VultestCase
 
     select_id = test_case_table[:index_info][select_test_case_name]
 
-    @vulenv_config = YAML.load_file("#{config['vultest_db_path']}/#{vultest_configs[select_id.to_i - 1]['config_path']}")
-    @attack_config = YAML.load_file("#{config['vultest_db_path']}/#{vultest_configs[select_id.to_i - 1]['module_path']}")
+    @vulenv_config = YAML.load_file("#{config['vultest_db_path']}/#{vultest_configs[select_id.to_i]['config_path']}")
+    @attack_config = YAML.load_file("#{config['vultest_db_path']}/#{vultest_configs[select_id.to_i]['module_path']}")
     true
   end
 
