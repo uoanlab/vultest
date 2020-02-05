@@ -26,10 +26,10 @@ console[:prompt] = TTY::Prompt.new(active_color: :cyan, help_color: :bright_whit
 console[:name] = 'vultest'
 
 setting = {}
-setting[:test_dir] = ENV.key?('TESTDIR') ? ENV['TESTDIR'] : './test_dir'
-setting[:attack_host] = ENV.key?('ATTACKHOST') ? ENV['ATTACKHOST'] : nil
-setting[:attack_user] = ENV.key?('ATTACKERUSER') ? ENV['ATTACKERUSER'] : 'root'
-setting [:attack_passwd] = ENV.key?('ATTACKPASSWD') ? ENV['ATTACKPASSWD'] : 'toor'
+setting[:test_dir] = ENV.fetch('TESTDIR', './test_dir')
+setting[:attack_host] = ENV.fetch('ATTACKHOST', nil)
+setting[:attack_user] = ENV.fetch('ATTACKERUSER', 'root')
+setting [:attack_passwd] = ENV.fetch('ATTACKPASSWD', 'toor')
 
 vultest_case = nil
 vulenv = nil
