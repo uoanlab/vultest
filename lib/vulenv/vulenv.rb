@@ -35,6 +35,50 @@ class Vulenv
     @error = { flag: false, cause: nil }
   end
 
+  def create?
+    VultestUI.execute('Create vulnerability environment')
+    prepare_vagrant
+    prepare_ansible
+
+    Dir.chdir(vulenv_dir) do
+      error[:cause] = start_up
+      return false unless error[:cause].nil?
+
+      error[:cause] = reload if vulenv_config.key?('reload')
+      return false unless error[:cause].nil?
+
+      error[:cause] = hard_setup if vulenv_config['construction'].key?('hard_setup')
+      return false unless error[:cause].nil?
+    end
+
+    prepare_manually_setting if vulenv_config['construction'].key?('prepare')
+
+    error[:cause] = nil
+    true
+  end
+
+  def destroy!
+    Dir.chdir(@vulenv_dir) do
+      VultestUI.tty_spinner_begin('Destroy vulnerable environment')
+      _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
+      unless status.exitstatus.zero?
+        VultestUI.tty_spinner_end('error')
+        return false
+      end
+    end
+
+    _stdout, _stderr, status = Open3.capture3("rm -rf #{@vulenv_dir}")
+    unless status.exitstatus.zero?
+      VultestUI.tty_spinner_end('error')
+      return false
+    end
+
+    VultestUI.tty_spinner_end('success')
+    true
+  end
+
+  private
+
   def start_up
     VultestUI.tty_spinner_begin('Start up')
     stdout, _stderr, status = Open3.capture3('vagrant up')
@@ -66,63 +110,21 @@ class Vulenv
     start_up
   end
 
-  def create?
-    setting_vagrant
-    setting_ansible
-
-    VultestUI.execute('Create vulnerability environment')
-    Dir.chdir(vulenv_dir) do
-      error[:cause] = start_up
-      return false unless error[:cause].nil?
-
-      error[:cause] = reload if vulenv_config.key?('reload')
-      return false unless error[:cause].nil?
-
-      error[:cause] = hard_setup if vulenv_config['construction'].key?('hard_setup')
-      return false unless error[:cause].nil?
-    end
-
-    error[:cause] = nil
-    true
-  end
-
-  def output_manually_setting
+  def prepare_manually_setting
     VultestUI.warring('Following execute command')
     puts("  [1] cd #{vulenv_dir}")
     puts('  [2] vagrant ssh')
     vulenv_config['construction']['prepare']['msg'].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
   end
 
-  def destroy!
-    Dir.chdir(@vulenv_dir) do
-      VultestUI.tty_spinner_begin('Destroy vulnerable environment')
-      _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
-      unless status.exitstatus.zero?
-        VultestUI.tty_spinner_end('error')
-        return false
-      end
-    end
-
-    _stdout, _stderr, status = Open3.capture3("rm -rf #{@vulenv_dir}")
-    unless status.exitstatus.zero?
-      VultestUI.tty_spinner_end('error')
-      return false
-    end
-
-    VultestUI.tty_spinner_end('success')
-    true
-  end
-
-  private
-
-  def setting_vagrant
+  def prepare_vagrant
     os_name = vulenv_config['construction']['os']['name']
     os_version = vulenv_config['construction']['os']['version']
     vagrant = Vagrant.new(os_name: os_name, os_version: os_version, env_dir: vulenv_dir)
     vagrant.create
   end
 
-  def setting_ansible
+  def prepare_ansible
     ansible = Ansible.new(
       cve: vulenv_config['cve'],
       os_name: vulenv_config['construction']['os']['name'],

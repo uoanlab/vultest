@@ -34,9 +34,7 @@ module Test
 
     vulenv = Vulenv.new(cve: vultest_case.cve, config: vultest_case.config, vulenv_config: vultest_case.vulenv_config, vulenv_dir: vulenv_dir)
 
-    if vulenv.create?
-      vulenv.output_manually_setting if vulenv.vulenv_config['construction'].key?('prepare')
-    else
+    unless vulenv.create?
       vulenv.error[:flag] = true
       VultestUI.warring('Can look at a report about error in construction of vulnerable environment')
     end

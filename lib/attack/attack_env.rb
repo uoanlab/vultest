@@ -21,8 +21,8 @@ require './lib/attack/tools/metasploit'
 require './modules/ui'
 
 class AttackEnv
-  attr_reader :msf_api, :host, :user, :attack_vector
-  attr_accessor :sessions_in_executing_module, :error
+  attr_reader :msf_api, :host, :user, :attack_vector, :attack_config, :session_list
+  attr_accessor :error
 
   include Haijack
 
@@ -31,19 +31,20 @@ class AttackEnv
     @user = { name: args[:attack_user], passwd: args[:attack_passwd] }
 
     @attack_vector = args[:attack_vector]
+    @attack_config = args[:attack_config]
     start_up_msfserver if attack_vector == 'remote'
 
     @msf_api = Metasploit.new(host)
     msf_api.auth_login
     msf_api.console_create
 
-    @sessions_in_executing_module = []
+    @session_list = []
     @error = { flag: false, module_name: nil, module_option: {} }
   end
 
-  def execute_attack?(msf_modules)
+  def execute_attack?
     VultestUI.execute('Exploit attack')
-    msf_modules.each do |msf_module|
+    attack_config['metasploit'].each do |msf_module|
       msf_module_option = {}
       msf_module['options'].each { |option| msf_module_option[option['name']] = option['var'] }
       msf_module_option['LHOST'] = host
@@ -54,6 +55,7 @@ class AttackEnv
       error[:flag] = true
       error[:module_name] = msf_module['module_name']
       error[:module_option] = msf_module_option
+      VultestUI.warring('Can look at a report about error in attack execution')
       return false
     end
     return true
@@ -62,7 +64,7 @@ class AttackEnv
   def rob_shell
     VultestUI.execute('Brake into target machine')
 
-    sessions_in_executing_module.each do |value|
+    session_list.each do |value|
       next unless value[:module_type] == 'exploit'
 
       case value[:shell_type]
@@ -88,7 +90,7 @@ class AttackEnv
           next unless module_info['uuid'] == value['exploit_uuid'] || value['via_exploit'] == module_name
 
           success_flag = true
-          sessions_in_executing_module.push(session_id: key, module_type: module_type, shell_type: value['type'])
+          @session_list.push(session_id: key, module_type: module_type, shell_type: value['type'])
         end
       end
       break if success_flag
