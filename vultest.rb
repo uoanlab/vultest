@@ -71,7 +71,6 @@ loop do
 
   when /report/i
     Command.report(
-      vultest_case: vultest_case,
       vulenv: vulenv,
       attack_env: attack_env,
       report_dir: setting[:test_dir]

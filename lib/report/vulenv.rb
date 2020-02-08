@@ -19,26 +19,26 @@ module VulenvReport
 
   def write_vulenv_report(report_file)
     report_file.puts("## Target Host\n\n")
-    write_vul_software(report_file) if vulenv_config['construction'].key?('vul_software')
+    write_vul_software(report_file) if vulenv.vulenv_config['construction'].key?('vul_software')
     write_os(report_file)
-    write_related_software(report_file) if vulenv_config['construction'].key?('related_software')
+    write_related_software(report_file) if vulenv.vulenv_config['construction'].key?('related_software')
   end
 
   def write_vul_software(report_file)
     report_file.puts("### Vulnerable Software\n")
-    report_file.puts("#{vulenv_config['construction']['vul_software']['name']} : #{vulenv_config['construction']['vul_software']['version']}\n")
+    report_file.puts("#{vulenv.vulenv_config['construction']['vul_software']['name']} : #{vulenv.vulenv_config['construction']['vul_software']['version']}\n")
     report_file.puts("\n")
   end
 
   def write_os(report_file)
-    vulenv_config['construction']['os']['vulnerability'] ? report_file.puts("### Vulnerable Software\n") : report_file.puts("### Operating System\n")
-    report_file.puts("#{vulenv_config['construction']['os']['name']} : #{vulenv_config['construction']['os']['version']}")
+    vulenv.vulenv_config['construction']['os']['vulnerability'] ? report_file.puts("### Vulnerable Software\n") : report_file.puts("### Operating System\n")
+    report_file.puts("#{vulenv.vulenv_config['construction']['os']['name']} : #{vulenv.vulenv_config['construction']['os']['version']}")
     report_file.puts("\n")
   end
 
   def write_related_software(report_file)
     report_file.puts('### Related Software')
-    vulenv_config['construction']['related_software'].each { |software| report_file.puts("- #{software['name']} : #{software['version']}\n") }
+    vulenv.vulenv_config['construction']['related_software'].each { |software| report_file.puts("- #{software['name']} : #{software['version']}\n") }
     report_file.puts("\n")
   end
 

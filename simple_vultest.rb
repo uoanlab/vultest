@@ -57,12 +57,9 @@ vulenv = Vulenv.new(
   vulenv_dir: setting[:test_dir]
 )
 
-if vulenv.create?
-  vulenv.output_manually_setting if vulenv.vulenv_config['construction'].key?('prepare')
-else
+unless vulenv.create?
   vulenv.error[:flag] = true
   VultestReport.new(
-    vultest_case: vultest_case,
     vulenv: vulenv,
     report_dir: setting[:test_dir]
   ).create_report
@@ -78,12 +75,12 @@ attack_env = AttackEnv.new(
   attack_host: setting[:attack_host],
   attack_user: setting[:attack_user],
   attack_passwd: setting[:attack_passwd],
+  attack_config: vultest_case.attack_config,
   attack_vector: vultest_case.vulenv_config['attack_vector']
 )
 
-unless attack_env.execute_attack?(vultest_case.attack_config['metasploit'])
+unless attack_env.execute_attack?
   VultestReport.new(
-    vultest_case: vultest_case,
     vulenv: vulenv,
     attack_env: attack_env,
     report_dir: setting[:test_dir]
@@ -94,7 +91,6 @@ end
 
 # Process Vultest Report
 VultestReport.new(
-  vultest_case: vultest_case,
   vulenv: vulenv,
   attack_env: attack_env,
   report_dir: setting[:test_dir]

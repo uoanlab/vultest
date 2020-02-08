@@ -17,7 +17,6 @@ require './modules/ui'
 
 module Report
   def report(args)
-    vultest_case = args[:vultest_case]
     vulenv = args[:vulenv]
     attack_env = args[:attack_env]
     report_dir = args[:report_dir]
@@ -33,7 +32,6 @@ module Report
     end
 
     VultestReport.new(
-      vultest_case: vultest_case,
       vulenv: vulenv,
       attack_env: attack_env,
       report_dir: report_dir
