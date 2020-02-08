@@ -96,8 +96,6 @@ VultestReport.new(
   report_dir: setting[:test_dir]
 ).create_report
 
-attack_env.rob_shell
-
 if opts['destroy'] == 'yes'
   vulenv.destroy!
   VultestUI.execute("Delete the vulnerable environment for #{vulenv.cve}")

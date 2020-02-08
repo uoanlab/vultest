@@ -76,10 +76,6 @@ loop do
       report_dir: setting[:test_dir]
     )
 
-    next if vulenv.error[:flag] || attack_env.nil? || attack_env.error[:flag]
-
-    attack_env.rob_shell
-
   when /set/i
     Command.set(
       prompt: console[:prompt],

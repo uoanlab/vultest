@@ -58,8 +58,12 @@ class AttackEnv
       VultestUI.warring('Can look at a report about error in attack execution')
       return false
     end
+
+    rob_shell
     return true
   end
+
+  private
 
   def rob_shell
     VultestUI.execute('Brake into target machine')
@@ -74,8 +78,6 @@ class AttackEnv
       end
     end
   end
-
-  private
 
   def success_of_attack_module?(module_type, module_name, module_info)
     VultestUI.tty_spinner_begin(module_name)
