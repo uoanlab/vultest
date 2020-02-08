@@ -19,7 +19,7 @@ module Haijack
   def shell(args)
     loop do
       cmd = gets.chomp
-      return if cmd.split(' ')[0] == 'exit'
+      break if cmd.split(' ')[0] == 'exit'
 
       msf_api.shell_write(id: args[:id], cmd: cmd)
       loop do
