@@ -3,6 +3,15 @@ AllCops:
   Exclude:
     - "vendor/**/*"
 
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
 Style/FrozenStringLiteralComment:
   Enabled: false
 
