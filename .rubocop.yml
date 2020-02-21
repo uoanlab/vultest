@@ -1,7 +1,7 @@
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 2.6
   Exclude:
-    - 'vendor/**/*'
+    - "vendor/**/*"
 
 Style/FrozenStringLiteralComment:
   Enabled: false
@@ -29,5 +29,5 @@ Metrics/PerceivedComplexity:
 
 Metrics/BlockLength:
   Exclude:
-    - 'vultest.rb'
-    - 'simple_vultest.rb'
+    - "vultest.rb"
+    - "simple_vultest.rb"
