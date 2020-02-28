@@ -72,7 +72,6 @@ class App
     end
   end
 
-<<<<<<< HEAD
   def cli
     opts = ARGV.getopts('', 'cve:', 'test:yes', 'attack_user:', 'attack_passwd:', 'attack_host:', 'dir:', 'destroy:no')
 
@@ -105,8 +104,6 @@ class App
     destroy? if opts['destroy'] == 'yes'
   end
 
-=======
->>>>>>> 34b5420b48a8d0229ff8a9f8f68a2165b77c50b1
   private
 
   def test?(cve)
