@@ -38,5 +38,4 @@ Metrics/PerceivedComplexity:
 
 Metrics/BlockLength:
   Exclude:
-    - "vultest.rb"
-    - "simple_vultest.rb"
+    - "app.rb"
