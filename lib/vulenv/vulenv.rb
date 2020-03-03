@@ -16,7 +16,7 @@ require 'bundler/setup'
 require 'open3'
 require 'tty-prompt'
 
-require './lib/vulenv/tools/vagrant'
+require './lib/vulenv/tools/create_vagrantfile'
 require './lib/vulenv/tools/ansible'
 require './modules/ui'
 
@@ -120,8 +120,7 @@ class Vulenv
   def prepare_vagrant
     os_name = vulenv_config['construction']['os']['name']
     os_version = vulenv_config['construction']['os']['version']
-    vagrant = Vagrant.new(os_name: os_name, os_version: os_version, env_dir: vulenv_dir)
-    vagrant.create
+    CreateVagrantfile.new(os_name: os_name, os_version: os_version, env_dir: vulenv_dir).create
   end
 
   def prepare_ansible

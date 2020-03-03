@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ require 'open3'
 require 'tty-table'
 require 'tty-prompt'
 
-class Vagrant
+class CreateVagrantfile
   def initialize(args = {})
     @env_dir = args[:env_dir]
     @os_name = args[:os_name]
