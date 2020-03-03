@@ -40,15 +40,20 @@ class Vulenv
     prepare_vagrant
     prepare_ansible
 
+    start_up_type = { start_up: true, reload: vulenv_config.key?('reload'), hard_setup: vulenv_config['construction'].key?('hard_setup') }
+
     Dir.chdir(vulenv_dir) do
-      error[:cause] = start_up
-      return false unless error[:cause].nil?
+      start_up_type.each do |key, value|
+        break unless value
 
-      error[:cause] = reload if vulenv_config.key?('reload')
-      return false unless error[:cause].nil?
+        case key
+        when :start_up then error[:cause] = start_up
+        when :reload then error[:cause] = reload
+        when :hard_setup then error[:cause] = hard_setup
+        end
 
-      error[:cause] = hard_setup if vulenv_config['construction'].key?('hard_setup')
-      return false unless error[:cause].nil?
+        return false unless error[:cause].nil?
+      end
     end
 
     prepare_manually_setting if vulenv_config['construction'].key?('prepare')
