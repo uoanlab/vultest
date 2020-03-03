@@ -44,7 +44,7 @@ class Vulenv
 
     Dir.chdir(vulenv_dir) do
       start_up_type.each do |key, value|
-        break unless value
+        next unless value
 
         case key
         when :start_up then error[:cause] = start_up
