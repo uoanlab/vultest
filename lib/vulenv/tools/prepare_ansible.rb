@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ require 'fileutils'
 
 require './lib/vulenv/config/const'
 
-class Ansible
+class PrepareAnsible
   include Const
 
   def initialize(args = {})

@@ -18,7 +18,7 @@ require 'open3'
 require 'tty-table'
 require 'tty-prompt'
 
-class CreateVagrantfile
+class PrepareVagrantfile
   def initialize(args = {})
     @env_dir = args[:env_dir]
     @os_name = args[:os_name]
@@ -56,7 +56,7 @@ class CreateVagrantfile
 
   private
 
-  def create_table_of_vagrant
+  def create_table_of_vagrant_img
     table_index = 1
     table = []
 
@@ -82,7 +82,7 @@ class CreateVagrantfile
   end
 
   def select_vagrant_image_in_local
-    box_list = create_table_of_vagrant
+    box_list = create_table_of_vagrant_img
     list = []
     box_list.each { |b| list << "#{b[1]}:#{b[2]}" }
 
