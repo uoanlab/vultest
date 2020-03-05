@@ -22,6 +22,7 @@ module VulenvReport
     write_vul_software(report_file) if vulenv.vulenv_config['construction'].key?('vul_software')
     write_os(report_file)
     write_related_software(report_file) if vulenv.vulenv_config['construction'].key?('related_software')
+    write_port_list(report_file)
   end
 
   def write_vul_software(report_file)
@@ -40,6 +41,20 @@ module VulenvReport
     report_file.puts('### Related Software')
     vulenv.vulenv_config['construction']['related_software'].each { |software| report_file.puts("- #{software['name']} : #{software['version']}\n") }
     report_file.puts("\n")
+  end
+
+  def write_port_list(report_file)
+    report_file.puts('### Port')
+    case vulenv.vulenv_config['construction']['os']['name']
+    when 'windows'
+      return
+    else
+      vulenv.port_list_in_linux.each do |socket|
+        output = socket[:port] == socket[:service] ? "- #{socket[:port]}/#{socket[:protocol]}" : "- #{socket[:port]}/#{socket[:protocol]}(#{socket[:service]})"
+        report_file.puts(output)
+        report_file.puts("\n")
+      end
+    end
   end
 
   def write_error_of_vulenv(report_file)

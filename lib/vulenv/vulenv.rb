@@ -16,6 +16,7 @@ require 'bundler/setup'
 require 'open3'
 require 'tty-prompt'
 
+require './lib/vulenv/vulenv_spec'
 require './lib/vulenv/tools/prepare_vagrantfile'
 require './lib/vulenv/tools/prepare_ansible'
 require './modules/ui'
@@ -23,6 +24,8 @@ require './modules/ui'
 class Vulenv
   attr_reader :cve, :config, :vulenv_config, :vulenv_dir
   attr_accessor :error
+
+  include VulenvSpec
 
   def initialize(args)
     @cve = args[:cve]
