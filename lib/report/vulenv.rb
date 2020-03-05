@@ -45,16 +45,16 @@ module VulenvReport
 
   def write_port_list(report_file)
     report_file.puts('### Port')
-    case vulenv.vulenv_config['construction']['os']['name']
-    when 'windows'
-      return
-    else
-      vulenv.port_list_in_linux.each do |socket|
-        output = socket[:port] == socket[:service] ? "- #{socket[:port]}/#{socket[:protocol]}" : "- #{socket[:port]}/#{socket[:protocol]}(#{socket[:service]})"
-        report_file.puts(output)
-        report_file.puts("\n")
-      end
+
+    socket_list = case vulenv.vulenv_config['construction']['os']['name']
+                  when 'windows' then vulenv.port_list_in_windows
+                  else vulenv.port_list_in_linux
+                  end
+    socket_list.each do |socket|
+      output = socket[:port] == socket[:service] ? "- #{socket[:port]}/#{socket[:protocol]}" : "- #{socket[:port]}/#{socket[:protocol]}(#{socket[:service]})"
+      report_file.puts(output)
     end
+    report_file.puts("\n")
   end
 
   def write_error_of_vulenv(report_file)

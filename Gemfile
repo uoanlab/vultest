@@ -26,5 +26,8 @@ gem 'msgpack'
 # ssh
 gem 'net-ssh'
 
+# winrm
+gem 'winrm'
+
 # RuboCop
 gem 'rubocop'
