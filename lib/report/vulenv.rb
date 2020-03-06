@@ -23,6 +23,7 @@ module VulenvReport
     write_os(report_file)
     write_related_software(report_file) if vulenv.vulenv_config['construction'].key?('related_software')
     write_port_list(report_file)
+    write_service_list(report_file)
   end
 
   def write_vul_software(report_file)
@@ -54,6 +55,18 @@ module VulenvReport
       output = socket[:port] == socket[:service] ? "- #{socket[:port]}/#{socket[:protocol]}" : "- #{socket[:port]}/#{socket[:protocol]}(#{socket[:service]})"
       report_file.puts(output)
     end
+    report_file.puts("\n")
+  end
+
+  def write_service_list(report_file)
+    report_file.puts('### Service')
+    service, cmd = case vulenv.vulenv_config['construction']['os']['name']
+                   when 'windows' then 'windows'
+                   else vulenv.service_list_in_linux
+                   end
+
+    report_file.puts("- Command: #{cmd}")
+    report_file.puts(service)
     report_file.puts("\n")
   end
 

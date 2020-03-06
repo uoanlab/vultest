@@ -70,4 +70,14 @@ module VulenvSpec
 
     socket
   end
+
+  def service_list_in_linux
+    cmd = stdout = nil
+    Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
+      cmd = ssh.exec!('sudo find / -name service | grep bin/').split("\n")[0]
+      cmd += ' --status-all'
+      stdout = ssh.exec!(cmd)
+    end
+    return stdout, cmd
+  end
 end
