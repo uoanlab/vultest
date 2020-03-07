@@ -80,4 +80,17 @@ module VulenvSpec
     end
     return stdout, cmd
   end
+
+  def service_list_in_windows
+    opts = { endpoint: 'http://192.168.177.177:5985/wsman', user: 'vagrant', password: 'vagrant' }
+    conn = WinRM::Connection.new(opts)
+
+    cmd = 'get-service'
+    service = ''
+    conn.shell(:powershell) do |shell|
+      shell.run(cmd) { |stdout, _stderr| service += stdout }
+    end
+
+    return service, cmd
+  end
 end
