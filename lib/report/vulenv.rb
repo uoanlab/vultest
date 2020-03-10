@@ -69,8 +69,6 @@ module VulenvReport
     when 'centos' then service_list = vulenv.service_list_in_centos
     end
 
-    # report_file.puts("- Command: #{cmd}")
-    # report_file.puts(service)
     service_list.each { |service| report_file.puts("- #{service}") }
     report_file.puts("\n")
   end
