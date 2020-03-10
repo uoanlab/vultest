@@ -61,17 +61,17 @@ module VulenvReport
   end
 
   def write_service_list(report_file)
-    report_file.puts('### Service')
+    report_file.puts('### Services')
 
     case vulenv.vulenv_config['construction']['os']['name']
-    when 'windows'
-      stdout, cmd = vulenv.service_list_in_windows
-      service = stdout.gsub(/\s+\n/, "\n").gsub('-', '=')
-    else service, cmd = vulenv.service_list_in_linux
+    when 'windows' then service_list = vulenv.service_list_in_windows
+    when 'ubuntu' then service_list = vulenv.service_list_in_ubuntu
+    when 'centos' then service_list = vulenv.service_list_in_centos
     end
 
-    report_file.puts("- Command: #{cmd}")
-    report_file.puts(service)
+    # report_file.puts("- Command: #{cmd}")
+    # report_file.puts(service)
+    service_list.each { |service| report_file.puts("- #{service}") }
     report_file.puts("\n")
   end
 

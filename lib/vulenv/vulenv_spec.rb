@@ -71,26 +71,40 @@ module VulenvSpec
     socket
   end
 
-  def service_list_in_linux
-    cmd = stdout = nil
+  def service_list_in_ubuntu
+    running_service = []
     Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
       cmd = ssh.exec!('sudo find / -name service | grep bin/').split("\n")[0]
-      cmd += ' --status-all'
-      stdout = ssh.exec!(cmd)
+      cmd = "sudo #{cmd} --status-all | grep +"
+      ssh.exec!(cmd).gsub('[', '').gsub(']', '').split("\n").each { |stdout| running_service.push(stdout.split(' ')[1]) if stdout.split(' ')[0] == '+' }
     end
-    return stdout, cmd
+
+    running_service
+  end
+
+  def service_list_in_centos
+    running_service = []
+    Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
+      cmd = ssh.exec!('sudo find / -name service | grep bin/').split("\n")[0]
+      cmd = "sudo #{cmd} --status-all | grep running..."
+      ssh.exec!(cmd).split("\n").each { |stdout| running_service.push(stdout.split(' ')[0]) }
+    end
+
+    running_service
   end
 
   def service_list_in_windows
     opts = { endpoint: 'http://192.168.177.177:5985/wsman', user: 'vagrant', password: 'vagrant' }
     conn = WinRM::Connection.new(opts)
 
-    cmd = 'get-service'
-    service = ''
+    running_service = []
     conn.shell(:powershell) do |shell|
-      shell.run(cmd) { |stdout, _stderr| service += stdout }
+      shell.run('get-service') do |stdout, _stderr|
+        service = stdout.split(' ')
+        running_service.push(service[1]) if service[0] == 'Running'
+      end
     end
 
-    return service, cmd
+    return running_service
   end
 end
