@@ -28,6 +28,28 @@ module VulenvSpec
     ip_list
   end
 
+  def ip_list_in_windows
+    opts = { endpoint: 'http://192.168.177.177:5985/wsman', user: 'vagrant', password: 'vagrant' }
+
+    conn = WinRM::Connection.new(opts)
+
+    ip_list = []
+    conn.shell(:powershell) do |shell|
+      ip = {}
+      shell.run('ipconfig') do |stdout, _stderr|
+        ip[:adapter] = stdout.split(':')[0] if stdout != "\r\n" && stdout[0] != ' '
+        ip[:inet] = stdout.split(':')[1].gsub(' ', '') if stdout.include?('IPv4')
+        ip[:inet6] = stdout.split(':', 2)[1].gsub(' ', '') if stdout.include?('IPv6')
+
+        if ip.key?(:adapter) && ip.key?(:inet) && ip.key?(:inet6)
+          ip_list.push(ip)
+          ip = {}
+        end
+      end
+    end
+    ip_list
+  end
+
   def port_list_in_linux
     socket = []
     Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|

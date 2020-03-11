@@ -51,17 +51,23 @@ module VulenvReport
     report_file.puts('### IP Infomation')
     report_file.puts("\n")
 
-    ip_list = case vulenv.vulenv_config['construction']['os']['name']
-              when 'windows' then []
-              else vulenv.ip_list_in_linux
-              end
-
-    ip_list.each do |ip|
-      report_file.puts("#### Interface: #{ip[:interface]}")
-      report_file.puts("- IPv4: #{ip[:inet]}")
-      report_file.puts("- IPv6: #{ip[:inet6]}")
-      report_file.puts("\n")
+    case vulenv.vulenv_config['construction']['os']['name']
+    when 'windows'
+      vulenv.ip_list_in_windows.each do |ip|
+        report_file.puts("#### Network Adapter: #{ip[:adapter]}")
+        report_file.puts("- IPv4: #{ip[:inet]}")
+        report_file.puts("- IPv6: #{ip[:inet6]}")
+        report_file.puts("\n")
+      end
+    else
+      vulenv.ip_list_in_linux.each do |ip|
+        report_file.puts("#### Interface: #{ip[:interface]}")
+        report_file.puts("- IPv4: #{ip[:inet]}")
+        report_file.puts("- IPv6: #{ip[:inet6]}")
+        report_file.puts("\n")
+      end
     end
+
     report_file.puts("\n")
   end
 
