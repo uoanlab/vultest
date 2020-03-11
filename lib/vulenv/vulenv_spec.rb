@@ -17,6 +17,17 @@ require 'net/ssh'
 require 'winrm'
 
 module VulenvSpec
+  def ip_list_in_linux
+    ip_list = []
+    Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
+      cmd = ssh.exec!('sudo find / -name ip').split("\n")[0]
+      cmd += ' addr | grep inet'
+
+      ssh.exec!(cmd).split("\n").each_slice(2) { |ip| ip_list.push({ interface: ip[0].split(' ')[-1], inet: ip[0].split(' ')[1], inet6: ip[1].split(' ')[1] }) }
+    end
+    ip_list
+  end
+
   def port_list_in_linux
     socket = []
     Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|

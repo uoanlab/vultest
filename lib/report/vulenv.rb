@@ -24,6 +24,7 @@ module VulenvReport
     write_related_software(report_file) if vulenv.vulenv_config['construction'].key?('related_software')
     return if vulenv.error[:flag]
 
+    write_ip_list(report_file)
     write_port_list(report_file)
     write_service_list(report_file)
   end
@@ -46,6 +47,24 @@ module VulenvReport
     report_file.puts("\n")
   end
 
+  def write_ip_list(report_file)
+    report_file.puts('### IP Infomation')
+    report_file.puts("\n")
+
+    ip_list = case vulenv.vulenv_config['construction']['os']['name']
+              when 'windows' then []
+              else vulenv.ip_list_in_linux
+              end
+
+    ip_list.each do |ip|
+      report_file.puts("#### Interface: #{ip[:interface]}")
+      report_file.puts("- IPv4: #{ip[:inet]}")
+      report_file.puts("- IPv6: #{ip[:inet6]}")
+      report_file.puts("\n")
+    end
+    report_file.puts("\n")
+  end
+
   def write_port_list(report_file)
     report_file.puts('### Port')
 
@@ -63,11 +82,11 @@ module VulenvReport
   def write_service_list(report_file)
     report_file.puts('### Services')
 
-    case vulenv.vulenv_config['construction']['os']['name']
-    when 'windows' then service_list = vulenv.service_list_in_windows
-    when 'ubuntu' then service_list = vulenv.service_list_in_ubuntu
-    when 'centos' then service_list = vulenv.service_list_in_centos
-    end
+    service_list = case vulenv.vulenv_config['construction']['os']['name']
+                   when 'windows' then vulenv.service_list_in_windows
+                   when 'ubuntu' then vulenv.service_list_in_ubuntu
+                   when 'centos' then vulenv.service_list_in_centos
+                   end
 
     service_list.each { |service| report_file.puts("- #{service}") }
     report_file.puts("\n")
