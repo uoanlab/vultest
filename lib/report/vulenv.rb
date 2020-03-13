@@ -37,7 +37,15 @@ module VulenvReport
 
   def write_os(report_file)
     vulenv.vulenv_config['construction']['os']['vulnerability'] ? report_file.puts("### Vulnerable Software\n") : report_file.puts("### Operating System\n")
-    report_file.puts("#{vulenv.vulenv_config['construction']['os']['name']} : #{vulenv.vulenv_config['construction']['os']['version']}")
+    report_file.puts("- Name: #{vulenv.vulenv_config['construction']['os']['name']}")
+    report_file.puts("- Version: #{vulenv.vulenv_config['construction']['os']['version']}")
+
+    unless vulenv.error[:flag]
+      case vulenv.vulenv_config['construction']['os']['name']
+      when 'windows' then report_file.puts("- Build Version: #{vulenv.build_version}")
+      else report_file.puts("- Kernel Version: #{vulenv.kernel_version}")
+      end
+    end
     report_file.puts("\n")
   end
 

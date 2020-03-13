@@ -17,6 +17,22 @@ require 'net/ssh'
 require 'winrm'
 
 module VulenvSpec
+  def kernel_version
+    Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) { |ssh| ssh.exec!('uname -r') }
+  end
+
+  def build_version
+    opts = { endpoint: 'http://192.168.177.177:5985/wsman', user: 'vagrant', password: 'vagrant' }
+
+    build_version = nil
+    conn = WinRM::Connection.new(opts)
+    conn.shell(:powershell) do |shell|
+      shell.run('$PSVersionTable') { |stdout, _stderr| build_version = stdout.split(' ')[1] if stdout.include?('BuildVersion') }
+    end
+
+    build_version
+  end
+
   def ip_list_in_linux
     ip_list = []
     Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
