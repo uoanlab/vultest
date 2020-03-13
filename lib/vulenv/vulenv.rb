@@ -17,13 +17,13 @@ require 'open3'
 require 'tty-prompt'
 
 require './lib/vulenv/vulenv_spec'
+require './lib/vulenv/tools/vagrant'
 require './lib/vulenv/tools/prepare_vagrantfile'
 require './lib/vulenv/tools/prepare_ansible'
 require './modules/ui'
 
 class Vulenv
-  attr_reader :cve, :config, :vulenv_config, :vulenv_dir
-  attr_accessor :error
+  attr_reader :cve, :config, :vulenv_config, :vulenv_dir, :vagrant, :error
 
   include VulenvSpec
 
@@ -32,50 +32,41 @@ class Vulenv
     @config = args[:config]
     @vulenv_config = args[:vulenv_config]
     @vulenv_dir = args[:vulenv_dir]
-
-    FileUtils.mkdir_p(@vulenv_dir)
-
     @error = { flag: false, cause: nil }
   end
 
   def create?
     VultestUI.execute('Create vulnerability environment')
-    prepare_vagrant
-    prepare_ansible
-
-    start_up_type = { start_up: true, reload: vulenv_config.key?('reload'), hard_setup: vulenv_config['construction'].key?('hard_setup') }
+    prepare
 
     Dir.chdir(vulenv_dir) do
-      start_up_type.each do |key, value|
+      { start_up: true, reload: vulenv_config.key?('reload'), hard_setup: vulenv_config['construction'].key?('hard_setup') }.each do |key, value|
         next unless value
 
-        case key
-        when :start_up then error[:cause] = start_up
-        when :reload then error[:cause] = reload
-        when :hard_setup then error[:cause] = hard_setup
-        end
+        @error[:flag] = !(case key
+                          when :start_up then vagrant.start_up?
+                          when :reload then vagrant.reload?
+                          when :hard_setup then vagrant.hard_setup?(vulenv_config['construction']['hard_setup']['msg'])
+                          end)
 
-        return false unless error[:cause].nil?
-      end
-    end
+        next unless @error[:flag]
 
-    prepare_manually_setting if vulenv_config['construction'].key?('prepare')
-
-    error[:cause] = nil
-    true
-  end
-
-  def destroy!
-    Dir.chdir(@vulenv_dir) do
-      VultestUI.tty_spinner_begin('Destroy vulnerable environment')
-      _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
-      unless status.exitstatus.zero?
-        VultestUI.tty_spinner_end('error')
+        @error[:cause] = vagrant.stdout
         return false
       end
     end
 
-    _stdout, _stderr, status = Open3.capture3("rm -rf #{@vulenv_dir}")
+    manually_setting if vulenv_config['construction'].key?('prepare')
+    true
+  end
+
+  def destroy?
+    Dir.chdir(vulenv_dir) do
+      return false unless @vagrant.destroy!
+    end
+
+    VultestUI.tty_spinner_begin("Destroy test_dir(#{vulenv_dir})")
+    _stdout, _stderr, status = Open3.capture3("rm -rf #{vulenv_dir}")
     unless status.exitstatus.zero?
       VultestUI.tty_spinner_end('error')
       return false
@@ -87,48 +78,24 @@ class Vulenv
 
   private
 
-  def start_up
-    VultestUI.tty_spinner_begin('Start up')
-    stdout, _stderr, status = Open3.capture3('vagrant up')
-    if status.exitstatus.zero?
-      VultestUI.tty_spinner_end('success')
-      return nil
-    end
-
-    VultestUI.tty_spinner_end('error')
-    stdout
-  end
-
-  def reload
-    VultestUI.tty_spinner_begin('Reload')
-    stdout, _stderr, status = Open3.capture3('vagrant reload')
-    if status.exitstatus.zero?
-      VultestUI.tty_spinner_end('success')
-      return nil
-    end
-
-    VultestUI.tty_spinner_end('error')
-    stdout
-  end
-
-  def hard_setup
-    vulenv_config['construction']['hard_setup']['msg'].each { |msg| puts(" #{msg}") }
-    Open3.capture3('vagrant halt')
-    TTY::Prompt.new.keypress('Please press enter key, when ready', keys: [:return])
-    start_up
-  end
-
-  def prepare_manually_setting
+  def manually_setting
     VultestUI.warring('Following execute command')
     puts("  [1] cd #{vulenv_dir}")
     puts('  [2] vagrant ssh')
     vulenv_config['construction']['prepare']['msg'].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
   end
 
+  def prepare
+    FileUtils.mkdir_p(vulenv_dir)
+    prepare_vagrant
+    prepare_ansible
+  end
+
   def prepare_vagrant
     os_name = vulenv_config['construction']['os']['name']
     os_version = vulenv_config['construction']['os']['version']
     PrepareVagrantfile.new(os_name: os_name, os_version: os_version, env_dir: vulenv_dir).create
+    @vagrant = Vagrant.new
   end
 
   def prepare_ansible

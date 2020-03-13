@@ -35,11 +35,7 @@ module Command
 
     @vulenv = Vulenv.new(cve: vultest_case.cve, config: vultest_case.config, vulenv_config: vultest_case.vulenv_config, vulenv_dir: setting[:test_dir])
 
-    unless vulenv.create?
-      @vulenv.error[:flag] = true
-      VultestUI.warring('Can look at a report about error in construction of vulnerable environment')
-    end
-
+    VultestUI.warring('Can look at a report about error in construction of vulnerable environment') unless vulenv.create?
     true
   end
 
@@ -49,7 +45,7 @@ module Command
       return false
     end
 
-    return false unless vulenv.destroy!
+    return false unless vulenv.destroy?
 
     VultestUI.execute("Delete the vulnerable environment for #{vulenv.cve}")
     @vulenv = nil
