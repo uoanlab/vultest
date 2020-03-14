@@ -1,4 +1,4 @@
-# Copyright [2020] [University of Aizu]
+# Copyright [2019] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ require 'open3'
 require 'tty-table'
 require 'tty-prompt'
 
-class PrepareVagrantfile
+class Vagrant
   def initialize(args = {})
     @env_dir = args[:env_dir]
     @os_name = args[:os_name]
@@ -56,7 +56,7 @@ class PrepareVagrantfile
 
   private
 
-  def create_table_of_vagrant_img
+  def create_table_of_vagrant
     table_index = 1
     table = []
 
@@ -82,7 +82,7 @@ class PrepareVagrantfile
   end
 
   def select_vagrant_image_in_local
-    box_list = create_table_of_vagrant_img
+    box_list = create_table_of_vagrant
     list = []
     box_list.each { |b| list << "#{b[1]}:#{b[2]}" }
 
