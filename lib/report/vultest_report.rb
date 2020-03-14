@@ -19,23 +19,23 @@ require './lib/report/attack_env'
 require './lib/report/vulnerability'
 
 class VultestReport
-  attr_reader :cve, :vulenv, :attack_env, :report_dir
+  attr_reader :cve, :control_vulenv, :attack_env, :report_dir
 
   include VulenvReport
   include AttackEnvReport
   include VulnerabilityReport
 
   def initialize(args)
-    @vulenv = args[:vulenv]
+    @control_vulenv = args[:control_vulenv]
     @attack_env = args.fetch(:attack_env, nil)
     @report_dir = args[:report_dir]
 
-    @cve = vulenv.cve
+    @cve = control_vulenv.cve
   end
 
   def create_report
     File.open("#{report_dir}/report.md", 'w') do |report_file|
-      if vulenv.error[:flag]
+      if control_vulenv.error[:flag]
         report_file.puts("# Vultest Report: Error in Construction of Vulnerable Environment\n\n")
         write_error_of_vulenv(report_file)
       elsif attack_env.error[:flag]

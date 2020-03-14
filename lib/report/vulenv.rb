@@ -18,89 +18,93 @@ module VulenvReport
   private
 
   def write_vulenv_report(report_file)
+    status_vulenv = control_vulenv.status_vulenv
+
     report_file.puts("## Target Host\n\n")
-    write_vul_software(report_file) if vulenv.vulenv_config['construction'].key?('vul_software')
-    write_os(report_file)
-    write_related_software(report_file) if vulenv.vulenv_config['construction'].key?('related_software')
-    return if vulenv.error[:flag]
+    write_vul_software(report_file, status_vulenv)
+    write_related_software(report_file, status_vulenv)
 
-    write_ip_list(report_file)
-    write_port_list(report_file)
-    write_service_list(report_file)
+    write_ip_list(report_file, status_vulenv)
+    write_port_list(report_file, status_vulenv)
+    write_service_list(report_file, status_vulenv)
   end
 
-  def write_vul_software(report_file)
+  def write_vul_software(report_file, status_vulenv)
     report_file.puts("### Vulnerable Software\n")
-    report_file.puts("#{vulenv.vulenv_config['construction']['vul_software']['name']} : #{vulenv.vulenv_config['construction']['vul_software']['version']}\n")
+
+    unless status_vulenv[:os][:vulnerability]
+      report_file.puts("- #{status_vulenv[:vul_software][:name]} : #{status_vulenv[:vul_software][:version]}")
+      report_file.puts("\n")
+      report_file.puts("### Operating System\n")
+    end
+
+    write_os(report_file, status_vulenv)
+  end
+
+  def write_os(report_file, status_vulenv)
+    report_file.puts("- Name: #{status_vulenv[:os][:name]}")
+    report_file.puts("- Version: #{status_vulenv[:os][:version]}")
+
+    unless status_vulenv[:base_version_of_os].nil?
+      output = case status_vulenv[:os][:name]
+               when 'windows' then '- Build Version: '
+               else '- Kernel Version: '
+               end
+      output += status_vulenv[:base_version_of_os]
+      report_file.puts(output)
+    end
     report_file.puts("\n")
   end
 
-  def write_os(report_file)
-    vulenv.vulenv_config['construction']['os']['vulnerability'] ? report_file.puts("### Vulnerable Software\n") : report_file.puts("### Operating System\n")
-    report_file.puts("#{vulenv.vulenv_config['construction']['os']['name']} : #{vulenv.vulenv_config['construction']['os']['version']}")
-    report_file.puts("\n")
-  end
+  def write_related_software(report_file, status_vulenv)
+    return if status_vulenv[:related_software].nil?
 
-  def write_related_software(report_file)
     report_file.puts('### Related Software')
-    vulenv.vulenv_config['construction']['related_software'].each { |software| report_file.puts("- #{software['name']} : #{software['version']}\n") }
+    status_vulenv[:related_software].each { |software| report_file.puts("- #{software[:name]} : #{software[:version]}\n") }
     report_file.puts("\n")
   end
 
-  def write_ip_list(report_file)
+  def write_ip_list(report_file, status_vulenv)
+    return unless status_vulenv.key?(:ip_list)
+
     report_file.puts('### IP Infomation')
     report_file.puts("\n")
 
-    case vulenv.vulenv_config['construction']['os']['name']
-    when 'windows'
-      vulenv.ip_list_in_windows.each do |ip|
-        report_file.puts("#### Network Adapter: #{ip[:adapter]}")
-        report_file.puts("- IPv4: #{ip[:inet]}")
-        report_file.puts("- IPv6: #{ip[:inet6]}")
-        report_file.puts("\n")
+    status_vulenv[:ip_list].each do |ip|
+      case status_vulenv[:os][:name]
+      when 'windows' then report_file.puts("#### Network Adapter: #{ip[:adapter]}")
+      else report_file.puts("#### Interface: #{ip[:interface]}")
       end
-    else
-      vulenv.ip_list_in_linux.each do |ip|
-        report_file.puts("#### Interface: #{ip[:interface]}")
-        report_file.puts("- IPv4: #{ip[:inet]}")
-        report_file.puts("- IPv6: #{ip[:inet6]}")
-        report_file.puts("\n")
-      end
+      report_file.puts("- IPv4: #{ip[:inet]}")
+      report_file.puts("- IPv6: #{ip[:inet6]}")
+      report_file.puts("\n")
     end
 
     report_file.puts("\n")
   end
 
-  def write_port_list(report_file)
-    report_file.puts('### Port')
+  def write_port_list(report_file, status_vulenv)
+    return unless status_vulenv.key?(:port_list)
 
-    socket_list = case vulenv.vulenv_config['construction']['os']['name']
-                  when 'windows' then vulenv.port_list_in_windows
-                  else vulenv.port_list_in_linux
-                  end
-    socket_list.each do |socket|
+    report_file.puts('### Port')
+    status_vulenv[:port_list].each do |socket|
       output = socket[:port] == socket[:service] ? "- #{socket[:port]}/#{socket[:protocol]}" : "- #{socket[:port]}/#{socket[:protocol]}(#{socket[:service]})"
       report_file.puts(output)
     end
     report_file.puts("\n")
   end
 
-  def write_service_list(report_file)
+  def write_service_list(report_file, status_vulenv)
+    return unless status_vulenv.key?(:service_list)
+
     report_file.puts('### Services')
-
-    service_list = case vulenv.vulenv_config['construction']['os']['name']
-                   when 'windows' then vulenv.service_list_in_windows
-                   when 'ubuntu' then vulenv.service_list_in_ubuntu
-                   when 'centos' then vulenv.service_list_in_centos
-                   end
-
-    service_list.each { |service| report_file.puts("- #{service}") }
+    status_vulenv[:service_list].each { |service| report_file.puts("- #{service}") }
     report_file.puts("\n")
   end
 
   def write_error_of_vulenv(report_file)
     report_file.puts("## Root Cause\n\n")
-    msg_of_cause = vulenv.error[:cause].split("\n")
+    msg_of_cause = control_vulenv.error[:cause].split("\n")
     error = {}
 
     msg_of_cause.each do |e|

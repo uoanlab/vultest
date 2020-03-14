@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,132 +13,36 @@
 # limitations under the License.
 
 require 'bundler/setup'
-require 'open3'
-require 'tty-prompt'
-
-require './lib/vulenv/vulenv_spec'
-require './lib/vulenv/tools/prepare_vagrantfile'
-require './lib/vulenv/tools/prepare_ansible'
-require './modules/ui'
 
 class Vulenv
-  attr_reader :cve, :config, :vulenv_config, :vulenv_dir
-  attr_accessor :error
-
-  include VulenvSpec
+  attr_reader :os, :vul_software, :related_software
 
   def initialize(args)
-    @cve = args[:cve]
-    @config = args[:config]
-    @vulenv_config = args[:vulenv_config]
-    @vulenv_dir = args[:vulenv_dir]
+    config = args[:vulenv_config]['construction']
 
-    FileUtils.mkdir_p(@vulenv_dir)
+    @os = { name: config['os']['name'], version: config['os']['version'], vulnerability: config['os']['vulnerability'] }
 
-    @error = { flag: false, cause: nil }
+    @vul_software = { name: config['vul_software']['name'], version: config['vul_software']['version'] } if config.key?('vul_software')
+
+    return unless config.key?('related_software')
+
+    @related_software = []
+    config['related_software'].each { |s| @related_software.push({ name: s['name'], version: s['version'] }) }
   end
 
-  def create?
-    VultestUI.execute('Create vulnerability environment')
-    prepare_vagrant
-    prepare_ansible
-
-    start_up_type = { start_up: true, reload: vulenv_config.key?('reload'), hard_setup: vulenv_config['construction'].key?('hard_setup') }
-
-    Dir.chdir(vulenv_dir) do
-      start_up_type.each do |key, value|
-        next unless value
-
-        case key
-        when :start_up then error[:cause] = start_up
-        when :reload then error[:cause] = reload
-        when :hard_setup then error[:cause] = hard_setup
-        end
-
-        return false unless error[:cause].nil?
-      end
-    end
-
-    prepare_manually_setting if vulenv_config['construction'].key?('prepare')
-
-    error[:cause] = nil
-    true
+  def base_version_of_os
+    raise NotImplementedError
   end
 
-  def destroy!
-    Dir.chdir(@vulenv_dir) do
-      VultestUI.tty_spinner_begin('Destroy vulnerable environment')
-      _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
-      unless status.exitstatus.zero?
-        VultestUI.tty_spinner_end('error')
-        return false
-      end
-    end
-
-    _stdout, _stderr, status = Open3.capture3("rm -rf #{@vulenv_dir}")
-    unless status.exitstatus.zero?
-      VultestUI.tty_spinner_end('error')
-      return false
-    end
-
-    VultestUI.tty_spinner_end('success')
-    true
+  def ip_list
+    raise NotImplementedError
   end
 
-  private
-
-  def start_up
-    VultestUI.tty_spinner_begin('Start up')
-    stdout, _stderr, status = Open3.capture3('vagrant up')
-    if status.exitstatus.zero?
-      VultestUI.tty_spinner_end('success')
-      return nil
-    end
-
-    VultestUI.tty_spinner_end('error')
-    stdout
+  def port_list
+    raise NotImplementedError
   end
 
-  def reload
-    VultestUI.tty_spinner_begin('Reload')
-    stdout, _stderr, status = Open3.capture3('vagrant reload')
-    if status.exitstatus.zero?
-      VultestUI.tty_spinner_end('success')
-      return nil
-    end
-
-    VultestUI.tty_spinner_end('error')
-    stdout
-  end
-
-  def hard_setup
-    vulenv_config['construction']['hard_setup']['msg'].each { |msg| puts(" #{msg}") }
-    Open3.capture3('vagrant halt')
-    TTY::Prompt.new.keypress('Please press enter key, when ready', keys: [:return])
-    start_up
-  end
-
-  def prepare_manually_setting
-    VultestUI.warring('Following execute command')
-    puts("  [1] cd #{vulenv_dir}")
-    puts('  [2] vagrant ssh')
-    vulenv_config['construction']['prepare']['msg'].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
-  end
-
-  def prepare_vagrant
-    os_name = vulenv_config['construction']['os']['name']
-    os_version = vulenv_config['construction']['os']['version']
-    PrepareVagrantfile.new(os_name: os_name, os_version: os_version, env_dir: vulenv_dir).create
-  end
-
-  def prepare_ansible
-    PrepareAnsible.new(
-      cve: vulenv_config['cve'],
-      os_name: vulenv_config['construction']['os']['name'],
-      db_path: config['vultest_db_path'],
-      attack_vector: vulenv_config['attack_vector'],
-      env_config: vulenv_config['construction'],
-      env_dir: vulenv_dir
-    ).create
+  def service_list
+    raise NotImplementedError
   end
 end

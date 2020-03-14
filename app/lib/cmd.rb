@@ -13,7 +13,7 @@
 # limitations under the License
 
 require './lib/vultest_case'
-require './lib/vulenv/vulenv'
+require './lib/vulenv/control_vulenv'
 require './lib/attack/attack_env'
 require './lib/report/vultest_report'
 require './modules/ui'
@@ -33,31 +33,32 @@ module Command
     @vultest_case = VultestCase.new(cve: cve)
     return false unless vultest_case.select_test_case?
 
-    @vulenv = Vulenv.new(cve: vultest_case.cve, config: vultest_case.config, vulenv_config: vultest_case.vulenv_config, vulenv_dir: setting[:test_dir])
+    @control_vulenv = ControlVulenv.new(
+      cve: vultest_case.cve,
+      config: vultest_case.config,
+      vulenv_config: vultest_case.vulenv_config,
+      vulenv_dir: setting[:test_dir]
+    )
 
-    unless vulenv.create?
-      @vulenv.error[:flag] = true
-      VultestUI.warring('Can look at a report about error in construction of vulnerable environment')
-    end
-
+    VultestUI.warring('Can look at a report about error in construction of vulnerable environment') unless control_vulenv.create?
     true
   end
 
   def destroy?
-    if vulenv.nil?
+    if control_vulenv.nil?
       VultestUI.error('Doesn\'t exist a vulnerabule environment')
       return false
     end
 
-    return false unless vulenv.destroy!
+    return false unless control_vulenv.destroy?
 
-    VultestUI.execute("Delete the vulnerable environment for #{vulenv.cve}")
-    @vulenv = nil
+    VultestUI.execute("Delete the vulnerable environment for #{control_vulenv.cve}")
+    @control_vulenv = nil
     true
   end
 
   def exploit?
-    if vulenv.nil?
+    if control_vulenv.nil?
       VultestUI.error('There is not the vulnerable environment which is attack target')
       return false
     end
@@ -89,18 +90,18 @@ module Command
   end
 
   def report?
-    if vulenv.nil?
+    if control_vulenv.nil?
       VultestUI.error('There is no a vulnerable environment')
       return false
     end
 
-    if attack_env.nil? && !vulenv.error[:flag]
+    if attack_env.nil? && !control_vulenv.error[:flag]
       VultestUI.error('Execute exploit command')
       return
     end
 
     VultestReport.new(
-      vulenv: vulenv,
+      control_vulenv: control_vulenv,
       attack_env: attack_env,
       report_dir: setting[:test_dir]
     ).create_report
@@ -112,7 +113,7 @@ module Command
       return false
     end
 
-    unless vulenv.nil? && attack_env.nil?
+    unless control_vulenv.nil? && attack_env.nil?
       VultestUI.error('Cannot change a setting in a vulnerable test')
       return false
     end

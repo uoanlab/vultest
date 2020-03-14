@@ -21,7 +21,7 @@ require 'tty-prompt'
 require './app/lib/cmd'
 
 class App
-  attr_reader :setting, :vultest_case, :vulenv, :attack_env
+  attr_reader :setting, :vultest_case, :control_vulenv, :attack_env
 
   include Command
 
@@ -35,7 +35,7 @@ class App
     @setting [:attack_passwd] = ENV.fetch('ATTACKPASSWD', 'toor')
 
     @vultest_case = nil
-    @vulenv = nil
+    @control_vulenv = nil
     @attack_env = nil
   end
 
@@ -61,7 +61,7 @@ class App
 
         if console[:prompt].yes?("Finish the vultest for #{vultest_case.cve}")
           console[:name] = 'vultest'
-          @vultest_case = @vulenv = @attack_env = nil
+          @vultest_case = @control_vulenv = @attack_env = nil
         end
       when /exit/i then break
       else console[:prompt].error("vultest: command not found: #{cmd[0]}")
@@ -84,7 +84,7 @@ class App
 
     return unless test?(opts['cve'])
 
-    if vulenv.error[:flag]
+    if control_vulenv.error[:flag]
       report?
       return
     end
