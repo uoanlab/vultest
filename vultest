@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './cmd/test'
-require './cmd/destroy'
-require './cmd/exploit'
-require './cmd/set'
-require './cmd/back'
-require './cmd/report'
+require 'bundler/setup'
 
-module Command
-  class << self
-    include Test
-    include Destroy
-    include Exploit
-    include Setting
-    include Back
-    include Report
-  end
+require './app'
+
+app = App.new
+
+unless ARGV.size.zero?
+  app.cli
+  exit
 end
+
+app.console
