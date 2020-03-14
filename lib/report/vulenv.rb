@@ -22,6 +22,11 @@ module VulenvReport
     write_vul_software(report_file) if vulenv.vulenv_config['construction'].key?('vul_software')
     write_os(report_file)
     write_related_software(report_file) if vulenv.vulenv_config['construction'].key?('related_software')
+    return if vulenv.error[:flag]
+
+    write_ip_list(report_file)
+    write_port_list(report_file)
+    write_service_list(report_file)
   end
 
   def write_vul_software(report_file)
@@ -39,6 +44,57 @@ module VulenvReport
   def write_related_software(report_file)
     report_file.puts('### Related Software')
     vulenv.vulenv_config['construction']['related_software'].each { |software| report_file.puts("- #{software['name']} : #{software['version']}\n") }
+    report_file.puts("\n")
+  end
+
+  def write_ip_list(report_file)
+    report_file.puts('### IP Infomation')
+    report_file.puts("\n")
+
+    case vulenv.vulenv_config['construction']['os']['name']
+    when 'windows'
+      vulenv.ip_list_in_windows.each do |ip|
+        report_file.puts("#### Network Adapter: #{ip[:adapter]}")
+        report_file.puts("- IPv4: #{ip[:inet]}")
+        report_file.puts("- IPv6: #{ip[:inet6]}")
+        report_file.puts("\n")
+      end
+    else
+      vulenv.ip_list_in_linux.each do |ip|
+        report_file.puts("#### Interface: #{ip[:interface]}")
+        report_file.puts("- IPv4: #{ip[:inet]}")
+        report_file.puts("- IPv6: #{ip[:inet6]}")
+        report_file.puts("\n")
+      end
+    end
+
+    report_file.puts("\n")
+  end
+
+  def write_port_list(report_file)
+    report_file.puts('### Port')
+
+    socket_list = case vulenv.vulenv_config['construction']['os']['name']
+                  when 'windows' then vulenv.port_list_in_windows
+                  else vulenv.port_list_in_linux
+                  end
+    socket_list.each do |socket|
+      output = socket[:port] == socket[:service] ? "- #{socket[:port]}/#{socket[:protocol]}" : "- #{socket[:port]}/#{socket[:protocol]}(#{socket[:service]})"
+      report_file.puts(output)
+    end
+    report_file.puts("\n")
+  end
+
+  def write_service_list(report_file)
+    report_file.puts('### Services')
+
+    service_list = case vulenv.vulenv_config['construction']['os']['name']
+                   when 'windows' then vulenv.service_list_in_windows
+                   when 'ubuntu' then vulenv.service_list_in_ubuntu
+                   when 'centos' then vulenv.service_list_in_centos
+                   end
+
+    service_list.each { |service| report_file.puts("- #{service}") }
     report_file.puts("\n")
   end
 

@@ -16,13 +16,16 @@ require 'bundler/setup'
 require 'open3'
 require 'tty-prompt'
 
-require './lib/vulenv/tools/vagrant'
-require './lib/vulenv/tools/ansible'
+require './lib/vulenv/vulenv_spec'
+require './lib/vulenv/tools/prepare_vagrantfile'
+require './lib/vulenv/tools/prepare_ansible'
 require './modules/ui'
 
 class Vulenv
   attr_reader :cve, :config, :vulenv_config, :vulenv_dir
   attr_accessor :error
+
+  include VulenvSpec
 
   def initialize(args)
     @cve = args[:cve]
@@ -40,15 +43,20 @@ class Vulenv
     prepare_vagrant
     prepare_ansible
 
+    start_up_type = { start_up: true, reload: vulenv_config.key?('reload'), hard_setup: vulenv_config['construction'].key?('hard_setup') }
+
     Dir.chdir(vulenv_dir) do
-      error[:cause] = start_up
-      return false unless error[:cause].nil?
+      start_up_type.each do |key, value|
+        next unless value
 
-      error[:cause] = reload if vulenv_config.key?('reload')
-      return false unless error[:cause].nil?
+        case key
+        when :start_up then error[:cause] = start_up
+        when :reload then error[:cause] = reload
+        when :hard_setup then error[:cause] = hard_setup
+        end
 
-      error[:cause] = hard_setup if vulenv_config['construction'].key?('hard_setup')
-      return false unless error[:cause].nil?
+        return false unless error[:cause].nil?
+      end
     end
 
     prepare_manually_setting if vulenv_config['construction'].key?('prepare')
@@ -120,19 +128,17 @@ class Vulenv
   def prepare_vagrant
     os_name = vulenv_config['construction']['os']['name']
     os_version = vulenv_config['construction']['os']['version']
-    vagrant = Vagrant.new(os_name: os_name, os_version: os_version, env_dir: vulenv_dir)
-    vagrant.create
+    PrepareVagrantfile.new(os_name: os_name, os_version: os_version, env_dir: vulenv_dir).create
   end
 
   def prepare_ansible
-    ansible = Ansible.new(
+    PrepareAnsible.new(
       cve: vulenv_config['cve'],
       os_name: vulenv_config['construction']['os']['name'],
       db_path: config['vultest_db_path'],
       attack_vector: vulenv_config['attack_vector'],
       env_config: vulenv_config['construction'],
       env_dir: vulenv_dir
-    )
-    ansible.create
+    ).create
   end
 end

@@ -35,7 +35,3 @@ Metrics/MethodLength:
 
 Metrics/PerceivedComplexity:
   Max: 8
-
-Metrics/BlockLength:
-  Exclude:
-    - "app.rb"
