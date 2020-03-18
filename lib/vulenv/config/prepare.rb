@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require './modules/ui'
 module Prepare
   def prepare(args)
     VultestUI.warring('Following execute command')

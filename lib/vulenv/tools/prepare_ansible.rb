@@ -14,12 +14,20 @@
 
 require 'fileutils'
 
-require './lib/vulenv/config/const'
+require './lib/vulenv/config/local'
+require './lib/vulenv/config/user'
+require './lib/vulenv/config/software'
+require './lib/vulenv/config/content'
+require './lib/vulenv/config/prepare'
 
 class PrepareAnsible
-  include Const
+  include Local
+  include User
+  include Software
+  include Content
+  include Prepare
 
-  def initialize(args = {})
+  def initialize(args)
     @cve = args[:cve]
     @target_os = args[:os_name]
     @db_path = args[:db_path]
