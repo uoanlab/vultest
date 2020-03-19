@@ -12,10 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'bundler/setup'
+require 'fileutils'
 module Software
   private
 
-  def select_method(args = {})
+  def vul_software(args)
+    method = args[:vul_software].key?('method') ? args[:vul_software]['method'] : args[:default_method]
+    select_method(software: args[:vul_software], role_dir: args[:role_dir], method: method)
+  end
+
+  def related_software(args)
+    args[:softwares].each do |software|
+      method = software.key?('method') ? software['method'] : args[:default_method]
+      select_method(software: software, role_dir: args[:role_dir], method: method)
+    end
+  end
+
+  def select_method(args)
     case args[:method]
     when 'apt' then method_apt(name: args[:software]['name'], version: args[:software]['version'], role_dir: args[:role_dir])
     when 'yum' then method_yum(name: args[:software]['name'], version: args[:software]['version'], role_dir: args[:role_dir])
@@ -24,7 +38,7 @@ module Software
     end
   end
 
-  def method_apt(args = {})
+  def method_apt(args)
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/tasks")
     FileUtils.cp_r('./lib/vulenv/tools/data/ansible/roles/apt/tasks/main.yml', "#{args[:role_dir]}/#{args[:name]}/tasks/main.yml")
 
@@ -35,7 +49,7 @@ module Software
     end
   end
 
-  def method_yum(args = {})
+  def method_yum(args)
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/tasks")
     FileUtils.cp_r('./lib/vulenv/tools/data/ansible/roles/yum/tasks/main.yml', "#{args[:role_dir]}/#{args[:name]}/tasks/main.yml")
 
@@ -46,7 +60,7 @@ module Software
     end
   end
 
-  def method_gem(args = {})
+  def method_gem(args)
     software_name = args[:software]['name']
     software_version = args[:software]['version']
 
@@ -65,7 +79,7 @@ module Software
     end
   end
 
-  def method_source(args = {})
+  def method_source(args)
     software_name = args[:software]['name']
     software_version = args[:software]['version']
 
@@ -89,39 +103,34 @@ module Software
     version = version.split('.')
     vars_file.puts("version: #{version[0] + '.' + version[1]}")
     vars_file.puts('patches:')
-    version[2].to_i.times do |index|
-      index += 1
-      if index.to_i < 10
-        vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]}#{version[1]}-00#{index}}")
-      elsif (index.to_i >= 10) && (index.to_i < 100)
-        vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]}#{version[1]}-0#{index}}")
-      else
-        vars_file.puts("   - {name: patch-#{index}, version: bash#{version[0]}#{version[1]}-#{index}}")
-      end
+    version[2].to_i.times do |idx|
+      idx += 1
+      input = "   - {name: patch-#{idx}, version: bash#{version[0]}#{version[1]}-"
+      input += if idx.to_i < 10 then '00'
+               elsif (idx.to_i >= 10) && (idx.to_i < 100) then '0'
+               end
+      input += "#{idx}}"
+      vars_file.puts(input)
     end
   end
 
   def option_configure_command(vars_file, software)
-    if software.key?('configure_command')
-      vars_file.puts("configure_command: #{software['configure_command']}")
-    else
-      vars_file.puts('configure_command: ./configure')
-    end
+    input = 'configure_command: '
+    input += software.key?('configure_command') ? software['configure_command'] : './configure'
+    vars_file.puts(input)
   end
 
   def option_src_dir(vars_file, software)
-    if software.key?('src_dir')
-      vars_file.puts("src_dir: #{software['src_dir']}")
-    else
-      vars_file.puts('src_dir: /usr/local/src')
-    end
+    input = 'src_dir: '
+    input += software.key?('src_dir') ? software['src_dir'] : '/usr/local/src'
+    vars_file.puts(input)
   end
 
   def option_user(vars_file, software)
-    if software.key?('user') && !software['user'].nil?
-      vars_file.puts("user: #{software['user']}\nuser_dir: /home/#{software['user']}")
-    else
-      vars_file.puts("user: test\nuser_dir: /home/test")
-    end
+    input = if software.key?('user') && !software['user'].nil? then "user: #{software['user']}\nuser_dir: /home/#{software['user']}"
+            else "user: test\nuser_dir: /home/test"
+            end
+
+    vars_file.puts(input)
   end
 end

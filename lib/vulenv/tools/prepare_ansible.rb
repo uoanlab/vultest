@@ -14,12 +14,22 @@
 
 require 'fileutils'
 
-require './lib/vulenv/config/const'
+require './lib/vulenv/config/local'
+require './lib/vulenv/config/user'
+require './lib/vulenv/config/software'
+require './lib/vulenv/config/content'
+require './lib/vulenv/config/prepare'
+require './lib/vulenv/config/services'
 
 class PrepareAnsible
-  include Const
+  include Local
+  include User
+  include Software
+  include Content
+  include Prepare
+  include Services
 
-  def initialize(args = {})
+  def initialize(args)
     @cve = args[:cve]
     @target_os = args[:os_name]
     @db_path = args[:db_path]
@@ -59,6 +69,8 @@ class PrepareAnsible
 
     content(db: @db_path, cve: @cve, content_info: @env_config['content'], role_dir: @ansible_dir[:roles]) if @env_config.key?('content')
 
+    services(role_dir: @ansible_dir[:roles], services: @env_config['services']) if @env_config.key?('services')
+
     create_playbook
   end
 
@@ -79,6 +91,8 @@ class PrepareAnsible
       playbook_file.puts("    - ../roles/#{@env_config['vul_software']['name']} ") if @env_config.key?('vul_software')
       playbook_file.puts("    - ../roles/#{@cve} ") if @env_config.key?('content')
       playbook_file.puts('    - ../roles/metasploit') if @attack_vector == 'local'
+
+      @env_config['services'].each { |service_name| playbook_file.puts("    - ../roles/service-#{service_name} ") } if @env_config.key?('services')
     end
   end
 end

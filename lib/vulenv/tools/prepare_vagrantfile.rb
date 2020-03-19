@@ -19,7 +19,7 @@ require 'tty-table'
 require 'tty-prompt'
 
 class PrepareVagrantfile
-  def initialize(args = {})
+  def initialize(args)
     @env_dir = args[:env_dir]
     @os_name = args[:os_name]
     @os_version = args[:os_version]
@@ -92,7 +92,7 @@ class PrepareVagrantfile
     { box_name: select_box.split(':')[0], box_version: select_box.split(':')[1] }
   end
 
-  def create_base_vagrantfile(args = {})
+  def create_base_vagrantfile(args)
     File.open("#{@env_dir}/Vagrantfile", 'w') do |file|
       file.puts("# -*- mode: ruby -*-\n")
       file.puts("# vi: set ft=ruby :\n\n")

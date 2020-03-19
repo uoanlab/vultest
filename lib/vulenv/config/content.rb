@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'bundler/setup'
+require 'fileutils'
 module Content
   private
 
-  def content(args = {})
+  def content(args)
     content_tasks(args)
 
     select_content_vars_dir = "#{args[:db]}/data/#{args[:content_info]}/vars"
@@ -25,7 +27,7 @@ module Content
     content_files(args) if Dir.exist?(select_content_files_dir)
   end
 
-  def content_tasks(args = {})
+  def content_tasks(args)
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:cve]}/tasks")
     FileUtils.cp_r(
       "#{args[:db]}/data/#{args[:content_info]}/tasks/main.yml",
@@ -33,7 +35,7 @@ module Content
     )
   end
 
-  def content_vars(args = {})
+  def content_vars(args)
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:cve]}/tasks/vars")
     FileUtils.cp_r(
       "#{args[:db]}/data/#{args[:content_info]}/vars/main.yml",
@@ -41,7 +43,7 @@ module Content
     )
   end
 
-  def content_files(args = {})
+  def content_files(args)
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:cve]}/files")
     Dir.glob("#{args[:db]}/data/#{args[:content_info]}/files/*") do |path|
       content = path.split('/')

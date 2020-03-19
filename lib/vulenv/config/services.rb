@@ -14,22 +14,22 @@
 
 require 'bundler/setup'
 require 'fileutils'
-module User
+
+module Services
   private
 
-  def user(args)
-    FileUtils.mkdir_p("#{args[:role_dir]}/user")
-    FileUtils.mkdir_p("#{args[:role_dir]}/user/tasks")
-    FileUtils.mkdir_p("#{args[:role_dir]}/user/vars")
+  def services(args)
+    role_dir = args[:role_dir]
+    services = args[:services]
 
-    FileUtils.cp_r(
-      './lib/vulenv/tools/data/ansible/roles/user/tasks/main.yml',
-      "#{args[:role_dir]}/user/tasks/main.yml"
-    )
+    services.each do |service_name|
+      FileUtils.mkdir_p("#{role_dir}/service-#{service_name}/tasks")
+      FileUtils.cp_r('./lib/vulenv/tools/data/ansible/roles/service/tasks/main.yml', "#{role_dir}/service-#{service_name}/tasks/main.yml")
 
-    File.open("#{args[:role_dir]}/user/vars/main.yml", 'w') do |vars_file|
-      args[:users].each do |user|
-        user ? vars_file.puts("user: #{user}") : vars_file.puts('user: test')
+      FileUtils.mkdir_p("#{role_dir}/service-#{service_name}/vars")
+      File.open("#{role_dir}/service-#{service_name}/vars/main.yml", 'w') do |vars_file|
+        vars_file.puts('---')
+        vars_file.puts("name: #{service_name}")
       end
     end
   end
