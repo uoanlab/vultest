@@ -15,12 +15,11 @@
 
 require 'bundler/setup'
 
+require './app/cli'
 require './app/console'
 
-app = Console.new
-# unless ARGV.size.zero?
-#  app.cli
-#  exit
-# end
+app = if ARGV.size.zero? then Console.new
+      else CLI.new
+      end
 
 app.exec
