@@ -20,7 +20,6 @@ require './app/command/test_command'
 require './app/command/destroy_command'
 require './app/command/exploit_command'
 require './app/command/report_command'
-require './app/command/set_command'
 
 require './modules/ui'
 
