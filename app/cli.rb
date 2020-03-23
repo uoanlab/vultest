@@ -54,30 +54,41 @@ class CLI < App
       return
     end
 
-    test_command
-    return if vultest_case.nil? || control_vulenv.nil?
-
-    if control_vulenv.error[:flag]
-      report_command
-      return
-    end
-
+    return unless create_vulenv?
     return if test_flag == 'no'
 
     TTY::Prompt.new.keypress('If you start the attack, puress ENTER key', keys: [:return])
-    exploit_command
-    return if attack_env.nil?
-
-    if attack_env.error[:flag]
-      report_command
-      return
-    end
+    return unless exploit_vulenv?
 
     report_command
     destroy_command if destroy_flag == 'yes'
   end
 
   private
+
+  def create_vulenv?
+    test_command
+    return false if vultest_case.nil? || control_vulenv.nil?
+
+    if control_vulenv.error[:flag]
+      report_command
+      return false
+    end
+
+    true
+  end
+
+  def exploit_vulenv?
+    exploit_command
+    return false if attack_env.nil?
+
+    if attack_env.error[:flag]
+      report_command
+      return false
+    end
+
+    true
+  end
 
   def test_command
     cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
