@@ -24,7 +24,7 @@ class ReportCommand < Command
     @report_dir = args[:report_dir]
   end
 
-  def exec
+  def execute
     if control_vulenv.nil?
       VultestUI.error('There is no a vulnerable environment')
       return

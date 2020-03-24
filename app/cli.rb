@@ -48,7 +48,7 @@ class CLI < App
     @destroy_flag = opts['destroy']
   end
 
-  def exec
+  def execute
     if cve.nil?
       VultestUI.error('Input CVE')
       return
@@ -93,7 +93,7 @@ class CLI < App
   def test_command
     cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
 
-    cmd.exec do |_set_name, set_vultest_case, set_control_vulenv|
+    cmd.execute do |_set_name, set_vultest_case, set_control_vulenv|
       @vultest_case = set_vultest_case
       @control_vulenv = set_control_vulenv
     end
@@ -110,16 +110,16 @@ class CLI < App
 
     set_attack_env_proc = proc { |set_attack_env| @attack_env = set_attack_env }
     set_attack_host_proc = proc { |set_attack_host| @setting[:attack_host] = set_attack_host }
-    cmd.exec(set_attack_env_proc, set_attack_host_proc)
+    cmd.execute(set_attack_env_proc, set_attack_host_proc)
   end
 
   def report_command
     cmd = ReportCommand.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
-    cmd.exec
+    cmd.execute
   end
 
   def destroy_command
     cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.exec { @control_vulenv = nil }
+    cmd.execute { @control_vulenv = nil }
   end
 end

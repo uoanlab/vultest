@@ -13,7 +13,7 @@
 # limitations under the License.
 
 class Command
-  def exec
+  def execute
     raise NotImplementedError
   end
 end

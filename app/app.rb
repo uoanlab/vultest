@@ -30,7 +30,7 @@ class App
     @setting [:attack_passwd] = ENV.fetch('ATTACKPASSWD', 'toor')
   end
 
-  def exec
+  def execute
     raise NotImplementedError
   end
 end

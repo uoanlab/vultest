@@ -24,7 +24,7 @@ class SetCommand < Command
     @attack_env = args[:attack_env]
   end
 
-  def exec(type, value, &block)
+  def execute(type, value, &block)
     if type.nil? || value.nil?
       VultestUI.error('The usage of set command is incorrect')
       return
