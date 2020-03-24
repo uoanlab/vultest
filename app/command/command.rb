@@ -12,24 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'bundler/setup'
-require 'pastel'
-require 'optparse'
-require 'tty-font'
-
-class App
-  attr_reader :setting, :vultest_case, :control_vulenv, :attack_env
-
-  def initialize
-    puts Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST'))
-
-    @setting = {}
-    @setting[:test_dir] = ENV.fetch('TESTDIR', './test_dir')
-    @setting[:attack_host] = ENV.fetch('ATTACKHOST', nil)
-    @setting[:attack_user] = ENV.fetch('ATTACKERUSER', 'root')
-    @setting [:attack_passwd] = ENV.fetch('ATTACKPASSWD', 'toor')
-  end
-
+class Command
   def exec
     raise NotImplementedError
   end
