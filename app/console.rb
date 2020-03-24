@@ -53,21 +53,18 @@ class Console < App
   def test_command(cve)
     cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
 
-    set_proc = proc do |set_name, set_vultest_case, set_control_vulenv|
+    cmd.exec do |set_name, set_vultest_case, set_control_vulenv|
       @name = set_name
       @vultest_case = set_vultest_case
       @control_vulenv = set_control_vulenv
     end
-
-    cmd.exec(set_proc)
   end
 
   def destroy_command
     return if prompt.no?('Delete vulnerable environment?')
 
     cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    set_porc = proc { @control_vulenv = nil }
-    cmd.exec(set_porc)
+    cmd.exec { @control_vulenv = nil }
   end
 
   def exploit_command
@@ -91,9 +88,7 @@ class Console < App
 
   def set_command(type, value)
     cmd = SetCommand.new(control_vulenv: control_vulenv, attack_env: attack_env)
-
-    set_proc = proc { |set_type, set_value| @setting[set_type] = set_value }
-    cmd.exec(type, value, set_proc)
+    cmd.exec(type, value) { |set_type, set_value| @setting[set_type] = set_value }
   end
 
   def back_command

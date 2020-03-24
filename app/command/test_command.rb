@@ -27,7 +27,7 @@ class TestCommand < Command
     @vulenv_dir = args[:vulenv_dir]
   end
 
-  def exec(set_proc)
+  def exec(&block)
     return unless vultest_case.nil?
 
     unless cve =~ /^(CVE|cve)-\d+\d+/i
@@ -41,7 +41,7 @@ class TestCommand < Command
     @control_vulenv = prepare_control_vulenv
     VultestUI.warring('Can look at a report about error in construction of vulnerable environment') unless control_vulenv.create?
 
-    set_proc.call(cve, vultest_case, control_vulenv)
+    block.call(cve, vultest_case, control_vulenv)
   end
 
   private
