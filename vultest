@@ -22,4 +22,4 @@ app = if ARGV.size.zero? then Console.new
       else CLI.new
       end
 
-app.exec
+app.execute

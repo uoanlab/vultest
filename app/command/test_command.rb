@@ -27,7 +27,7 @@ class TestCommand < Command
     @vulenv_dir = args[:vulenv_dir]
   end
 
-  def exec(&block)
+  def execute(&block)
     return unless vultest_case.nil?
 
     unless cve =~ /^(CVE|cve)-\d+\d+/i
