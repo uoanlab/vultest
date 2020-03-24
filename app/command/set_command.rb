@@ -24,25 +24,45 @@ class SetCommand < Command
     @attack_env = args[:attack_env]
   end
 
-  def exec(type, value, set_proc)
+  def exec(type, value, &block)
     if type.nil? || value.nil?
       VultestUI.error('The usage of set command is incorrect')
       return
     end
 
-    unless control_vulenv.nil? && attack_env.nil?
-      VultestUI.error('Cannot change a setting in a vulnerable test')
-      return
-    end
-
-    VultestUI.execute("#{type} => #{value}")
-
     type = type.downcase
     if type == 'testdir'
+      return unless require_for_setting_in_test_dir?
+
+      VultestUI.execute("#{type} => #{value}")
       type = :test_dir
       value = Util.create_dir(value)
-    elsif type[0..5] == 'attack' then type = "#{type[0..5]}_#{type[6..]}".intern
+    elsif type[0..5] == 'attack'
+      return unless require_for_setting_in_attack_config?
+
+      VultestUI.execute("#{type} => #{value}")
+      type = "#{type[0..5]}_#{type[6..]}".intern
     end
-    set_proc.call(type, value)
+
+    block.call(type, value)
+  end
+
+  private
+
+  def require_for_setting_in_test_dir?
+    unless control_vulenv.nil?
+      VultestUI.error('Cannot change a setting in a vulnerable test')
+      return false
+    end
+
+    true
+  end
+
+  def require_for_setting_in_attack_config?
+    unless attack_env.nil?
+      VultestUI.error('Cannot change a setting in a vulnerable test')
+      return false
+    end
+    true
   end
 end
