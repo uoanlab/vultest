@@ -14,6 +14,8 @@
 
 require './app/command/command'
 require './lib/report/vultest_report'
+require './lib/report/error_vulenv_report'
+require './lib/report/error_attack_report'
 require './modules/ui'
 
 class ReportCommand < Command
@@ -36,12 +38,15 @@ class ReportCommand < Command
     end
 
     vultest_report = prepare_vultest_report
-    vultest_report.create_report
+    vultest_report.show
   end
 
   private
 
   def prepare_vultest_report
-    VultestReport.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
+    if control_vulenv.error[:flag] then ErrorVulenvReport.new(control_vulenv: control_vulenv, report_dir: report_dir)
+    elsif attack_env.error[:flag] then ErrorAttackReport.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
+    else VultestReport.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
+    end
   end
 end
