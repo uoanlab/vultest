@@ -13,16 +13,16 @@
 # limitations under the License.
 
 require './lib/report/report'
-require './lib/report/section/attack_section'
 require './lib/report/section/vulenv_section'
+require './lib/report/section/attack_section'
+require './lib/report/section/attack_error_section'
 require './lib/report/section/vulnerability_section'
 
-class VultestReport < Report
+class ErrorAttackReport < Report
   attr_reader :cve, :control_vulenv, :attack_env
 
   def initialize(args)
     super(args[:report_dir])
-
     @control_vulenv = args[:control_vulenv]
     @attack_env = args[:attack_env]
 
@@ -33,12 +33,18 @@ class VultestReport < Report
 
   def report_details
     sections = []
-    sections.push("# Vultest Report\n\n")
+    sections.push("# Vultest Report: Error in Attack Execution\n\n")
+    sections.push(create_attack_error_section)
     sections.push(create_vulenv_section)
     sections.push(create_attack_section)
     sections.push(create_vulnerability_section)
 
     sections
+  end
+
+  def create_attack_error_section
+    section = AttackErrorSection.new(attack_env: attack_env)
+    section.create
   end
 
   def create_vulenv_section
