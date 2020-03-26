@@ -24,7 +24,7 @@ class DestroyCommand < Command
     @control_vulenv = args[:control_vulenv]
   end
 
-  def execute(&block)
+  def execute
     if control_vulenv.nil?
       VultestUI.error('Doesn\'t exist a vulnerabule environment')
       return
@@ -33,7 +33,6 @@ class DestroyCommand < Command
     return unless control_vulenv.destroy?
 
     VultestUI.execute("Delete the vulnerable environment for #{control_vulenv.cve}")
-
-    block.call
+    @control_vulenv = nil
   end
 end

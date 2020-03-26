@@ -52,8 +52,8 @@ class Console < App
 
   def test_command(cve)
     cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
-
     cmd.execute
+
     @name = cmd.cve.nil? ? 'vultest' : cmd.cve
     @vultest_case = cmd.vultest_case
     @control_vulenv = cmd.control_vulenv
@@ -63,7 +63,8 @@ class Console < App
     return if prompt.no?('Delete vulnerable environment?')
 
     cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.execute { @control_vulenv = nil }
+    cmd.execute
+    @control_vulenv = cmd.control_vulenv
   end
 
   def exploit_command

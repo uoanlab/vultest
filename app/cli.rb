@@ -92,8 +92,8 @@ class CLI < App
 
   def test_command
     cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
-
     cmd.execute
+
     @vultest_case = cmd.vultest_case
     @control_vulenv = cmd.control_vulenv
   end
@@ -119,6 +119,7 @@ class CLI < App
 
   def destroy_command
     cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.execute { @control_vulenv = nil }
+    cmd.execute
+    @control_vulenv = cmd.control_vulenv
   end
 end
