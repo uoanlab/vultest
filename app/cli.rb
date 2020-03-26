@@ -106,10 +106,10 @@ class CLI < App
       attack_user: setting[:attack_user],
       attack_passwd: setting[:attack_passwd]
     )
+    cmd.execute
 
-    set_attack_env_proc = proc { |set_attack_env| @attack_env = set_attack_env }
-    set_attack_host_proc = proc { |set_attack_host| @setting[:attack_host] = set_attack_host }
-    cmd.execute(set_attack_env_proc, set_attack_host_proc)
+    @setting[:attack_host] = cmd.attack_host
+    @attack_env = cmd.attack_env
   end
 
   def report_command
