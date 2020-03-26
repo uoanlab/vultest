@@ -53,11 +53,10 @@ class Console < App
   def test_command(cve)
     cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
 
-    cmd.execute do |set_name, set_vultest_case, set_control_vulenv|
-      @name = set_name
-      @vultest_case = set_vultest_case
-      @control_vulenv = set_control_vulenv
-    end
+    cmd.execute
+    @name = cmd.cve.nil? ? 'vultest' : cmd.cve
+    @vultest_case = cmd.vultest_case
+    @control_vulenv = cmd.control_vulenv
   end
 
   def destroy_command
