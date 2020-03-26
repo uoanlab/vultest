@@ -17,34 +17,30 @@ require './modules/ui'
 require './modules/util'
 
 class SetCommand < Command
-  attr_reader :control_vulenv, :attack_env
+  attr_reader :type, :value, :control_vulenv, :attack_env
 
   def initialize(args)
+    @type = args[:type]
+    @value = args[:value]
+
     @control_vulenv = args[:control_vulenv]
     @attack_env = args[:attack_env]
   end
 
-  def execute(type, value, &block)
-    if type.nil? || value.nil?
-      VultestUI.error('The usage of set command is incorrect')
-      return
-    end
-
-    type = type.downcase
+  def execute
+    @type = type.downcase
     if type == 'testdir'
       return unless require_for_setting_in_test_dir?
 
       VultestUI.execute("#{type} => #{value}")
-      type = :test_dir
-      value = Util.create_dir(value)
+      @type = :test_dir
+      @value = Util.create_dir(value)
     elsif type[0..5] == 'attack'
       return unless require_for_setting_in_attack_config?
 
       VultestUI.execute("#{type} => #{value}")
-      type = "#{type[0..5]}_#{type[6..]}".intern
+      @type = "#{type[0..5]}_#{type[6..]}".intern
     end
-
-    block.call(type, value)
   end
 
   private

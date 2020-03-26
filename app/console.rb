@@ -20,6 +20,7 @@ require './app/command/destroy_command'
 require './app/command/exploit_command'
 require './app/command/report_command'
 require './app/command/set_command'
+require './modules/util'
 
 class Console < App
   attr_reader :prompt, :name
@@ -87,8 +88,15 @@ class Console < App
   end
 
   def set_command(type, value)
-    cmd = SetCommand.new(control_vulenv: control_vulenv, attack_env: attack_env)
-    cmd.execute(type, value) { |set_type, set_value| @setting[set_type] = set_value }
+    if type.nil? || value.nil?
+      VultestUI.error('The usage of set command is incorrect')
+      return
+    end
+
+    cmd = SetCommand.new(type: type, value: value, control_vulenv: control_vulenv, attack_env: attack_env)
+    cmd.execute
+
+    @setting[cmd.type] = cmd.value
   end
 
   def back_command
