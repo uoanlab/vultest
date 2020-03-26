@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'net/ssh'
 
-require './lib/vulenv/vulenv'
+require './lib/vulenv/env/vulenv'
 
 class VulnevLinux < Vulenv
   private

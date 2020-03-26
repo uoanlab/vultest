@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'winrm'
 
-require './lib/vulenv/vulenv'
+require './lib/vulenv/env/vulenv'
 
 class VulnevWindows < Vulenv
   private

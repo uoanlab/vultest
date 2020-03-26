@@ -15,12 +15,14 @@
 require 'bundler/setup'
 require 'net/ssh'
 
-require './lib/vulenv/vulenv_linux'
+require './lib/vulenv/env/vulenv_linux'
 
 class VulenvCentOS < VulnevLinux
   private
 
   def related_software_details
+    return nil if related_software.nil?
+
     Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
       @related_software = related_software.map do |software|
         if software[:version] == 'The latest version of the repository'
