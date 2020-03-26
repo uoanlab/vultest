@@ -31,8 +31,8 @@ module Software
 
   def select_method(args)
     case args[:method]
-    when 'apt' then method_apt(name: args[:software]['name'], version: args[:software]['version'], role_dir: args[:role_dir])
-    when 'yum' then method_yum(name: args[:software]['name'], version: args[:software]['version'], role_dir: args[:role_dir])
+    when 'apt' then method_apt(name: args[:software]['name'], version: args[:software].fetch('version', nil), role_dir: args[:role_dir])
+    when 'yum' then method_yum(name: args[:software]['name'], version: args[:software].fetch('version', nil), role_dir: args[:role_dir])
     when 'gem' then method_gem(software: args[:software], role_dir: args[:role_dir])
     when 'source' then method_source(software: args[:software], role_dir: args[:role_dir])
     end
@@ -45,7 +45,9 @@ module Software
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/vars")
     File.open("#{args[:role_dir]}/#{args[:name]}/vars/main.yml", 'w') do |vars_file|
       vars_file.puts('---')
-      vars_file.puts("name_and_version: #{args[:name]}=#{args[:version]}")
+      name_and_version = "name_and_version: #{args[:name]}"
+      name_and_version << "=#{args[:version]}" unless args[:version].nil?
+      vars_file.puts(name_and_version)
     end
   end
 
@@ -56,7 +58,9 @@ module Software
     FileUtils.mkdir_p("#{args[:role_dir]}/#{args[:name]}/vars")
     File.open("#{args[:role_dir]}/#{args[:name]}/vars/main.yml", 'w') do |vars_file|
       vars_file.puts('---')
-      vars_file.puts("name_and_version: #{args[:name]}-#{args[:version]}")
+      name_and_version = "name_and_version: #{args[:name]}"
+      name_and_version << "-#{args[:version]}" unless args[:version].nil?
+      vars_file.puts(name_and_version)
     end
   end
 

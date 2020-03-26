@@ -83,22 +83,10 @@ class ControlVulenv
   end
 
   def status_vulenv
-    status = {
-      os: vulenv.os,
-      vul_software: vulenv.vul_software,
-      related_software: vulenv.related_software
-    }
-
+    status = vulenv.basic_structure
     return status if error[:flag]
 
-    status.merge!({
-                    base_version_of_os: vulenv.base_version_of_os,
-                    ip_list: vulenv.ip_list,
-                    port_list: vulenv.port_list,
-                    service_list: vulenv.service_list
-                  })
-
-    status
+    status.merge!(vulenv.details_structure)
   end
 
   private

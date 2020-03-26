@@ -18,12 +18,28 @@ require 'net/ssh'
 require './lib/vulenv/vulenv_linux'
 
 class VulenvCentOS < VulnevLinux
+  private
+
+  def related_software_details
+    Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
+      @related_software = related_software.map do |software|
+        if software[:version] == 'The latest version of the repository'
+          cmd = "sudo yum list installed | grep \"^#{software[:name]}.\""
+          software[:version] = ssh.exec!(cmd).split(' ')[1]
+        end
+        { name: software[:name], version: software[:version] }
+      end
+    end
+
+    related_software
+  end
+
   def service_list
     running_service = []
     Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
       cmd = ssh.exec!('sudo find / -name service | grep bin/').split("\n")[0]
       cmd = "sudo #{cmd} --status-all | grep running..."
-      ssh.exec!(cmd).split("\n").each { |stdout| running_service.push(stdout.split(' ')[0]) }
+      running_service = ssh.exec!(cmd).split("\n").map { |stdout| stdout.split(' ')[0] }
     end
 
     running_service

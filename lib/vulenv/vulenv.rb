@@ -21,17 +21,39 @@ class Vulenv
     config = args[:vulenv_config]['construction']
 
     @os = { name: config['os']['name'], version: config['os']['version'], vulnerability: config['os']['vulnerability'] }
-
     @vul_software = { name: config['vul_software']['name'], version: config['vul_software']['version'] } if config.key?('vul_software')
 
     return unless config.key?('related_software')
 
-    @related_software = []
-    config['related_software'].each { |s| @related_software.push({ name: s['name'], version: s['version'] }) }
+    @related_software = config['related_software'].map { |s| { name: s['name'], version: s.fetch('version', 'The latest version of the repository') } }
   end
+
+  def basic_structure
+    {
+      os: os,
+      vul_software: vul_software,
+      related_software: related_software
+    }
+  end
+
+  def details_structure
+    {
+      base_version_of_os: base_version_of_os,
+      related_software: related_software_details,
+      ip_list: ip_list,
+      port_list: port_list,
+      service_list: service_list
+    }
+  end
+
+  private
 
   def base_version_of_os
     raise NotImplementedError
+  end
+
+  def related_software_details
+    related_software
   end
 
   def ip_list

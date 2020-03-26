@@ -18,14 +18,31 @@ require 'net/ssh'
 require './lib/vulenv/vulenv_linux'
 
 class VulenvUbuntu < VulnevLinux
+  private
+
+  def related_software_details
+    Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
+      @related_software = related_software.map do |software|
+        if software[:version] == 'The latest version of the repository'
+          cmd = "sudo dpkg -l | grep #{software[:name]}"
+          software[:version] = ssh.exec!(cmd).split("\n").find { |stdout| stdout.split(' ')[1] == software[:name] }.split(' ')[2]
+        end
+        { name: software[:name], version: software[:version] }
+      end
+    end
+
+    related_software
+  end
+
   def service_list
     running_service = []
     Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) do |ssh|
       cmd = ssh.exec!('sudo find / -name service | grep bin/').split("\n")[0]
       cmd = "sudo #{cmd} --status-all | grep +"
-      ssh.exec!(cmd).gsub('[', '').gsub(']', '').split("\n").each { |stdout| running_service.push(stdout.split(' ')[1]) if stdout.split(' ')[0] == '+' }
+      running_service = ssh.exec!(cmd).gsub('[', '').gsub(']', '').split("\n").map do |stdout|
+        stdout.split(' ')[1] if stdout.split(' ')[0] == '+'
+      end
     end
-
     running_service
   end
 end
