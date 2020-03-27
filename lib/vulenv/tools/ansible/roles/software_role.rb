@@ -25,10 +25,19 @@ class SoftwareRole < Role
   end
 
   def create
-    raise NotImplementedError
+    create_tasks
+    create_vars
   end
 
   private
+
+  def create_tasks
+    raise NotImplementedError
+  end
+
+  def create_vars
+    raise NotImplementedError
+  end
 
   def option_user
     content = nil

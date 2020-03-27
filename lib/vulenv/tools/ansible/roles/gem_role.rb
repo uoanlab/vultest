@@ -17,13 +17,17 @@ require 'fileutils'
 require './lib/vulenv/tools/ansible/roles/software_role'
 
 class GemRole < SoftwareRole
-  def create
+  private
+
+  def create_tasks
     FileUtils.mkdir_p("#{role_dir}/#{software['name']}/tasks")
     FileUtils.cp_r(
       './data/ansible/roles/gem/tasks/main.yml',
       "#{role_dir}/#{software['name']}/tasks/main.yml"
     )
+  end
 
+  def create_vars
     FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
     File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
       vars_file.puts('---')
