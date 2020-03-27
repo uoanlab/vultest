@@ -51,4 +51,12 @@ class SourceRole < SoftwareRole
     end
     vars
   end
+
+  def option_configure_command
+    'configure_command: ' + software.fetch('configure_command', './configure')
+  end
+
+  def option_src_dir
+    'src_dir: ' + software.fetch('src_dir', '/usr/local/src')
+  end
 end

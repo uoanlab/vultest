@@ -30,14 +30,6 @@ class SoftwareRole < Role
 
   private
 
-  def option_configure_command
-    'configure_command: ' + software.fetch('configure_command', './configure')
-  end
-
-  def option_src_dir
-    'src_dir: ' + software.fetch('src_dir', '/usr/local/src')
-  end
-
   def option_user
     content = nil
     if software.key?('user') && !software['user'].nil?
