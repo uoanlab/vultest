@@ -19,8 +19,9 @@ require 'tty-prompt'
 require './lib/vulenv/env/vulenv_centos'
 require './lib/vulenv/env/vulenv_ubuntu'
 require './lib/vulenv/env/vulenv_windows'
-require './lib/vulenv/tools/vagrant'
-require './lib/vulenv/tools/prepare_vagrantfile'
+require './lib/vulenv/tools/vagrant/vagrant'
+require './lib/vulenv/tools/vagrant/prepare_linux_vagrantfile'
+require './lib/vulenv/tools/vagrant/prepare_windows_vagrantfile'
 require './lib/vulenv/tools/prepare_ansible'
 require './modules/ui'
 
@@ -34,11 +35,12 @@ class ControlVulenv
     @vulenv_dir = args[:vulenv_dir]
     @error = { flag: false, cause: nil }
 
-    @vulenv = case vulenv_config['construction']['os']['name']
-              when 'ubuntu' then VulenvUbuntu.new(vulenv_config: @vulenv_config)
-              when 'centos' then VulenvCentOS.new(vulenv_config: @vulenv_config)
-              when 'windows' then VulnevWindows.new(vulenv_config: @vulenv_config)
-              end
+    @vulenv =
+      case vulenv_config['construction']['os']['name']
+      when 'ubuntu' then VulenvUbuntu.new(vulenv_config: @vulenv_config)
+      when 'centos' then VulenvCentOS.new(vulenv_config: @vulenv_config)
+      when 'windows' then VulnevWindows.new(vulenv_config: @vulenv_config)
+      end
   end
 
   def create?
@@ -49,11 +51,13 @@ class ControlVulenv
       { start_up: true, reload: vulenv_config.key?('reload'), hard_setup: vulenv_config['construction'].key?('hard_setup') }.each do |key, value|
         next unless value
 
-        @error[:flag] = !(case key
-                          when :start_up then vagrant.start_up?
-                          when :reload then vagrant.reload?
-                          when :hard_setup then vagrant.hard_setup?(vulenv_config['construction']['hard_setup']['msg'])
-                          end)
+        @error[:flag] = !(
+          case key
+          when :start_up then vagrant.start_up?
+          when :reload then vagrant.reload?
+          when :hard_setup then vagrant.hard_setup?(vulenv_config['construction']['hard_setup']['msg'])
+          end
+        )
 
         next unless @error[:flag]
 
@@ -105,7 +109,22 @@ class ControlVulenv
   end
 
   def prepare_vagrant
-    PrepareVagrantfile.new(os_name: vulenv.os[:name], os_version: vulenv.os[:version], env_dir: vulenv_dir).create
+    prepare_vagrantfile =
+      if vulenv.os[:name] == 'windows'
+        PrepareWindowsVagrantfile.new(
+          os_name: vulenv.os[:name],
+          os_version: vulenv.os[:version],
+          env_dir: vulenv_dir
+        )
+      else
+        PrepareLinuxVagrantfile.new(
+          os_name: vulenv.os[:name],
+          os_version: vulenv.os[:version],
+          env_dir: vulenv_dir
+        )
+      end
+    prepare_vagrantfile.create
+
     @vagrant = Vagrant.new
   end
 

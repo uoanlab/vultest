@@ -1,0 +1,21 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure('2') do |config|
+  config.vm.box = 'redsloop/ubuntu-16.04.4'
+  config.vm.box_version = '3.0'
+
+  config.ssh.username = 'vagrant'
+  config.ssh.password = 'vagrant'
+
+  config.vm.network 'forwarded_port', guest: 80, host: 65_434
+
+  config.vm.network 'private_network', ip: '192.168.177.177'
+
+  config.vm.provision 'ansible_local', run: 'always' do |ansible|
+    ansible.playbook = './ansible/playbook/main.yml'
+    ansible.inventory_path = './ansible/hosts/hosts.yml'
+    ansible.config_file = './ansible/ansible.cfg'
+    ansible.limit = 'all'
+  end
+end
