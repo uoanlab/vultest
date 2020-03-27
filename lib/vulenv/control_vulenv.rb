@@ -22,7 +22,7 @@ require './lib/vulenv/env/vulenv_windows'
 require './lib/vulenv/tools/vagrant/vagrant'
 require './lib/vulenv/tools/vagrant/prepare_linux_vagrantfile'
 require './lib/vulenv/tools/vagrant/prepare_windows_vagrantfile'
-require './lib/vulenv/tools/prepare_ansible'
+require './lib/vulenv/tools/ansible/prepare_ansible'
 require './modules/ui'
 
 class ControlVulenv
