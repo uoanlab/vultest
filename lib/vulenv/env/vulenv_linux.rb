@@ -15,9 +15,11 @@
 require 'bundler/setup'
 require 'net/ssh'
 
-require './lib/vulenv/vulenv'
+require './lib/vulenv/env/vulenv'
 
 class VulnevLinux < Vulenv
+  private
+
   def base_version_of_os
     kernel_version
   end
@@ -60,8 +62,6 @@ class VulnevLinux < Vulenv
   def service_list
     raise NotImplementedError
   end
-
-  private
 
   def kernel_version
     Net::SSH.start('192.168.177.177', 'vagrant', password: 'vagrant', verify_host_key: :never) { |ssh| ssh.exec!('uname -r') }

@@ -20,6 +20,7 @@ require './app/command/destroy_command'
 require './app/command/exploit_command'
 require './app/command/report_command'
 require './app/command/set_command'
+require './modules/util'
 
 class Console < App
   attr_reader :prompt, :name
@@ -52,19 +53,19 @@ class Console < App
 
   def test_command(cve)
     cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
+    cmd.execute
 
-    cmd.execute do |set_name, set_vultest_case, set_control_vulenv|
-      @name = set_name
-      @vultest_case = set_vultest_case
-      @control_vulenv = set_control_vulenv
-    end
+    @name = cmd.cve.nil? ? 'vultest' : cmd.cve
+    @vultest_case = cmd.vultest_case
+    @control_vulenv = cmd.control_vulenv
   end
 
   def destroy_command
     return if prompt.no?('Delete vulnerable environment?')
 
     cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.execute { @control_vulenv = nil }
+    cmd.execute
+    @control_vulenv = cmd.control_vulenv
   end
 
   def exploit_command
@@ -75,10 +76,10 @@ class Console < App
       attack_user: setting[:attack_user],
       attack_passwd: setting[:attack_passwd]
     )
+    cmd.execute
 
-    set_attack_env_proc = proc { |set_attack_env| @attack_env = set_attack_env }
-    set_attack_host_proc = proc { |set_attack_host| @setting[:attack_host] = set_attack_host }
-    cmd.execute(set_attack_env_proc, set_attack_host_proc)
+    @setting[:attack_host] = cmd.attack_host
+    @attack_env = cmd.attack_env
   end
 
   def report_command
@@ -87,8 +88,15 @@ class Console < App
   end
 
   def set_command(type, value)
-    cmd = SetCommand.new(control_vulenv: control_vulenv, attack_env: attack_env)
-    cmd.execute(type, value) { |set_type, set_value| @setting[set_type] = set_value }
+    if type.nil? || value.nil?
+      VultestUI.error('The usage of set command is incorrect')
+      return
+    end
+
+    cmd = SetCommand.new(type: type, value: value, control_vulenv: control_vulenv, attack_env: attack_env)
+    cmd.execute
+
+    @setting[cmd.type] = cmd.value
   end
 
   def back_command

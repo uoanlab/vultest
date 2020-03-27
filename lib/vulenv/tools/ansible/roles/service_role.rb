@@ -15,22 +15,24 @@
 require 'bundler/setup'
 require 'fileutils'
 
-module Services
-  private
+require './lib/vulenv/tools/ansible/roles/role'
 
-  def services(args)
-    role_dir = args[:role_dir]
-    services = args[:services]
+class ServiceRole < Role
+  attr_reader :service
 
-    services.each do |service_name|
-      FileUtils.mkdir_p("#{role_dir}/service-#{service_name}/tasks")
-      FileUtils.cp_r('./lib/vulenv/tools/data/ansible/roles/service/tasks/main.yml', "#{role_dir}/service-#{service_name}/tasks/main.yml")
+  def initialize(args)
+    super(role_dir: args[:role_dir])
+    @service = args[:service]
+  end
 
-      FileUtils.mkdir_p("#{role_dir}/service-#{service_name}/vars")
-      File.open("#{role_dir}/service-#{service_name}/vars/main.yml", 'w') do |vars_file|
-        vars_file.puts('---')
-        vars_file.puts("name: #{service_name}")
-      end
+  def create
+    FileUtils.mkdir_p("#{role_dir}/service-#{service}/tasks")
+    FileUtils.cp_r('./data/ansible/roles/service/tasks/main.yml', "#{role_dir}/service-#{service}/tasks/main.yml")
+
+    FileUtils.mkdir_p("#{role_dir}/service-#{service}/vars")
+    File.open("#{role_dir}/service-#{service}/vars/main.yml", 'w') do |vars_file|
+      vars_file.puts('---')
+      vars_file.puts("name: #{service}")
     end
   end
 end

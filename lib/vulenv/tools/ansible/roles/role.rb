@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './modules/ui'
-module Prepare
-  def prepare(args)
-    VultestUI.warring('Following execute command')
-    puts("  [1] cd #{args[:env_dir]}")
-    puts('  [2] vagrant ssh')
-    args[:prepare_msg].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
+class Role
+  attr_reader :role_dir
+
+  def initialize(args)
+    @role_dir = args[:role_dir]
+  end
+
+  def create
+    raise NotImplementedError
   end
 end

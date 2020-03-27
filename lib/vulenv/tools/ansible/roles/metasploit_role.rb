@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,27 +11,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 require 'bundler/setup'
 require 'fileutils'
-module Local
-  private
 
-  def local(role_dir)
+require './lib/vulenv/tools/ansible/roles/role'
+
+class MetasploitRole < Role
+  def create
     FileUtils.mkdir_p("#{role_dir}/metasploit")
     FileUtils.mkdir_p("#{role_dir}/metasploit/tasks")
     FileUtils.mkdir_p("#{role_dir}/metasploit/vars")
     FileUtils.mkdir_p("#{role_dir}/metasploit/files")
     FileUtils.cp_r(
-      './lib/vulenv/tools/data/ansible/roles/metasploit/tasks/main.yml',
+      './data/ansible/roles/metasploit/tasks/main.yml',
       "#{role_dir}/metasploit/tasks/main.yml"
     )
     FileUtils.cp_r(
-      './lib/vulenv/tools/data/ansible/roles/metasploit/vars/main.yml',
+      './data/ansible/roles/metasploit/vars/main.yml',
       "#{role_dir}/metasploit/vars/main.yml"
     )
     FileUtils.cp_r(
-      './lib/vulenv/tools/data/ansible/roles/metasploit/files/database.yml',
+      './data/ansible/roles/metasploit/files/database.yml',
       "#{role_dir}/metasploit/files/database.yml"
     )
   end

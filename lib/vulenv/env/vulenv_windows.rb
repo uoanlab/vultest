@@ -15,9 +15,11 @@
 require 'bundler/setup'
 require 'winrm'
 
-require './lib/vulenv/vulenv'
+require './lib/vulenv/env/vulenv'
 
 class VulnevWindows < Vulenv
+  private
+
   def base_version_of_os
     build_version
   end
@@ -83,8 +85,6 @@ class VulnevWindows < Vulenv
 
     return running_service
   end
-
-  private
 
   def prepare_winrm
     opts = { endpoint: 'http://192.168.177.177:5985/wsman', user: 'vagrant', password: 'vagrant' }

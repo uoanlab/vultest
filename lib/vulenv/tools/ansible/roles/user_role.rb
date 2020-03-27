@@ -1,4 +1,4 @@
-# Copyright [2019] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,24 +11,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 require 'bundler/setup'
 require 'fileutils'
-module User
-  private
 
-  def user(args)
-    FileUtils.mkdir_p("#{args[:role_dir]}/user")
-    FileUtils.mkdir_p("#{args[:role_dir]}/user/tasks")
-    FileUtils.mkdir_p("#{args[:role_dir]}/user/vars")
+require './lib/vulenv/tools/ansible/roles/role'
+
+class UserRole < Role
+  attr_reader :users
+
+  def initialize(args)
+    super(role_dir: args[:role_dir])
+    @users = args[:users]
+  end
+
+  def create
+    FileUtils.mkdir_p("#{role_dir}/user")
+    FileUtils.mkdir_p("#{role_dir}/user/tasks")
+    FileUtils.mkdir_p("#{role_dir}/user/vars")
 
     FileUtils.cp_r(
-      './lib/vulenv/tools/data/ansible/roles/user/tasks/main.yml',
-      "#{args[:role_dir]}/user/tasks/main.yml"
+      './data/ansible/roles/user/tasks/main.yml',
+      "#{role_dir}/user/tasks/main.yml"
     )
 
-    File.open("#{args[:role_dir]}/user/vars/main.yml", 'w') do |vars_file|
-      args[:users].each do |user|
+    File.open("#{role_dir}/user/vars/main.yml", 'w') do |vars_file|
+      users.each do |user|
         user ? vars_file.puts("user: #{user}") : vars_file.puts('user: test')
       end
     end
