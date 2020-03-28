@@ -16,14 +16,7 @@ require 'bundler/setup'
 require 'fileutils'
 
 require './lib/vulenv/tools/ansible/prepare_playbook'
-require './lib/vulenv/tools/ansible/roles/metasploit_role'
-require './lib/vulenv/tools/ansible/roles/user_role'
-require './lib/vulenv/tools/ansible/roles/apt_role'
-require './lib/vulenv/tools/ansible/roles/yum_role'
-require './lib/vulenv/tools/ansible/roles/gem_role'
-require './lib/vulenv/tools/ansible/roles/source_role'
-require './lib/vulenv/tools/ansible/roles/content_role'
-require './lib/vulenv/tools/ansible/roles/service_role'
+require './lib/vulenv/tools/ansible/prepare_roles'
 
 class PrepareAnsible
   attr_reader :db_path, :cve, :os, :env_config, :attack_vector, :ansible_dir
@@ -65,54 +58,14 @@ class PrepareAnsible
   end
 
   def create_roles
-    if attack_vector == 'local'
-      role = MetasploitRole.new(role_dir: ansible_dir[:roles])
-      role.create
-    end
-
-    if env_config.key?('user')
-      role = UserRole.new(role_dir: ansible_dir[:roles], users: env_config['user'])
-      role.create
-    end
-
-    default_method = env_config['os'].fetch('default_method', nil)
-    if env_config.key?('related_software')
-      env_config['related_software'].each do |software|
-        method = software.fetch('method', default_method)
-        role =
-          case method
-          when 'apt' then AptRole.new(role_dir: ansible_dir[:roles], software: software)
-          when 'yum' then YumRole.new(role_dir: ansible_dir[:roles], software: software)
-          when 'gem' then GemRole.new(role_dir: ansible_dir[:roles], software: software)
-          when 'source' then SourceRole.new(role_dir: ansible_dir[:roles], software: software)
-          end
-        role.create
-      end
-    end
-
-    if env_config.key?('vul_software')
-      method = env_config['vul_software'].fetch('method', default_method)
-      role =
-        case method
-        when 'apt' then AptRole.new(role_dir: ansible_dir[:roles], software: env_config['vul_software'])
-        when 'yum' then YumRole.new(role_dir: ansible_dir[:roles], software: env_config['vul_software'])
-        when 'gem' then GemRole.new(role_dir: ansible_dir[:roles], software: env_config['vul_software'])
-        when 'source' then SourceRole.new(role_dir: ansible_dir[:roles], software: env_config['vul_software'])
-        end
-      role.create
-    end
-
-    if env_config.key?('content')
-      role = ContentRole.new(role_dir: ansible_dir[:roles], db_path: db_path, cve: cve, content: env_config['content'])
-      role.create
-    end
-
-    if env_config.key?('services')
-      env_config['services'].each do |service|
-        role = ServiceRole.new(role_dir: ansible_dir[:roles], service: service)
-        role.create
-      end
-    end
+    prepare_roles = PrepareRoles.new(
+      role_dir: ansible_dir[:roles],
+      db_path: db_path,
+      env_config: env_config,
+      cve: cve,
+      attack_vector: attack_vector
+    )
+    prepare_roles.create
   end
 
   def create_playbook
