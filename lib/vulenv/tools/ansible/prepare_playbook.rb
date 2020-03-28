@@ -37,17 +37,45 @@ class PreparePlaybook
       content << "  roles:\n"
     end
 
-    content << "    - ../roles/user\n" if env_config.key?('user')
-
-    env_config['related_software'].each { |software| content << "    - ../roles/#{software['name']}\n" } if env_config.key?('related_software')
-
-    content << "    - ../roles/#{env_config['vul_software']['name']}\n" if env_config.key?('vul_software')
-
-    content << "    - ../roles/#{cve}\n" if env_config.key?('content')
+    content << user_parameter
+    content << related_software_parameter
+    content << vul_software_parameter
+    content << content_parameter
     content << "    - ../roles/metasploit\n" if attack_vector == 'local'
-
-    env_config['services'].each { |service_name| content << "    - ../roles/service-#{service_name}\n" } if env_config.key?('services')
+    content << services_parameter
 
     File.open("#{playbook_dir}/main.yml", 'w') { |file| file.puts(content) }
+  end
+
+  private
+
+  def user_parameter
+    return '' unless env_config.key?('user')
+
+    "    - ../roles/user\n"
+  end
+
+  def related_software_parameter
+    return '' unless env_config.key?('related_software')
+
+    env_config['related_software'].map { |software| "    - ../roles/#{software['name']}\n" }.join
+  end
+
+  def vul_software_parameter
+    return '' unless env_config.key?('vul_software')
+
+    "    - ../roles/#{env_config['vul_software']['name']}\n"
+  end
+
+  def content_parameter
+    return '' unless env_config.key?('content')
+
+    "    - ../roles/#{cve}\n"
+  end
+
+  def services_parameter
+    return '' unless env_config.key?('services')
+
+    env_config['services'].map { |service_name| "    - ../roles/service-#{service_name}\n" }.join
   end
 end
