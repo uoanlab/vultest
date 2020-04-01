@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'bundler/setup'
-
-require './app/cli'
-require './app/console'
-
-app = if ARGV.size.zero? then Console.new
-      else CLI.new
-      end
-
-app.execute
+class Command
+  def execute
+    raise NotImplementedError
+  end
+end

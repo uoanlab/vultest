@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'bundler/setup'
+require './app/command/command'
+require './lib/vultest_case'
+require './lib/vulenv/control_vulenv'
+require './modules/ui'
 
-require './app/cli'
-require './app/console'
+class DestroyCommand < Command
+  attr_reader :control_vulenv
 
-app = if ARGV.size.zero? then Console.new
-      else CLI.new
-      end
+  def initialize(args)
+    @control_vulenv = args[:control_vulenv]
+  end
 
-app.execute
+  def execute
+    if control_vulenv.nil?
+      VultestUI.error('Doesn\'t exist a vulnerabule environment')
+      return
+    end
+
+    return unless control_vulenv.destroy?
+
+    VultestUI.execute("Delete the vulnerable environment for #{control_vulenv.cve}")
+    @control_vulenv = nil
+  end
+end

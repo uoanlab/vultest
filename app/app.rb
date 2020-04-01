@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +13,24 @@
 # limitations under the License.
 
 require 'bundler/setup'
+require 'pastel'
+require 'optparse'
+require 'tty-font'
 
-require './app/cli'
-require './app/console'
+class App
+  attr_reader :setting, :vultest_case, :control_vulenv, :attack_env
 
-app = if ARGV.size.zero? then Console.new
-      else CLI.new
-      end
+  def initialize
+    puts Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST'))
 
-app.execute
+    @setting = {}
+    @setting[:test_dir] = ENV.fetch('TESTDIR', './test_dir')
+    @setting[:attack_host] = ENV.fetch('ATTACKHOST', nil)
+    @setting[:attack_user] = ENV.fetch('ATTACKERUSER', 'root')
+    @setting [:attack_passwd] = ENV.fetch('ATTACKPASSWD', 'toor')
+  end
+
+  def execute
+    raise NotImplementedError
+  end
+end

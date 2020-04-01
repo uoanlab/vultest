@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,15 +10,22 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
+# limitations under the License
 
-require 'bundler/setup'
+require './lib/report/section/error_section'
 
-require './app/cli'
-require './app/console'
+class AttackErrorSection < ErrorSection
+  attr_reader :attack_env
 
-app = if ARGV.size.zero? then Console.new
-      else CLI.new
-      end
+  def initialize(args)
+    @attack_env = args[:attack_env]
+  end
 
-app.execute
+  private
+
+  def error_section
+    section = "#### Module Name : #{attack_env.error[:module_name]}\n"
+    attack_env.error[:module_option].each { |key, value| section << "- #{key} : #{value}\n" }
+    section << "\n\n"
+  end
+end
