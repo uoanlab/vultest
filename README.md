@@ -21,6 +21,7 @@ University of Aizu, 2019
 
 # Releases
 
+- [20200401, v0.5.0](https://github.com/uoanlab/vultest/releases/tag/v0.5.0)
 - [20200222, v0.4.0](https://github.com/uoanlab/vultest/releases/tag/v0.4.0)
 - [20191108, v0.3.0](https://github.com/uoanlab/vultest/releases/tag/v0.3.0)
 - [20191007, v0.2.0](https://github.com/uoanlab/vultest/releases/tag/v0.2.0)
