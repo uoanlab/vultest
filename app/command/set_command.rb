@@ -27,7 +27,7 @@ class SetCommand < Command
     @attack_env = args[:attack_env]
   end
 
-  def execute
+  def execute(&block)
     @type = type.downcase
     if type == 'testdir'
       return unless require_for_setting_in_test_dir?
@@ -41,6 +41,8 @@ class SetCommand < Command
       VultestUI.execute("#{type} => #{value}")
       @type = "#{type[0..5]}_#{type[6..]}".intern
     end
+
+    block.call(type, value)
   end
 
   private

@@ -100,8 +100,7 @@ class CLI < App
 
   def destroy_command
     cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.execute
-    @control_vulenv = cmd.control_vulenv
+    cmd.execute { |value| @control_vulenv = value[:control_vulenv] }
   end
 
   def exploit_command
