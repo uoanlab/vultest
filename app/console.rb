@@ -52,20 +52,20 @@ class Console < App
   private
 
   def test_command(cve)
-    cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
-    cmd.execute
+    cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
 
-    @name = cmd.cve.nil? ? 'vultest' : cmd.cve
-    @vultest_case = cmd.vultest_case
-    @control_vulenv = cmd.control_vulenv
+    cmd.execute do |value|
+      @name = value[:cve]
+      @vultest_case = value[:vultest_case]
+      @control_vulenv = value[:control_vulenv]
+    end
   end
 
   def destroy_command
     return if prompt.no?('Delete vulnerable environment?')
 
     cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.execute
-    @control_vulenv = cmd.control_vulenv
+    cmd.execute { |value| @control_vulenv = value[:control_vulenv] }
   end
 
   def exploit_command
@@ -76,10 +76,11 @@ class Console < App
       attack_user: setting[:attack_user],
       attack_passwd: setting[:attack_passwd]
     )
-    cmd.execute
 
-    @setting[:attack_host] = cmd.attack_host
-    @attack_env = cmd.attack_env
+    cmd.execute do |value|
+      @setting[:attack_host] = value[:attack_host]
+      @attack_env = value[:attack_env]
+    end
   end
 
   def report_command
@@ -94,9 +95,7 @@ class Console < App
     end
 
     cmd = SetCommand.new(type: type, value: value, control_vulenv: control_vulenv, attack_env: attack_env)
-    cmd.execute
-
-    @setting[cmd.type] = cmd.value
+    cmd.execute { |t, v| @setting[t] = v }
   end
 
   def back_command

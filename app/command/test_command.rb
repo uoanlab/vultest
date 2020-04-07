@@ -18,33 +18,29 @@ require './lib/vulenv/control_vulenv'
 require './modules/ui'
 
 class TestCommand < Command
-  attr_reader :cve, :vultest_case, :control_vulenv, :vulenv_dir
+  attr_reader :cve, :vultest_case, :vulenv_dir
 
   def initialize(args)
     @cve = args[:cve]
     @vultest_case = args[:vultest_case]
-    @control_vulenv = args[:control_vulenv]
     @vulenv_dir = args[:vulenv_dir]
   end
 
-  def execute
+  def execute(&block)
     return unless vultest_case.nil?
 
     unless cve =~ /^(CVE|cve)-\d+\d+/i
-      @cve = nil
       VultestUI.error('The CVE entered is incorrect')
       return
     end
 
     @vultest_case = prepare_vultest_case
-    unless vultest_case.select_test_case?
-      @cve = nil
-      @vultest_case = nil
-      return
-    end
+    return unless vultest_case.select_test_case?
 
-    @control_vulenv = prepare_control_vulenv
+    control_vulenv = prepare_control_vulenv
     VultestUI.warring('Can look at a report about error in construction of vulnerable environment') unless control_vulenv.create?
+
+    block.call(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv)
   end
 
   private
