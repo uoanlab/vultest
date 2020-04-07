@@ -92,10 +92,10 @@ class CLI < App
 
   def test_command
     cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
-    cmd.execute
-
-    @vultest_case = cmd.vultest_case
-    @control_vulenv = cmd.control_vulenv
+    cmd.execute do |value|
+      @vultest_case = value[:vultest_case]
+      @control_vulenv = value[:control_vulenv]
+    end
   end
 
   def exploit_command
