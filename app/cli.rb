@@ -91,11 +91,17 @@ class CLI < App
   end
 
   def test_command
-    cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv, vulenv_dir: setting[:test_dir])
+    cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
     cmd.execute do |value|
       @vultest_case = value[:vultest_case]
       @control_vulenv = value[:control_vulenv]
     end
+  end
+
+  def destroy_command
+    cmd = DestroyCommand.new(control_vulenv: control_vulenv)
+    cmd.execute
+    @control_vulenv = cmd.control_vulenv
   end
 
   def exploit_command
@@ -106,20 +112,15 @@ class CLI < App
       attack_user: setting[:attack_user],
       attack_passwd: setting[:attack_passwd]
     )
-    cmd.execute
 
-    @setting[:attack_host] = cmd.attack_host
-    @attack_env = cmd.attack_env
+    cmd.execute do |value|
+      @setting[:attack_host] = value[:attack_host]
+      @attack_env = value[:attack_env]
+    end
   end
 
   def report_command
     cmd = ReportCommand.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
     cmd.execute
-  end
-
-  def destroy_command
-    cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.execute
-    @control_vulenv = cmd.control_vulenv
   end
 end
