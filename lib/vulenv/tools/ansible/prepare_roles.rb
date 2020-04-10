@@ -15,14 +15,14 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/vulenv/tools/ansible/roles/metasploit_role'
-require './lib/vulenv/tools/ansible/roles/user_role'
-require './lib/vulenv/tools/ansible/roles/apt_role'
-require './lib/vulenv/tools/ansible/roles/yum_role'
-require './lib/vulenv/tools/ansible/roles/gem_role'
-require './lib/vulenv/tools/ansible/roles/source_role'
-require './lib/vulenv/tools/ansible/roles/content_role'
-require './lib/vulenv/tools/ansible/roles/service_role'
+require './lib/vulenv/tools/ansible/role/metasploit'
+require './lib/vulenv/tools/ansible/role/user'
+require './lib/vulenv/tools/ansible/role/software/apt'
+require './lib/vulenv/tools/ansible/role/software/yum'
+require './lib/vulenv/tools/ansible/role/software/gem'
+require './lib/vulenv/tools/ansible/role/software/source'
+require './lib/vulenv/tools/ansible/role/content'
+require './lib/vulenv/tools/ansible/role/service'
 
 class PrepareRoles
   attr_reader :role_dir, :db_path, :env_config, :cve, :attack_vector
@@ -37,7 +37,7 @@ class PrepareRoles
 
   def create
     if attack_vector == 'local'
-      role = MetasploitRole.new(role_dir: role_dir)
+      role = Ansible::Role::Metasploit.new(role_dir: role_dir)
       role.create
     end
 
@@ -56,7 +56,7 @@ class PrepareRoles
   def user_parameter
     return unless env_config.key?('user')
 
-    role = UserRole.new(role_dir: role_dir, users: env_config['user'])
+    role = Ansible::Role::User.new(role_dir: role_dir, users: env_config['user'])
     role.create
   end
 
@@ -67,10 +67,10 @@ class PrepareRoles
       method = software.fetch('method', default_method)
       role =
         case method
-        when 'apt' then AptRole.new(role_dir: role_dir, software: software)
-        when 'yum' then YumRole.new(role_dir: role_dir, software: software)
-        when 'gem' then GemRole.new(role_dir: role_dir, software: software)
-        when 'source' then SourceRole.new(role_dir: role_dir, software: software)
+        when 'apt' then Ansible::Role::Software::Apt.new(role_dir: role_dir, software: software)
+        when 'yum' then Ansible::Role::Software::Yum.new(role_dir: role_dir, software: software)
+        when 'gem' then Ansible::Role::Software::Gem.new(role_dir: role_dir, software: software)
+        when 'source' then Ansible::Role::Software::Source.new(role_dir: role_dir, software: software)
         end
       role.create
     end
@@ -82,10 +82,10 @@ class PrepareRoles
     method = env_config['vul_software'].fetch('method', default_method)
     role =
       case method
-      when 'apt' then AptRole.new(role_dir: role_dir, software: env_config['vul_software'])
-      when 'yum' then YumRole.new(role_dir: role_dir, software: env_config['vul_software'])
-      when 'gem' then GemRole.new(role_dir: role_dir, software: env_config['vul_software'])
-      when 'source' then SourceRole.new(role_dir: role_dir, software: env_config['vul_software'])
+      when 'apt' then Ansible::Role::Software::Apt.new(role_dir: role_dir, software: env_config['vul_software'])
+      when 'yum' then Ansible::Role::Software::Yum.new(role_dir: role_dir, software: env_config['vul_software'])
+      when 'gem' then Ansible::Role::Software::Gem.new(role_dir: role_dir, software: env_config['vul_software'])
+      when 'source' then Ansible::Role::Software::Source.new(role_dir: role_dir, software: env_config['vul_software'])
       end
     role.create
   end
@@ -93,7 +93,7 @@ class PrepareRoles
   def content_parameter
     return unless env_config.key?('content')
 
-    role = ContentRole.new(role_dir: role_dir, db_path: db_path, cve: cve, content: env_config['content'])
+    role = Ansible::Role::Content.new(role_dir: role_dir, db_path: db_path, cve: cve, content: env_config['content'])
     role.create
   end
 
@@ -101,7 +101,7 @@ class PrepareRoles
     return unless env_config.key?('services')
 
     env_config['services'].each do |service|
-      role = ServiceRole.new(role_dir: role_dir, service: service)
+      role = Ansible::Role::Service.new(role_dir: role_dir, service: service)
       role.create
     end
   end
