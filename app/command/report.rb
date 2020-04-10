@@ -13,9 +13,9 @@
 # limitations under the License.
 
 require './app/command/base'
-require './lib/report/vultest_report'
-require './lib/report/error_vulenv_report'
-require './lib/report/error_attack_report'
+require './lib/report/vultest'
+require './lib/report/error/vulenv'
+require './lib/report/error/attack'
 require './modules/ui'
 
 module Command
@@ -45,9 +45,9 @@ module Command
     private
 
     def prepare_vultest_report
-      if control_vulenv.error[:flag] then ErrorVulenvReport.new(control_vulenv: control_vulenv, report_dir: report_dir)
-      elsif attack_env.error[:flag] then ErrorAttackReport.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
-      else VultestReport.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
+      if control_vulenv.error[:flag] then ::Report::Error::Vulenv.new(control_vulenv: control_vulenv, report_dir: report_dir)
+      elsif attack_env.error[:flag] then ::Report::Error::Attack.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
+      else ::Report::Vultest.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
       end
     end
   end

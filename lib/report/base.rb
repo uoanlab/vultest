@@ -15,28 +15,30 @@
 require 'bundler/setup'
 require 'tty-markdown'
 
-class WriteReport
-  attr_reader :report_dir
+module Report
+  class Base
+    attr_reader :report_dir
 
-  def initialize(report_dir)
-    @report_dir = report_dir
-  end
-
-  def show
-    create
-    puts TTY::Markdown.parse_file("#{report_dir}/report.md")
-  end
-
-  private
-
-  def create
-    File.open("#{report_dir}/report.md", 'w') do |report_file|
-      sections = report_details
-      sections.each { |section| report_file.puts(section) }
+    def initialize(report_dir)
+      @report_dir = report_dir
     end
-  end
 
-  def report_details
-    raise NotImplementedError
+    def show
+      create
+      puts TTY::Markdown.parse_file("#{report_dir}/report.md")
+    end
+
+    private
+
+    def create
+      File.open("#{report_dir}/report.md", 'w') do |report_file|
+        sections = report_details
+        sections.each { |section| report_file.puts(section) }
+      end
+    end
+
+    def report_details
+      raise NotImplementedError
+    end
   end
 end
