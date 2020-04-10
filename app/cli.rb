@@ -16,10 +16,10 @@ require 'optparse'
 require 'tty-prompt'
 
 require './app/app'
-require './app/command/test_command'
-require './app/command/destroy_command'
-require './app/command/exploit_command'
-require './app/command/report_command'
+require './app/command/test'
+require './app/command/destroy'
+require './app/command/exploit'
+require './app/command/report'
 
 require './modules/ui'
 
@@ -91,7 +91,7 @@ class CLI < App
   end
 
   def test_command
-    cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
+    cmd = Command::Test.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
     cmd.execute do |value|
       @vultest_case = value[:vultest_case]
       @control_vulenv = value[:control_vulenv]
@@ -99,12 +99,12 @@ class CLI < App
   end
 
   def destroy_command
-    cmd = DestroyCommand.new(control_vulenv: control_vulenv)
+    cmd = Command::Destroy.new(control_vulenv: control_vulenv)
     cmd.execute { |value| @control_vulenv = value[:control_vulenv] }
   end
 
   def exploit_command
-    cmd = ExploitCommand.new(
+    cmd = Command::Exploit.new(
       vultest_case: vultest_case,
       control_vulenv: control_vulenv,
       attack_host: setting[:attack_host],
@@ -119,7 +119,7 @@ class CLI < App
   end
 
   def report_command
-    cmd = ReportCommand.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
+    cmd = Command::Report.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
     cmd.execute
   end
 end

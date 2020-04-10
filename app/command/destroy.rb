@@ -12,8 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-class Command
-  def execute
-    raise NotImplementedError
+require './app/command/base'
+require './modules/ui'
+
+module Command
+  class Destroy < Base
+    attr_reader :control_vulenv
+
+    def initialize(args)
+      @control_vulenv = args[:control_vulenv]
+    end
+
+    def execute(&block)
+      if control_vulenv.nil?
+        VultestUI.error('Doesn\'t exist a vulnerabule environment')
+        return
+      end
+
+      return unless control_vulenv.destroy?
+
+      VultestUI.execute("Delete the vulnerable environment for #{control_vulenv.cve}")
+      block.call(control_vulenv: nil)
+    end
   end
 end

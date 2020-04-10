@@ -15,11 +15,11 @@ require 'bundler/setup'
 require 'tty-prompt'
 
 require './app/app'
-require './app/command/test_command'
-require './app/command/destroy_command'
-require './app/command/exploit_command'
-require './app/command/report_command'
-require './app/command/set_command'
+require './app/command/test'
+require './app/command/destroy'
+require './app/command/exploit'
+require './app/command/report'
+require './app/command/set'
 require './modules/util'
 
 class Console < App
@@ -52,7 +52,7 @@ class Console < App
   private
 
   def test_command(cve)
-    cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
+    cmd = Command::Test.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
 
     cmd.execute do |value|
       @name = value[:cve]
@@ -64,12 +64,12 @@ class Console < App
   def destroy_command
     return if prompt.no?('Delete vulnerable environment?')
 
-    cmd = DestroyCommand.new(control_vulenv: control_vulenv)
+    cmd = Command::Destroy.new(control_vulenv: control_vulenv)
     cmd.execute { |value| @control_vulenv = value[:control_vulenv] }
   end
 
   def exploit_command
-    cmd = ExploitCommand.new(
+    cmd = Command::Exploit.new(
       vultest_case: vultest_case,
       control_vulenv: control_vulenv,
       attack_host: setting[:attack_host],
@@ -84,7 +84,7 @@ class Console < App
   end
 
   def report_command
-    cmd = ReportCommand.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
+    cmd = Command::Report.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
     cmd.execute
   end
 
@@ -94,7 +94,7 @@ class Console < App
       return
     end
 
-    cmd = SetCommand.new(type: type, value: value, control_vulenv: control_vulenv, attack_env: attack_env)
+    cmd = Command::Set.new(type: type, value: value, control_vulenv: control_vulenv, attack_env: attack_env)
     cmd.execute { |t, v| @setting[t] = v }
   end
 

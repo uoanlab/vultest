@@ -12,27 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './app/command/command'
-require './lib/vultest_case'
-require './lib/vulenv/control_vulenv'
-require './modules/ui'
-
-class DestroyCommand < Command
-  attr_reader :control_vulenv
-
-  def initialize(args)
-    @control_vulenv = args[:control_vulenv]
-  end
-
-  def execute(&block)
-    if control_vulenv.nil?
-      VultestUI.error('Doesn\'t exist a vulnerabule environment')
-      return
+module Command
+  class Base
+    def execute
+      raise NotImplementedError
     end
-
-    return unless control_vulenv.destroy?
-
-    VultestUI.execute("Delete the vulnerable environment for #{control_vulenv.cve}")
-    block.call(control_vulenv: nil)
   end
 end
