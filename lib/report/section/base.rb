@@ -12,20 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License
 
-require './lib/report/section/error_section'
-
-class AttackErrorSection < ErrorSection
-  attr_reader :attack_env
-
-  def initialize(args)
-    @attack_env = args[:attack_env]
-  end
-
-  private
-
-  def error_section
-    section = "#### Module Name : #{attack_env.error[:module_name]}\n"
-    attack_env.error[:module_option].each { |key, value| section << "- #{key} : #{value}\n" }
-    section << "\n\n"
+module Report
+  module Section
+    class Base
+      def create
+        raise NotImplementedError
+      end
+    end
   end
 end

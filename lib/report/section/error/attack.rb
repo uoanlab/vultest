@@ -12,17 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License
 
-require './lib/report/section/section'
+require './lib/report/section/error/base'
 
-class ErrorSection < Section
-  def create
-    section = "## Root Cause\n\n"
-    section << error_section
-  end
+module Report
+  module Section
+    module Error
+      class Attack < Base
+        attr_reader :attack_env
 
-  private
+        def initialize(args)
+          @attack_env = args[:attack_env]
+        end
 
-  def error_section
-    raise NotImplementedError
+        private
+
+        def error_section
+          section = "#### Module Name : #{attack_env.error[:module_name]}\n"
+          attack_env.error[:module_option].each { |key, value| section << "- #{key} : #{value}\n" }
+          section << "\n\n"
+        end
+      end
+    end
   end
 end

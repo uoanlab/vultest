@@ -13,12 +13,12 @@
 # limitations under the License.
 
 require './lib/report/report'
-require './lib/report/section/vulenv_section'
-require './lib/report/section/attack_section'
-require './lib/report/section/attack_error_section'
-require './lib/report/section/vulnerability_section'
+require './lib/report/section/vulenv'
+require './lib/report/section/attack'
+require './lib/report/section/vulnerability'
+require './lib/report/section/error/attack'
 
-class ErrorAttackReport < Report
+class ErrorAttackReport < WriteReport
   attr_reader :cve, :control_vulenv, :attack_env
 
   def initialize(args)
@@ -43,22 +43,22 @@ class ErrorAttackReport < Report
   end
 
   def create_attack_error_section
-    section = AttackErrorSection.new(attack_env: attack_env)
+    section = Report::Section::Error::Attack.new(attack_env: attack_env)
     section.create
   end
 
   def create_vulenv_section
-    section = VulenvSection.new(control_vulenv: control_vulenv)
+    section = Report::Section::Vulenv.new(control_vulenv: control_vulenv)
     section.create
   end
 
   def create_attack_section
-    section = AttackSection.new(attack_env: attack_env)
+    section = Report::Section::Attack.new(attack_env: attack_env)
     section.create
   end
 
   def create_vulnerability_section
-    section = VulnerabilitySection.new(cve: cve)
+    section = Report::Section::Vulnerability.new(cve: cve)
     section.create
   end
 end

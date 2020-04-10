@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'tty-markdown'
 
-class Report
+class WriteReport
   attr_reader :report_dir
 
   def initialize(report_dir)

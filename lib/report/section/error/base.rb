@@ -12,8 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License
 
-class Section
-  def create
-    raise NotImplementedError
+require './lib/report/section/base'
+
+module Report
+  module Section
+    module Error
+      class Base < Report::Section::Base
+        def create
+          section = "## Root Cause\n\n"
+          section << error_section
+        end
+
+        private
+
+        def error_section
+          raise NotImplementedError
+        end
+      end
+    end
   end
 end
