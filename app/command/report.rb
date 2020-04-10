@@ -14,8 +14,8 @@
 
 require './app/command/base'
 require './lib/report/vultest'
-require './lib/report/error/vulenv'
-require './lib/report/error/attack'
+require './lib/report/error_vulenv'
+require './lib/report/error_attack'
 require './modules/ui'
 
 module Command
@@ -45,8 +45,8 @@ module Command
     private
 
     def prepare_vultest_report
-      if control_vulenv.error[:flag] then ::Report::Error::Vulenv.new(control_vulenv: control_vulenv, report_dir: report_dir)
-      elsif attack_env.error[:flag] then ::Report::Error::Attack.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
+      if control_vulenv.error[:flag] then ::Report::ErrorVulenv.new(control_vulenv: control_vulenv, report_dir: report_dir)
+      elsif attack_env.error[:flag] then ::Report::ErrorAttack.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
       else ::Report::Vultest.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
       end
     end
