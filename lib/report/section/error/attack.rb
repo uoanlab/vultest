@@ -27,8 +27,9 @@ module Report
         private
 
         def error_section
-          section = "#### Module Name : #{attack_env.error[:module_name]}\n"
-          attack_env.error[:module_option].each { |key, value| section << "- #{key} : #{value}\n" }
+          details = attack_env.details_fail_attack
+          section = "#### Module Name : #{details[:module_name]}\n"
+          details[:module_option].each { |key, value| section << "- #{key} : #{value}\n" }
           section << "\n\n"
         end
       end

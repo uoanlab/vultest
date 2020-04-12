@@ -16,103 +16,50 @@ require 'bundler/setup'
 require 'net/ssh'
 require 'tty-prompt'
 
-require './lib/attack/method/haijack'
-require './lib/attack/tools/metasploit'
+require './lib/attack/method/metasploit'
 require './modules/ui'
 
 class AttackEnv
-  attr_reader :msf_api, :host, :user, :attack_vector, :attack_config, :session_list
-  attr_accessor :error
-
-  include Haijack
+  attr_reader :host, :user, :password, :attack_vector, :attack_config, :attack_method
 
   def initialize(args)
     @host = args[:attack_host]
-    @user = { name: args[:attack_user], passwd: args[:attack_passwd] }
+    @user = args[:attack_user]
+    @password = args[:attack_passwd]
 
     @attack_vector = args[:attack_vector]
     @attack_config = args[:attack_config]
-    start_up_msfserver if attack_vector == 'remote'
 
-    @msf_api = Metasploit.new(host)
-    msf_api.auth_login
-    msf_api.console_create
-
-    @session_list = []
-    @error = { flag: false, module_name: nil, module_option: {} }
+    prepare_attack_method
   end
 
-  def execute_attack?
+  def execute_attack
     VultestUI.execute('Exploit attack')
-    attack_config['metasploit'].each do |msf_module|
-      msf_module_option = {}
-      msf_module['options'].each { |option| msf_module_option[option['name']] = option['var'] }
-      msf_module_option['LHOST'] = host
-      msf_module_info = msf_api.module_execute(type: msf_module['module_type'], name: msf_module['module_name'], option: msf_module_option)
+    attack_method.execute
+  end
 
-      next if success_of_attack_module?(msf_module['module_type'], msf_module['module_name'], msf_module_info)
+  def fail_attack?
+    attack_method.error[:flag]
+  end
 
-      error[:flag] = true
-      error[:module_name] = msf_module['module_name']
-      error[:module_option] = msf_module_option
-      VultestUI.warring('Can look at a report about error in attack execution')
-      return false
-    end
-
-    rob_shell
-    return true
+  def details_fail_attack
+    attack_method.error
   end
 
   private
 
-  def rob_shell
-    VultestUI.execute('Brake into target machine')
-
-    session_list.each do |value|
-      next unless value[:module_type] == 'exploit'
-
-      case value[:shell_type]
-      when 'meterpreter' then meterpreter(id: value[:session_id])
-      when 'shell' then shell(id: value[:session_id])
-      else next
-      end
-    end
+  def prepare_attack_method
+    startup_msfserver if attack_vector == 'remote'
+    @attack_method = ::Attack::Method::Metasploit.new(
+      host: host,
+      exploits: attack_config['metasploit']
+    )
   end
 
-  def success_of_attack_module?(module_type, module_name, module_info)
-    VultestUI.tty_spinner_begin(module_name)
-    success_flag = false
-    time_count = 0
-
-    loop do
-      time_count += sleep(1)
-      unless msf_api.module_session_list.empty?
-        msf_api.module_session_list.each do |key, value|
-          # When module is auxiliary/scanner/ssh/ssh_login, module_info['uuid'] != value['exploit_uuid']
-          next unless module_info['uuid'] == value['exploit_uuid'] || value['via_exploit'] == module_name
-
-          success_flag = true
-          @session_list.push(session_id: key, module_type: module_type, shell_type: value['type'])
-        end
-      end
-      break if success_flag
-
-      next unless (time_count % 30).zero?
-
-      VultestUI.tty_spinner_end('error')
-      break unless TTY::Prompt.new.yes?('There\'s a possibility that attack is fail. Are you still going to continue that?')
-
-      VultestUI.tty_spinner_begin(module_name)
-    end
-
-    success_flag ? VultestUI.tty_spinner_end('success') : VultestUI.tty_spinner_end('error')
-    success_flag
-  end
-
-  def start_up_msfserver
+  def startup_msfserver
     begin
       VultestUI.tty_spinner_begin('Metasploit server')
-      Net::SSH.start(host, user[:name], password: user[:passwd]) do |ssh|
+      Net::SSH.start(host, user, password: password) do |ssh|
         ssh.exec!("msfrpcd -a #{host} -p 55553 -U msf -P metasploit -S false \>/dev/null 2>&1")
         ssh.exec!("msfrpcd -a #{host} -p 55553 -U msf -P metasploit -S false")
       end

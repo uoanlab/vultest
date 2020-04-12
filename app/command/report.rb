@@ -46,7 +46,7 @@ module Command
 
     def prepare_vultest_report
       if control_vulenv.error[:flag] then ::Report::ErrorVulenv.new(control_vulenv: control_vulenv, report_dir: report_dir)
-      elsif attack_env.error[:flag] then ::Report::ErrorAttack.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
+      elsif attack_env.fail_attack? then ::Report::ErrorAttack.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
       else ::Report::Vultest.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
       end
     end
