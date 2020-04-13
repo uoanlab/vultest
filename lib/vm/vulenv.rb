@@ -13,9 +13,9 @@
 # limitations under the License.
 
 require './lib/vm/base'
-require './lib/vulenv/env/vulenv_centos'
-require './lib/vulenv/env/vulenv_ubuntu'
-require './lib/vulenv/env/vulenv_windows'
+require './lib/environment/vulenv/ubuntu'
+require './lib/environment/vulenv/centos'
+require './lib/environment/vulenv/windows'
 require './lib/vulenv/tools/vagrant/vagrant'
 require './lib/vulenv/tools/vagrant/prepare_linux_vagrantfile'
 require './lib/vulenv/tools/vagrant/prepare_windows_vagrantfile'
@@ -34,9 +34,9 @@ module VM
 
       @operating_environment =
         case vulenv_config['construction']['os']['name']
-        when 'ubuntu' then VulenvUbuntu.new(vulenv_config: vulenv_config)
-        when 'centos' then VulenvCentOS.new(vulenv_config: vulenv_config)
-        when 'windows' then VulnevWindows.new(vulenv_config: vulenv_config)
+        when 'ubuntu' then Environment::Vulenv::Ubuntu.new(vulenv_config: vulenv_config)
+        when 'centos' then Environment::Vulenv::CentOS.new(vulenv_config: vulenv_config)
+        when 'windows' then Environment::Vulenv::Windows.new(vulenv_config: vulenv_config)
         end
     end
 
