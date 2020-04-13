@@ -57,21 +57,21 @@ class Console < App
     cmd.execute do |value|
       @name = value[:cve]
       @vultest_case = value[:vultest_case]
-      @control_vulenv = value[:control_vulenv]
+      @vulenv = value[:vulenv]
     end
   end
 
   def destroy_command
     return if prompt.no?('Delete vulnerable environment?')
 
-    cmd = Command::Destroy.new(control_vulenv: control_vulenv)
-    cmd.execute { |value| @control_vulenv = value[:control_vulenv] }
+    cmd = Command::Destroy.new(vulenv: vulenv)
+    cmd.execute { |value| @vulenv = value[:vulenv] }
   end
 
   def exploit_command
     cmd = Command::Exploit.new(
       vultest_case: vultest_case,
-      control_vulenv: control_vulenv,
+      vulenv: vulenv,
       attack_host: setting[:attack_host],
       attack_user: setting[:attack_user],
       attack_passwd: setting[:attack_passwd]
@@ -84,7 +84,7 @@ class Console < App
   end
 
   def report_command
-    cmd = Command::Report.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
+    cmd = Command::Report.new(vulenv: vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
     cmd.execute
   end
 
@@ -94,7 +94,7 @@ class Console < App
       return
     end
 
-    cmd = Command::Set.new(type: type, value: value, control_vulenv: control_vulenv, attack_env: attack_env)
+    cmd = Command::Set.new(type: type, value: value, vulenv: vulenv, attack_env: attack_env)
     cmd.execute { |t, v| @setting[t] = v }
   end
 
@@ -104,6 +104,6 @@ class Console < App
     return unless prompt.yes?("Finish the vultest for #{vultest_case.cve}")
 
     @name = 'vultest'
-    @vultest_case = @control_vulenv = @attack_env = nil
+    @vultest_case = @vulenv = @attack_env = nil
   end
 end

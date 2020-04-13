@@ -14,7 +14,7 @@
 
 require './app/command/base'
 require './lib/vultest_case'
-require './lib/vulenv/control_vulenv'
+require './lib/vm/vulenv'
 require './modules/ui'
 
 module Command
@@ -38,10 +38,10 @@ module Command
       @vultest_case = prepare_vultest_case
       return unless vultest_case.select_test_case?
 
-      control_vulenv = prepare_control_vulenv
-      VultestUI.warring('Can look at a report about error in construction of vulnerable environment') unless control_vulenv.create?
+      vulenv = prepare_vulenv
+      VultestUI.warring('Can look at a report about error in construction of vulnerable environment') unless vulenv.create?
 
-      block.call(cve: cve, vultest_case: vultest_case, control_vulenv: control_vulenv)
+      block.call(cve: cve, vultest_case: vultest_case, vulenv: vulenv)
     end
 
     private
@@ -50,12 +50,12 @@ module Command
       VultestCase.new(cve: cve)
     end
 
-    def prepare_control_vulenv
-      ControlVulenv.new(
+    def prepare_vulenv
+      VM::Vulenv.new(
         cve: vultest_case.cve,
         config: vultest_case.config,
         vulenv_config: vultest_case.vulenv_config,
-        vulenv_dir: vulenv_dir
+        env_dir: vulenv_dir
       )
     end
   end

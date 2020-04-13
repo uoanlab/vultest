@@ -18,13 +18,13 @@ require './modules/util'
 
 module Command
   class Set
-    attr_reader :type, :value, :control_vulenv, :attack_env
+    attr_reader :type, :value, :vulenv, :attack_env
 
     def initialize(args)
       @type = args[:type]
       @value = args[:value]
 
-      @control_vulenv = args[:control_vulenv]
+      @vulenv = args[:vulenv]
       @attack_env = args[:attack_env]
     end
 
@@ -49,7 +49,7 @@ module Command
     private
 
     def require_for_setting_in_test_dir?
-      unless control_vulenv.nil?
+      unless vulenv.nil?
         VultestUI.error('Cannot change a setting in a vulnerable test')
         return false
       end

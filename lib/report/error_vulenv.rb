@@ -19,13 +19,13 @@ require './lib/report/section/error/vulenv'
 
 module Report
   class ErrorVulenv < Report::Base
-    attr_reader :cve, :control_vulenv
+    attr_reader :cve, :vulenv
 
     def initialize(args)
       super(args[:report_dir])
-      @control_vulenv = args[:control_vulenv]
+      @vulenv = args[:vulenv]
 
-      @cve = control_vulenv.cve
+      @cve = vulenv.cve
     end
 
     private
@@ -41,12 +41,12 @@ module Report
     end
 
     def create_vulenv_error_section
-      section = Report::Section::Error::Vulenv.new(control_vulenv: control_vulenv)
+      section = Report::Section::Error::Vulenv.new(vulenv: vulenv)
       section.create
     end
 
     def create_vulenv_section
-      section = Report::Section::Vulenv.new(control_vulenv: control_vulenv)
+      section = Report::Section::Vulenv.new(vulenv: vulenv)
       section.create
     end
 

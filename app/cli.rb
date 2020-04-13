@@ -68,9 +68,9 @@ class CLI < App
 
   def create_vulenv?
     test_command
-    return false if vultest_case.nil? || control_vulenv.nil?
+    return false if vultest_case.nil? || vulenv.nil?
 
-    if control_vulenv.error[:flag]
+    if vulenv.error[:flag]
       report_command
       return false
     end
@@ -94,19 +94,19 @@ class CLI < App
     cmd = Command::Test.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
     cmd.execute do |value|
       @vultest_case = value[:vultest_case]
-      @control_vulenv = value[:control_vulenv]
+      @vulenv = value[:vulenv]
     end
   end
 
   def destroy_command
-    cmd = Command::Destroy.new(control_vulenv: control_vulenv)
-    cmd.execute { |value| @control_vulenv = value[:control_vulenv] }
+    cmd = Command::Destroy.new(vulenv: vulenv)
+    cmd.execute { |value| @vulenv = value[:vulenv] }
   end
 
   def exploit_command
     cmd = Command::Exploit.new(
       vultest_case: vultest_case,
-      control_vulenv: control_vulenv,
+      vulenv: vulenv,
       attack_host: setting[:attack_host],
       attack_user: setting[:attack_user],
       attack_passwd: setting[:attack_passwd]
@@ -119,7 +119,7 @@ class CLI < App
   end
 
   def report_command
-    cmd = Command::Report.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
+    cmd = Command::Report.new(vulenv: vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
     cmd.execute
   end
 end

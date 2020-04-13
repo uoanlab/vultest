@@ -20,8 +20,8 @@ module Report
       attr_reader :status_vulenv
 
       def initialize(args)
-        control_vulenv = args[:control_vulenv]
-        @status_vulenv = control_vulenv.status_vulenv
+        vulenv = args[:vulenv]
+        @status_vulenv = vulenv.status_vulenv
       end
 
       def create

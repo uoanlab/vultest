@@ -20,20 +20,20 @@ require './modules/ui'
 
 module Command
   class Report < Base
-    attr_reader :control_vulenv, :attack_env, :report_dir
+    attr_reader :vulenv, :attack_env, :report_dir
     def initialize(args)
-      @control_vulenv = args[:control_vulenv]
+      @vulenv = args[:vulenv]
       @attack_env = args[:attack_env]
       @report_dir = args[:report_dir]
     end
 
     def execute
-      if control_vulenv.nil?
+      if vulenv.nil?
         VultestUI.error('There is no a vulnerable environment')
         return
       end
 
-      if attack_env.nil? && !control_vulenv.error[:flag]
+      if attack_env.nil? && !vulenv.error[:flag]
         VultestUI.error('Execute exploit command')
         return
       end
@@ -45,9 +45,9 @@ module Command
     private
 
     def prepare_vultest_report
-      if control_vulenv.error[:flag] then ::Report::ErrorVulenv.new(control_vulenv: control_vulenv, report_dir: report_dir)
-      elsif attack_env.fail_attack? then ::Report::ErrorAttack.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
-      else ::Report::Vultest.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: report_dir)
+      if vulenv.error[:flag] then ::Report::ErrorVulenv.new(vulenv: vulenv, report_dir: report_dir)
+      elsif attack_env.fail_attack? then ::Report::ErrorAttack.new(vulenv: vulenv, attack_env: attack_env, report_dir: report_dir)
+      else ::Report::Vultest.new(vulenv: vulenv, attack_env: attack_env, report_dir: report_dir)
       end
     end
   end

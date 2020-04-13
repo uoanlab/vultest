@@ -18,7 +18,7 @@ require 'optparse'
 require 'tty-font'
 
 class App
-  attr_reader :setting, :vultest_case, :control_vulenv, :attack_env
+  attr_reader :setting, :vultest_case, :vulenv, :attack_env
 
   def initialize
     puts Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST'))

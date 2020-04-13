@@ -20,16 +20,16 @@ module Report
   module Section
     module Error
       class Vulenv < Base
-        attr_reader :control_vulenv
+        attr_reader :vulenv
 
         def initialize(args)
-          @control_vulenv = args[:control_vulenv]
+          @vulenv = args[:vulenv]
         end
 
         private
 
         def error_section
-          msg_of_cause = control_vulenv.error[:cause].split("\n")
+          msg_of_cause = vulenv.error[:cause].split("\n")
           error = {}
 
           section = ''

@@ -20,7 +20,7 @@ module Attack
     class Metasploit
       attr_reader :host, :msf_api, :error, :exploits, :session_list
 
-      ATTACK_TIME_LIMIT = 10
+      ATTACK_TIME_LIMIT = 30
 
       def initialize(args)
         @host = args[:host]
