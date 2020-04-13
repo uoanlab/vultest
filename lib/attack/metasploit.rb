@@ -47,7 +47,7 @@ module Attack
     private
 
     def prepare_metasploit_api
-      @msf_api ||= API::Metasploit.new(host)
+      @msf_api ||= ::API::Metasploit.new(host)
       msf_api.auth_login
       msf_api.console_create
     end
