@@ -19,7 +19,7 @@ require './lib/environment/vulenv/windows'
 require './lib/vulenv/tools/vagrant/vagrant'
 require './lib/vulenv/tools/vagrant/prepare_linux_vagrantfile'
 require './lib/vulenv/tools/vagrant/prepare_windows_vagrantfile'
-require './lib/ansible/prepare_ansible'
+require './lib/ansible/vulenv'
 
 module VM
   class Vulenv < Base
@@ -80,7 +80,7 @@ module VM
     end
 
     def prepare_ansible
-      PrepareAnsible.new(
+      Ansible::Vulenv.new(
         cve: vulenv_config['cve'],
         os_name: operating_environment.os[:name],
         db_path: config['vultest_db_path'],

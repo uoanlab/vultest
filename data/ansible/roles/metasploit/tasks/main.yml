@@ -37,14 +37,14 @@
 # Install ruby
 - name: git clone --depth 1 https://github.com/sstephenson/rbenv.git
   git:
-    repo: 'https://github.com/sstephenson/rbenv.git'
+    repo: "https://github.com/sstephenson/rbenv.git"
     dest: "{{user_dir}}/.rbenv"
     depth: 1
   become_user: "{{user}}"
 
 - name: git clone --depth 1 https://github.com/sstephenson/ruby-build.git
   git:
-    repo: 'https://github.com/sstephenson/ruby-build.git'
+    repo: "https://github.com/sstephenson/ruby-build.git"
     dest: "{{user_dir}}/.rbenv/plugins/ruby-build"
     depth: 1
   become_user: "{{user}}"
@@ -134,5 +134,5 @@
     mode: 0755
 
 - name: metasploit server
-  shell: bash -lc "/home/msf/metasploit-framework/msfrpcd -a 192.168.177.177 -p 55553 -U msf -P metasploit -S false"
+  shell: bash -lc "/home/msf/metasploit-framework/msfrpcd -a {{attack_host}} -p 55553 -U msf -P metasploit -S false"
   become_user: "{{user}}"

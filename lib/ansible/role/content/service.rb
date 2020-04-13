@@ -1,4 +1,4 @@
-# Copyright [2020] [University of Aizu]
+# Copyright [2019] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,47 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/ansible/role/base'
+require './lib/ansible/role/content/base'
 
 module Ansible
   module Role
-    module Software
-      class Base < Ansible::Role::Base
-        attr_reader :software
+    module Content
+      class Service < Base
+        attr_reader :service
 
         def initialize(args)
           super(role_dir: args[:role_dir])
-          @software = args[:software]
+          @service = args[:service]
         end
 
         def create
-          create_tasks
-          create_vars
-        end
+          FileUtils.mkdir_p("#{role_dir}/service-#{service}/tasks")
+          FileUtils.cp_r('./data/ansible/roles/service/tasks/main.yml', "#{role_dir}/service-#{service}/tasks/main.yml")
 
-        private
-
-        def create_tasks
-          raise NotImplementedError
-        end
-
-        def create_vars
-          raise NotImplementedError
-        end
-
-        def option_user
-          content = nil
-          if software.key?('user') && !software['user'].nil?
-            content = "user: #{software['user']}\n"
-            content << "user_dir: /home/#{software['user']}\n"
-          else
-            content = "user: test\n"
-            content << "user_dir: /home/test\n"
+          FileUtils.mkdir_p("#{role_dir}/service-#{service}/vars")
+          File.open("#{role_dir}/service-#{service}/vars/main.yml", 'w') do |vars_file|
+            vars_file.puts('---')
+            vars_file.puts("name: #{service}")
           end
-          content
         end
       end
     end

@@ -12,14 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-class Role
-  attr_reader :role_dir
+module Ansible
+  module Role
+    module Content
+      class Base
+        attr_reader :role_dir
 
-  def initialize(args)
-    @role_dir = args[:role_dir]
-  end
+        def initialize(args)
+          @role_dir = args[:role_dir]
+        end
 
-  def create
-    raise NotImplementedError
+        def create
+          raise NotImplementedError
+        end
+      end
+    end
   end
 end

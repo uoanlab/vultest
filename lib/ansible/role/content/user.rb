@@ -14,29 +14,33 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/ansible/role/software/base'
+require './lib/ansible/role/content/base'
 
 module Ansible
   module Role
-    module Software
-      class Gem < Base
-        private
+    module Content
+      class User < Base
+        attr_reader :users
 
-        def create_tasks
-          FileUtils.mkdir_p("#{role_dir}/#{software['name']}/tasks")
-          FileUtils.cp_r(
-            './data/ansible/roles/gem/tasks/main.yml',
-            "#{role_dir}/#{software['name']}/tasks/main.yml"
-          )
+        def initialize(args)
+          super(role_dir: args[:role_dir])
+          @users = args[:users]
         end
 
-        def create_vars
-          FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
-          File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
-            vars_file.puts('---')
-            vars_file.puts("name: #{software['name']}")
-            vars_file.puts("version: #{software['version']}")
-            vars_file.puts(option_user)
+        def create
+          FileUtils.mkdir_p("#{role_dir}/user")
+          FileUtils.mkdir_p("#{role_dir}/user/tasks")
+          FileUtils.mkdir_p("#{role_dir}/user/vars")
+
+          FileUtils.cp_r(
+            './data/ansible/roles/user/tasks/main.yml',
+            "#{role_dir}/user/tasks/main.yml"
+          )
+
+          File.open("#{role_dir}/user/vars/main.yml", 'w') do |vars_file|
+            users.each do |user|
+              user ? vars_file.puts("user: #{user}") : vars_file.puts('user: test')
+            end
           end
         end
       end
