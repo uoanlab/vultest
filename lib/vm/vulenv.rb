@@ -32,7 +32,7 @@ module VM
       @vulenv_config = args[:vulenv_config]
       @error = { flag: false, cause: nil }
 
-      @instance =
+      @operating_environment =
         case vulenv_config['construction']['os']['name']
         when 'ubuntu' then VulenvUbuntu.new(vulenv_config: vulenv_config)
         when 'centos' then VulenvCentOS.new(vulenv_config: vulenv_config)
@@ -43,10 +43,10 @@ module VM
     # TODO
     # ここはあとで、削除してレポートは違う処理で追加
     def status_vulenv
-      status = instance.basic_structure
+      status = operating_environment.basic_structure
       return status if error[:flag]
 
-      status.merge!(instance.details_structure)
+      status.merge!(operating_environment.details_structure)
     end
 
     private
@@ -61,16 +61,16 @@ module VM
 
     def prepare_vagrant
       prepare_vagrantfile =
-        if instance.os[:name] == 'windows'
+        if operating_environment.os[:name] == 'windows'
           PrepareWindowsVagrantfile.new(
-            os_name: instance.os[:name],
-            os_version: instance.os[:version],
+            os_name: operating_environment.os[:name],
+            os_version: operating_environment.os[:version],
             env_dir: env_dir
           )
         else
           PrepareLinuxVagrantfile.new(
-            os_name: instance.os[:name],
-            os_version: instance.os[:version],
+            os_name: operating_environment.os[:name],
+            os_version: operating_environment.os[:version],
             env_dir: env_dir
           )
         end
@@ -82,7 +82,7 @@ module VM
     def prepare_ansible
       PrepareAnsible.new(
         cve: vulenv_config['cve'],
-        os_name: instance.os[:name],
+        os_name: operating_environment.os[:name],
         db_path: config['vultest_db_path'],
         attack_vector: vulenv_config['attack_vector'],
         env_config: vulenv_config['construction'],

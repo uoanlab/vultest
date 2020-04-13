@@ -19,7 +19,7 @@ require './modules/ui'
 
 module VM
   class Base
-    attr_reader :env_dir, :instance, :vagrant, :error
+    attr_reader :env_dir, :operating_environment, :vagrant, :error
 
     def initialize(args)
       @env_dir = args[:env_dir]
