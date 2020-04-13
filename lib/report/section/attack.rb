@@ -32,7 +32,7 @@ module Report
 
       def metasploit_modules_section
         section = ''
-        attack_methods = attack_env.attack_config['metasploit']
+        attack_methods = attack_env.operating_environment.attack.exploits
         attack_methods.each do |attack_method|
           section << "#### Module Name : #{attack_method['module_name']}\n"
           attack_method['options'].each { |option| section << "- #{option['name']} : #{option['var']}\n" }

@@ -82,7 +82,7 @@ class CLI < App
     exploit_command
     return false if attack_env.nil?
 
-    if attack_env.fail_attack?
+    if attack_env.operating_environment.attack.error[:flag]
       report_command
       return false
     end
