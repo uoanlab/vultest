@@ -14,28 +14,33 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/vulenv/tools/ansible/role/base'
+require './lib/ansible/role/base'
 
 module Ansible
   module Role
-    class Metasploit < Base
+    class User < Base
+      attr_reader :users
+
+      def initialize(args)
+        super(role_dir: args[:role_dir])
+        @users = args[:users]
+      end
+
       def create
-        FileUtils.mkdir_p("#{role_dir}/metasploit")
-        FileUtils.mkdir_p("#{role_dir}/metasploit/tasks")
-        FileUtils.mkdir_p("#{role_dir}/metasploit/vars")
-        FileUtils.mkdir_p("#{role_dir}/metasploit/files")
+        FileUtils.mkdir_p("#{role_dir}/user")
+        FileUtils.mkdir_p("#{role_dir}/user/tasks")
+        FileUtils.mkdir_p("#{role_dir}/user/vars")
+
         FileUtils.cp_r(
-          './data/ansible/roles/metasploit/tasks/main.yml',
-          "#{role_dir}/metasploit/tasks/main.yml"
+          './data/ansible/roles/user/tasks/main.yml',
+          "#{role_dir}/user/tasks/main.yml"
         )
-        FileUtils.cp_r(
-          './data/ansible/roles/metasploit/vars/main.yml',
-          "#{role_dir}/metasploit/vars/main.yml"
-        )
-        FileUtils.cp_r(
-          './data/ansible/roles/metasploit/files/database.yml',
-          "#{role_dir}/metasploit/files/database.yml"
-        )
+
+        File.open("#{role_dir}/user/vars/main.yml", 'w') do |vars_file|
+          users.each do |user|
+            user ? vars_file.puts("user: #{user}") : vars_file.puts('user: test')
+          end
+        end
       end
     end
   end

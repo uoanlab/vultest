@@ -19,7 +19,7 @@ require './lib/environment/vulenv/windows'
 require './lib/vulenv/tools/vagrant/vagrant'
 require './lib/vulenv/tools/vagrant/prepare_linux_vagrantfile'
 require './lib/vulenv/tools/vagrant/prepare_windows_vagrantfile'
-require './lib/vulenv/tools/ansible/prepare_ansible'
+require './lib/ansible/prepare_ansible'
 
 module VM
   class Vulenv < Base

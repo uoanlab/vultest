@@ -15,14 +15,14 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/vulenv/tools/ansible/role/metasploit'
-require './lib/vulenv/tools/ansible/role/user'
-require './lib/vulenv/tools/ansible/role/software/apt'
-require './lib/vulenv/tools/ansible/role/software/yum'
-require './lib/vulenv/tools/ansible/role/software/gem'
-require './lib/vulenv/tools/ansible/role/software/source'
-require './lib/vulenv/tools/ansible/role/content'
-require './lib/vulenv/tools/ansible/role/service'
+require './lib/ansible/role/metasploit'
+require './lib/ansible/role/user'
+require './lib/ansible/role/software/apt'
+require './lib/ansible/role/software/yum'
+require './lib/ansible/role/software/gem'
+require './lib/ansible/role/software/source'
+require './lib/ansible/role/content'
+require './lib/ansible/role/service'
 
 class PrepareRoles
   attr_reader :role_dir, :db_path, :env_config, :cve, :attack_vector

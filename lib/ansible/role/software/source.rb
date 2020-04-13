@@ -14,7 +14,7 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/vulenv/tools/ansible/role/software/base'
+require './lib/ansible/role/software/base'
 
 module Ansible
   module Role

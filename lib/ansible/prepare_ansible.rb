@@ -15,8 +15,8 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/vulenv/tools/ansible/prepare_playbook'
-require './lib/vulenv/tools/ansible/prepare_roles'
+require './lib/ansible/prepare_playbook'
+require './lib/ansible/prepare_roles'
 
 class PrepareAnsible
   attr_reader :db_path, :cve, :os, :env_config, :attack_vector, :ansible_dir

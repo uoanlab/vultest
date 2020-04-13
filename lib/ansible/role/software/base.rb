@@ -14,30 +14,44 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/vulenv/tools/ansible/role/software/base'
+require './lib/ansible/role/base'
 
 module Ansible
   module Role
     module Software
-      class Gem < Base
+      class Base < Ansible::Role::Base
+        attr_reader :software
+
+        def initialize(args)
+          super(role_dir: args[:role_dir])
+          @software = args[:software]
+        end
+
+        def create
+          create_tasks
+          create_vars
+        end
+
         private
 
         def create_tasks
-          FileUtils.mkdir_p("#{role_dir}/#{software['name']}/tasks")
-          FileUtils.cp_r(
-            './data/ansible/roles/gem/tasks/main.yml',
-            "#{role_dir}/#{software['name']}/tasks/main.yml"
-          )
+          raise NotImplementedError
         end
 
         def create_vars
-          FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
-          File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
-            vars_file.puts('---')
-            vars_file.puts("name: #{software['name']}")
-            vars_file.puts("version: #{software['version']}")
-            vars_file.puts(option_user)
+          raise NotImplementedError
+        end
+
+        def option_user
+          content = nil
+          if software.key?('user') && !software['user'].nil?
+            content = "user: #{software['user']}\n"
+            content << "user_dir: /home/#{software['user']}\n"
+          else
+            content = "user: test\n"
+            content << "user_dir: /home/test\n"
           end
+          content
         end
       end
     end
