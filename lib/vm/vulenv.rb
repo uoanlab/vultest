@@ -16,9 +16,11 @@ require './lib/vm/base'
 require './lib/environment/vulenv/ubuntu'
 require './lib/environment/vulenv/centos'
 require './lib/environment/vulenv/windows'
-require './lib/vulenv/tools/vagrant/vagrant'
-require './lib/vulenv/tools/vagrant/prepare_linux_vagrantfile'
-require './lib/vulenv/tools/vagrant/prepare_windows_vagrantfile'
+
+require './lib/vagrant/command'
+require './lib/vagrant/vagrantfile/vulenv/linux'
+require './lib/vagrant/vagrantfile/vulenv/windows'
+
 require './lib/ansible/vulenv'
 
 module VM
@@ -62,13 +64,13 @@ module VM
     def prepare_vagrant
       prepare_vagrantfile =
         if operating_environment.os[:name] == 'windows'
-          PrepareWindowsVagrantfile.new(
+          Vagrant::Vagrantfile::Vulenv::Windows.new(
             os_name: operating_environment.os[:name],
             os_version: operating_environment.os[:version],
             env_dir: env_dir
           )
         else
-          PrepareLinuxVagrantfile.new(
+          Vagrant::Vagrantfile::Vulenv::Linux.new(
             os_name: operating_environment.os[:name],
             os_version: operating_environment.os[:version],
             env_dir: env_dir
@@ -76,7 +78,7 @@ module VM
         end
       prepare_vagrantfile.create
 
-      @vagrant = Vagrant.new
+      @vagrant = Vagrant::Command.new
     end
 
     def prepare_ansible
