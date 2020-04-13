@@ -16,11 +16,11 @@ require 'bundler/setup'
 require 'net/ssh'
 require 'tty-prompt'
 
-require './lib/attack/method/metasploit'
+require './lib/attack/metasploit'
 require './modules/ui'
 
 class AttackEnv
-  attr_reader :host, :user, :password, :attack_vector, :attack_config, :attack_method
+  attr_reader :host, :user, :password, :attack_vector, :attack_config, :attack
 
   def initialize(args)
     @host = args[:attack_host]
@@ -30,27 +30,27 @@ class AttackEnv
     @attack_vector = args[:attack_vector]
     @attack_config = args[:attack_config]
 
-    prepare_attack_method
+    prepare_attack
   end
 
   def execute_attack
     VultestUI.execute('Exploit attack')
-    attack_method.execute
+    attack.execute
   end
 
   def fail_attack?
-    attack_method.error[:flag]
+    attack.error[:flag]
   end
 
   def details_fail_attack
-    attack_method.error
+    attack.error
   end
 
   private
 
-  def prepare_attack_method
+  def prepare_attack
     startup_msfserver if attack_vector == 'remote'
-    @attack_method = ::Attack::Method::Metasploit.new(
+    @attack = Attack::Metasploit.new(
       host: host,
       exploits: attack_config['metasploit']
     )
