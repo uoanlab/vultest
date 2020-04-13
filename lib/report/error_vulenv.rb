@@ -41,17 +41,17 @@ module Report
     end
 
     def create_vulenv_error_section
-      section = Report::Section::Error::Vulenv.new(vulenv: vulenv)
+      section = Section::Error::Vulenv.new(vulenv: vulenv)
       section.create
     end
 
     def create_vulenv_section
-      section = Report::Section::Vulenv.new(vulenv: vulenv)
+      section = Section::Vulenv.new(vulenv: vulenv)
       section.create
     end
 
     def create_vulnerability_section
-      section = Report::Section::Vulnerability.new(cve: cve)
+      section = Section::Vulnerability.new(cve: cve)
       section.create
     end
   end

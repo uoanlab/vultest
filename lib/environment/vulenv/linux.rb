@@ -32,7 +32,9 @@ module Environment
           cmd = ssh.exec!('sudo find / -name ip | grep bin/').split("\n")[0]
           cmd += ' addr | grep inet'
 
-          ssh.exec!(cmd).split("\n").each_slice(2) { |ip| ip_list.push({ interface: ip[0].split(' ')[-1], inet: ip[0].split(' ')[1], inet6: ip[1].split(' ')[1] }) }
+          ssh.exec!(cmd).split("\n").each_slice(2) do |ip|
+            ip_list.push({ interface: ip[0].split(' ')[-1], inet: ip[0].split(' ')[1], inet6: ip[1].split(' ')[1] })
+          end
         end
         ip_list
       end

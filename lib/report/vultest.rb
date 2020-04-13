@@ -43,17 +43,17 @@ module Report
     end
 
     def create_vulenv_section
-      section = Report::Section::Vulenv.new(vulenv: vulenv)
+      section = Section::Vulenv.new(vulenv: vulenv)
       section.create
     end
 
     def create_attack_section
-      section = Report::Section::Attack.new(attack_env: attack_env)
+      section = Section::Attack.new(attack_env: attack_env)
       section.create
     end
 
     def create_vulnerability_section
-      section = Report::Section::Vulnerability.new(cve: cve)
+      section = Section::Vulnerability.new(cve: cve)
       section.create
     end
   end
