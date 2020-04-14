@@ -42,15 +42,6 @@ module VM
         end
     end
 
-    # TODO
-    # ここはあとで、削除してレポートは違う処理で追加
-    def status_vulenv
-      status = operating_environment.basic_structure
-      return status if error[:flag]
-
-      status.merge!(operating_environment.details_structure)
-    end
-
     private
 
     def create_msg

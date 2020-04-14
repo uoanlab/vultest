@@ -21,7 +21,7 @@ module Report
 
       def initialize(args)
         vulenv = args[:vulenv]
-        @status_vulenv = vulenv.status_vulenv
+        @status_vulenv = vulenv.operating_environment.structure(vulenv.error[:flag])
       end
 
       def create

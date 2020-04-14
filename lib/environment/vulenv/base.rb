@@ -31,22 +31,23 @@ module Environment
         @related_software = config['related_software'].map { |s| { name: s['name'], version: s.fetch('version', 'The latest version of the repository') } }
       end
 
-      def basic_structure
-        {
+      def structure(flag = false)
+        struct = {
           os: os,
           vul_software: vul_software,
           related_software: related_software
         }
-      end
+        return struct if flag
 
-      def details_structure
-        {
-          base_version_of_os: base_version_of_os,
-          related_software: related_software_details,
-          ip_list: ip_list,
-          port_list: port_list,
-          service_list: service_list
-        }
+        struct.merge(
+          {
+            base_version_of_os: base_version_of_os,
+            related_software: related_software_details,
+            ip_list: ip_list,
+            port_list: port_list,
+            service_list: service_list
+          }
+        )
       end
 
       private
