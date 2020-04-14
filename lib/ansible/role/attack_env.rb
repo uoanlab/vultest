@@ -13,25 +13,23 @@
 # limitations under the License.
 
 require 'bundler/setup'
-require 'pastel'
-require 'optparse'
-require 'tty-font'
+require 'fileutils'
 
-class App
-  attr_reader :setting, :vultest_case, :vulenv, :attack_env
+require './lib/ansible/role/content/metasploit'
 
-  def initialize
-    puts Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST'))
+module Ansible
+  module Role
+    class AttackEnv
+      attr_reader :role_dir, :host
 
-    @setting = {}
-    @setting[:test_dir] = ENV.fetch('TESTDIR', './test_dir')
-    @setting [:attack_dir] = ENV.fetch('ATTACKDIR', './attack_dir')
-    @setting[:attack_host] = ENV.fetch('ATTACKHOST', nil)
-    @setting[:attack_user] = ENV.fetch('ATTACKERUSER', 'root')
-    @setting [:attack_passwd] = ENV.fetch('ATTACKPASSWD', 'toor')
-  end
+      def initialize(args)
+        @role_dir = args[:role_dir]
+        @host = args[:host]
+      end
 
-  def execute
-    raise NotImplementedError
+      def create
+        Content::Metasploit.new(role_dir: role_dir, os_name: 'ubuntu', os_version: '18.04.1', attack_host: host).create
+      end
+    end
   end
 end

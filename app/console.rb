@@ -11,15 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 require 'bundler/setup'
 require 'tty-prompt'
 
 require './app/app'
-require './app/command/test_command'
-require './app/command/destroy_command'
-require './app/command/exploit_command'
-require './app/command/report_command'
-require './app/command/set_command'
+require './app/command/test'
+require './app/command/destroy'
+require './app/command/exploit'
+require './app/command/report'
+require './app/command/set'
 require './modules/util'
 
 class Console < App
@@ -38,7 +39,7 @@ class Console < App
 
       case cmd[0]
       when /test/i then test_command(cmd[1])
-      when /destroy/i then destroy_command
+      when /destroy/i then destroy_command(cmd[1])
       when /exploit/i then exploit_command
       when /report/i then report_command
       when /set/i then set_command(cmd[1], cmd[2])
@@ -52,29 +53,50 @@ class Console < App
   private
 
   def test_command(cve)
-    cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
+    cmd = Command::Test.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
 
     cmd.execute do |value|
       @name = value[:cve]
       @vultest_case = value[:vultest_case]
-      @control_vulenv = value[:control_vulenv]
+      @vulenv = value[:vulenv]
     end
   end
 
-  def destroy_command
-    return if prompt.no?('Delete vulnerable environment?')
+  def destroy_command(env_name)
+    if env_name.nil?
+      VultestUI.error('Usage: destory <attack_env or vulenv>')
+      return
+    end
 
-    cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.execute { |value| @control_vulenv = value[:control_vulenv] }
+    env =
+      case env_name
+      when 'attack_env'
+        return if !attack_env.is_a?(VM::AttackEnv::AutoRemoteHost) || prompt.no?('Delete the attack environment?')
+
+        attack_env
+      when 'vulenv'
+        return if prompt.no?('Delete the vulnerable environment?')
+
+        vulenv
+      end
+
+    cmd = Command::Destroy.new(env: env)
+    cmd.execute do |value|
+      case env_name
+      when 'attack_env' then @attack_env = value[:env]
+      when 'vulenv' then @vulenv = value[:env]
+      end
+    end
   end
 
   def exploit_command
-    cmd = ExploitCommand.new(
+    cmd = Command::Exploit.new(
       vultest_case: vultest_case,
-      control_vulenv: control_vulenv,
+      vulenv: vulenv,
       attack_host: setting[:attack_host],
       attack_user: setting[:attack_user],
-      attack_passwd: setting[:attack_passwd]
+      attack_passwd: setting[:attack_passwd],
+      attack_dir: setting[:attack_dir]
     )
 
     cmd.execute do |value|
@@ -84,7 +106,7 @@ class Console < App
   end
 
   def report_command
-    cmd = ReportCommand.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
+    cmd = Command::Report.new(vulenv: vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
     cmd.execute
   end
 
@@ -94,7 +116,7 @@ class Console < App
       return
     end
 
-    cmd = SetCommand.new(type: type, value: value, control_vulenv: control_vulenv, attack_env: attack_env)
+    cmd = Command::Set.new(type: type, value: value, vulenv: vulenv, attack_env: attack_env)
     cmd.execute { |t, v| @setting[t] = v }
   end
 
@@ -104,6 +126,6 @@ class Console < App
     return unless prompt.yes?("Finish the vultest for #{vultest_case.cve}")
 
     @name = 'vultest'
-    @vultest_case = @control_vulenv = @attack_env = nil
+    @vultest_case = @vulenv = @attack_env = nil
   end
 end

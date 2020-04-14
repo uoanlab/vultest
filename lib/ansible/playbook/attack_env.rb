@@ -13,25 +13,27 @@
 # limitations under the License.
 
 require 'bundler/setup'
-require 'pastel'
-require 'optparse'
-require 'tty-font'
+require 'fileutils'
 
-class App
-  attr_reader :setting, :vultest_case, :vulenv, :attack_env
+module Ansible
+  module Playbook
+    class AttackEnv
+      attr_reader :playbook_dir
 
-  def initialize
-    puts Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST'))
+      def initialize(args)
+        @playbook_dir = args[:playbook_dir]
+      end
 
-    @setting = {}
-    @setting[:test_dir] = ENV.fetch('TESTDIR', './test_dir')
-    @setting [:attack_dir] = ENV.fetch('ATTACKDIR', './attack_dir')
-    @setting[:attack_host] = ENV.fetch('ATTACKHOST', nil)
-    @setting[:attack_user] = ENV.fetch('ATTACKERUSER', 'root')
-    @setting [:attack_passwd] = ENV.fetch('ATTACKPASSWD', 'toor')
-  end
+      def create
+        content = "---\n"
+        content << "- hosts: vagrant\n"
+        content << "  connection: local\n"
+        content << "  become: yes \n"
+        content << "  roles:\n"
+        content << "    - ../roles/metasploit\n"
 
-  def execute
-    raise NotImplementedError
+        File.open("#{playbook_dir}/main.yml", 'w') { |file| file.puts(content) }
+      end
+    end
   end
 end

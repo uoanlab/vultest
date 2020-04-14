@@ -13,13 +13,12 @@
 # limitations under the License.
 require 'bundler/setup'
 require 'optparse'
-require 'tty-prompt'
 
 require './app/app'
-require './app/command/test_command'
-require './app/command/destroy_command'
-require './app/command/exploit_command'
-require './app/command/report_command'
+require './app/command/test'
+require './app/command/destroy'
+require './app/command/exploit'
+require './app/command/report'
 
 require './modules/ui'
 
@@ -35,6 +34,7 @@ class CLI < App
       'attack_user:',
       'attack_passwd:',
       'attack_host:',
+      'attack_dir:',
       'dir:',
       'destroy:no'
     )
@@ -43,6 +43,7 @@ class CLI < App
     @setting[:attack_host] = opts.fetch('attack_host', @setting[:attack_host])
     @setting[:attack_user] = opts.fetch('attack_user', @setting[:attack_user])
     @setting[:attack_passwd] = opts.fetch('attack_passwd', @setting[:attack_passwd])
+    @setting[:attack_dir] = opts.fetch('attack_dir', @setting[:attack_dir])
     @setting[:test_dir] = opts.fetch('dir', @setting[:test_dir])
     @test_flag = opts['test']
     @destroy_flag = opts['destroy']
@@ -57,7 +58,6 @@ class CLI < App
     return unless create_vulenv?
     return if test_flag == 'no'
 
-    TTY::Prompt.new.keypress('If you start the attack, puress ENTER key', keys: [:return])
     return unless exploit_vulenv?
 
     report_command
@@ -68,9 +68,9 @@ class CLI < App
 
   def create_vulenv?
     test_command
-    return false if vultest_case.nil? || control_vulenv.nil?
+    return false if vultest_case.nil? || vulenv.nil?
 
-    if control_vulenv.error[:flag]
+    if vulenv.error[:flag]
       report_command
       return false
     end
@@ -82,7 +82,7 @@ class CLI < App
     exploit_command
     return false if attack_env.nil?
 
-    if attack_env.error[:flag]
+    if attack_env.operating_environment.attack.error[:flag]
       report_command
       return false
     end
@@ -91,35 +91,41 @@ class CLI < App
   end
 
   def test_command
-    cmd = TestCommand.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
+    cmd = Command::Test.new(cve: cve, vultest_case: vultest_case, vulenv_dir: setting[:test_dir])
     cmd.execute do |value|
       @vultest_case = value[:vultest_case]
-      @control_vulenv = value[:control_vulenv]
+      @vulenv = value[:vulenv]
     end
   end
 
   def destroy_command
-    cmd = DestroyCommand.new(control_vulenv: control_vulenv)
-    cmd.execute { |value| @control_vulenv = value[:control_vulenv] }
+    cmd = Command::Destroy.new(env: vulenv)
+    cmd.execute { |value| @vulenv = value[:env] }
+
+    return unless attack_env.is_a?(VM::AttackEnv::AutoRemoteHost)
+
+    cmd = Command::Destroy.new(env: attack_env)
+    cmd.execute { |value| @attack_env = value[:env] }
   end
 
   def exploit_command
-    cmd = ExploitCommand.new(
+    cmd = Command::Exploit.new(
       vultest_case: vultest_case,
-      control_vulenv: control_vulenv,
+      vulenv: vulenv,
       attack_host: setting[:attack_host],
       attack_user: setting[:attack_user],
-      attack_passwd: setting[:attack_passwd]
+      attack_passwd: setting[:attack_passwd],
+      attack_dir: setting[:attack_dir]
     )
 
     cmd.execute do |value|
       @setting[:attack_host] = value[:attack_host]
       @attack_env = value[:attack_env]
     end
-  end
+    end
 
   def report_command
-    cmd = ReportCommand.new(control_vulenv: control_vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
+    cmd = Command::Report.new(vulenv: vulenv, attack_env: attack_env, report_dir: setting[:test_dir])
     cmd.execute
   end
 end
