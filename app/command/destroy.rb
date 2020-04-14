@@ -17,22 +17,22 @@ require './modules/ui'
 
 module Command
   class Destroy < Base
-    attr_reader :vulenv
+    attr_reader :env
 
     def initialize(args)
-      @vulenv = args[:vulenv]
+      @env = args[:env]
     end
 
     def execute(&block)
-      if vulenv.nil?
-        VultestUI.error('Doesn\'t exist a vulnerabule environment')
+      if env.nil?
+        VultestUI.error('Doesn\'t exist the environment')
         return
       end
 
-      return unless vulenv.destroy?
+      return unless env.destroy?
 
-      VultestUI.execute("Delete the vulnerable environment for #{vulenv.cve}")
-      block.call(vulenv: nil)
+      VultestUI.execute('Delete the environment')
+      block.call(env: nil)
     end
   end
 end

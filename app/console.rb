@@ -39,7 +39,7 @@ class Console < App
 
       case cmd[0]
       when /test/i then test_command(cmd[1])
-      when /destroy/i then destroy_command
+      when /destroy/i then destroy_command(cmd[1])
       when /exploit/i then exploit_command
       when /report/i then report_command
       when /set/i then set_command(cmd[1], cmd[2])
@@ -62,11 +62,31 @@ class Console < App
     end
   end
 
-  def destroy_command
-    return if prompt.no?('Delete vulnerable environment?')
+  def destroy_command(env_name)
+    if env_name.nil?
+      VultestUI.error('Usage: destory <attack_env or vulenv>')
+      return
+    end
 
-    cmd = Command::Destroy.new(vulenv: vulenv)
-    cmd.execute { |value| @vulenv = value[:vulenv] }
+    env =
+      case env_name
+      when 'attack_env'
+        return if !attack_env.is_a?(VM::AttackEnv::AutoRemoteHost) || prompt.no?('Delete the attack environment?')
+
+        attack_env
+      when 'vulenv'
+        return if prompt.no?('Delete the vulnerable environment?')
+
+        vulenv
+      end
+
+    cmd = Command::Destroy.new(env: env)
+    cmd.execute do |value|
+      case env_name
+      when 'attack_env' then @attack_env = value[:env]
+      when 'vulenv' then @vulenv = value[:env]
+      end
+    end
   end
 
   def exploit_command

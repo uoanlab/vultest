@@ -60,7 +60,7 @@ module Vagrant
     end
 
     def destroy!
-      VultestUI.tty_spinner_begin('Destroy vulnerable environment')
+      VultestUI.tty_spinner_begin('Destroy the environment')
       _stdout, _stderr, status = Open3.capture3('vagrant destroy -f')
       unless status.exitstatus.zero?
         VultestUI.tty_spinner_end('error')
