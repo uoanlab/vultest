@@ -75,7 +75,8 @@ class Console < App
       vulenv: vulenv,
       attack_host: setting[:attack_host],
       attack_user: setting[:attack_user],
-      attack_passwd: setting[:attack_passwd]
+      attack_passwd: setting[:attack_passwd],
+      attack_dir: setting[:attack_dir]
     )
 
     cmd.execute do |value|

@@ -13,7 +13,6 @@
 # limitations under the License.
 require 'bundler/setup'
 require 'optparse'
-require 'tty-prompt'
 
 require './app/app'
 require './app/command/test'
@@ -35,6 +34,7 @@ class CLI < App
       'attack_user:',
       'attack_passwd:',
       'attack_host:',
+      'attack_dir:',
       'dir:',
       'destroy:no'
     )
@@ -43,6 +43,7 @@ class CLI < App
     @setting[:attack_host] = opts.fetch('attack_host', @setting[:attack_host])
     @setting[:attack_user] = opts.fetch('attack_user', @setting[:attack_user])
     @setting[:attack_passwd] = opts.fetch('attack_passwd', @setting[:attack_passwd])
+    @setting[:attack_dir] = opts.fetch('attack_dir', @setting[:attack_dir])
     @setting[:test_dir] = opts.fetch('dir', @setting[:test_dir])
     @test_flag = opts['test']
     @destroy_flag = opts['destroy']
@@ -57,7 +58,6 @@ class CLI < App
     return unless create_vulenv?
     return if test_flag == 'no'
 
-    TTY::Prompt.new.keypress('If you start the attack, puress ENTER key', keys: [:return])
     return unless exploit_vulenv?
 
     report_command
@@ -109,7 +109,8 @@ class CLI < App
       vulenv: vulenv,
       attack_host: setting[:attack_host],
       attack_user: setting[:attack_user],
-      attack_passwd: setting[:attack_passwd]
+      attack_passwd: setting[:attack_passwd],
+      attack_dir: setting[:attack_dir]
     )
 
     cmd.execute do |value|

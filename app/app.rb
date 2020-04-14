@@ -25,6 +25,7 @@ class App
 
     @setting = {}
     @setting[:test_dir] = ENV.fetch('TESTDIR', './test_dir')
+    @setting [:attack_dir] = ENV.fetch('ATTACKDIR', './attack_dir')
     @setting[:attack_host] = ENV.fetch('ATTACKHOST', nil)
     @setting[:attack_user] = ENV.fetch('ATTACKERUSER', 'root')
     @setting [:attack_passwd] = ENV.fetch('ATTACKPASSWD', 'toor')
