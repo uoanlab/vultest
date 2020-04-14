@@ -23,7 +23,6 @@ module Attack
 
     def initialize(args)
       @host = args[:host]
-      prepare_metasploit_api
 
       @exploits = args[:exploits]
       @session_list = {}
@@ -32,6 +31,7 @@ module Attack
     end
 
     def execute
+      prepare_metasploit_api
       exploits.each do |exploit|
         exploit_option = exploit['options'].map { |option| { option['name'] => option['var'] } }.inject(:merge)
         exploit_option['LHOST'] = host
