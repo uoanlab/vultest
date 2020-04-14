@@ -41,6 +41,8 @@ module Command
 
         VultestUI.execute("#{type} => #{value}")
         @type = "#{type[0..5]}_#{type[6..]}".intern
+
+        @value = Util.create_dir(value) if type == :attack_dir
       end
 
       block.call(type, value)
