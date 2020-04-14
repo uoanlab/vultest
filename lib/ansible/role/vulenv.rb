@@ -39,7 +39,12 @@ module Ansible
 
       def create
         if attack_vector == 'local'
-          role = Content::Metasploit.new(role_dir: role_dir, attack_host: '192.168.177.177')
+          role = Content::Metasploit.new(
+            role_dir: role_dir,
+            os_name: env_config['os']['name'],
+            os_version: env_config['os']['version'],
+            attack_host: '192.168.177.177'
+          )
           role.create
         end
 

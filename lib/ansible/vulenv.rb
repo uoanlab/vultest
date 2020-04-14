@@ -42,7 +42,7 @@ module Ansible
         FileUtils.cp_r('./data/ansible/hosts/windows/hosts.yml', "#{ansible_dir[:hosts]}/hosts.yml")
       else
         FileUtils.cp_r('./data/ansible/ansible.cfg', "#{ansible_dir[:base]}/ansible.cfg")
-        FileUtils.cp_r('.//data/ansible/hosts/linux/hosts.yml', "#{ansible_dir[:hosts]}/hosts.yml")
+        FileUtils.cp_r('./data/ansible/hosts/linux/hosts.yml', "#{ansible_dir[:hosts]}/hosts.yml")
       end
     end
 
