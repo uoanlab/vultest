@@ -1,8 +1,30 @@
 ---
-- name: apt-get update
-  apt:
-    update_cache: yes
+- name: Update the package
+  block:
+    - name: apt update
+      apt:
+        update_cache: yes
+  rescue:
+    - name: rm /var/lib/apt/lists/lock
+      file:
+        path: /var/lib/apt/lists/lock
+        state: absent
+      ignore_errors: yes
+    - name: rm /var/cache/apt/archives/lock
+      file:
+        path: /var/cache/apt/archives/lock
+        state: absent
+      ignore_errors: yes
+    - name: rm /var/lib/dpkg/lock
+      file:
+        path: rm /var/lib/dpkg/lock
+        state: absent
+      ignore_errors: yes
+    - name: apt update again
+      apt:
+        update_cache: yes
   when: ansible_distribution == "Ubuntu"
+
 - name: Install necessary package
   apt:
     name: "{{packages}}"
