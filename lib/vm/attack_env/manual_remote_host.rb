@@ -20,8 +20,6 @@ module VM
       attr_reader :attack_config, :operating_environment
 
       def initialize(args)
-        startup_msfserver(args[:host], args[:user], args[:password])
-
         @attack_config = args[:attack_config]
         @operating_environment = Environment::AttackEnv.new(
           host: args[:host],
@@ -29,6 +27,8 @@ module VM
           password: args[:password],
           attack_config: args[:attack_config]
         )
+
+        startup_msfserver(args[:host], args[:user], args[:password])
       end
 
       private
