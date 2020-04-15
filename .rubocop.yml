@@ -21,6 +21,12 @@ Style/Documentation:
 Style/RedundantReturn:
   Enabled: false
 
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
 Metrics/AbcSize:
   Max: 30
 
