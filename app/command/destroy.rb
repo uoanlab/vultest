@@ -29,11 +29,6 @@ module Command
         return
       end
 
-      if env.control.nil?
-        VultestUI.error('Cannot delte the environment')
-        return
-      end
-
       return unless env.destroy?
 
       VultestUI.execute('Delete the environment')

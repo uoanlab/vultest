@@ -71,7 +71,7 @@ class Console < App
     env =
       case env_name
       when 'attack_env'
-        return if prompt.no?('Delete the attack environment?')
+        return if attack_env&.control.nil? || prompt.no?('Delete the attack environment?')
 
         attack_env
       when 'vulenv'
