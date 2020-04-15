@@ -71,7 +71,7 @@ class Console < App
     env =
       case env_name
       when 'attack_env'
-        return if !attack_env.is_a?(VM::AttackEnv::AutoRemoteHost) || prompt.no?('Delete the attack environment?')
+        return if prompt.no?('Delete the attack environment?')
 
         attack_env
       when 'vulenv'
