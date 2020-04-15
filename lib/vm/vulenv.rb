@@ -16,12 +16,7 @@ require './lib/vm/base'
 require './lib/environment/vulenv/ubuntu'
 require './lib/environment/vulenv/centos'
 require './lib/environment/vulenv/windows'
-
-require './lib/vagrant/command'
-require './lib/vagrant/vagrantfile/vulenv/linux'
-require './lib/vagrant/vagrantfile/vulenv/windows'
-
-require './lib/ansible/vulenv'
+require './lib/vm/control/vulenv'
 
 module VM
   class Vulenv < Base
@@ -29,90 +24,32 @@ module VM
 
     def initialize(args)
       super(env_dir: args[:env_dir])
+
       @cve = args[:cve]
       @config = args[:config]
       @vulenv_config = args[:vulenv_config]
-      @error = { flag: false, cause: nil }
+      @error.merge!({ cause: nil })
 
-      @operating_environment =
-        case vulenv_config['construction']['os']['name']
-        when 'ubuntu' then Environment::Vulenv::Ubuntu.new(vulenv_config: vulenv_config)
-        when 'centos' then Environment::Vulenv::CentOS.new(vulenv_config: vulenv_config)
-        when 'windows' then Environment::Vulenv::Windows.new(vulenv_config: vulenv_config)
-        end
+      @operating_environment = prepare_operating_envrionment
+      @control = prepare_control
     end
 
     private
 
-    def create_msg
-      'Create vulnerability environment'
-    end
-
-    def destroy_msg
-      "Destroy test_dir(#{env_dir})"
-    end
-
-    def prepare_vagrant
-      prepare_vagrantfile =
-        if operating_environment.os[:name] == 'windows'
-          Vagrant::Vagrantfile::Vulenv::Windows.new(
-            os_name: operating_environment.os[:name],
-            os_version: operating_environment.os[:version],
-            env_dir: env_dir
-          )
-        else
-          Vagrant::Vagrantfile::Vulenv::Linux.new(
-            os_name: operating_environment.os[:name],
-            os_version: operating_environment.os[:version],
-            env_dir: env_dir
-          )
-        end
-      prepare_vagrantfile.create
-
-      @vagrant = Vagrant::Command.new
-    end
-
-    def prepare_ansible
-      Ansible::Vulenv.new(
-        cve: vulenv_config['cve'],
-        os_name: operating_environment.os[:name],
-        db_path: config['vultest_db_path'],
-        attack_vector: vulenv_config['attack_vector'],
-        env_config: vulenv_config['construction'],
+    def prepare_control
+      Control::Vulenv.new(
+        config: config,
+        vulenv_config: vulenv_config,
         env_dir: env_dir
-      ).create
+      )
     end
 
-    def start_vm?
-      Dir.chdir(env_dir) do
-        { start_up: true, reload: vulenv_config.key?('reload'), hard_setup: vulenv_config['construction'].key?('hard_setup') }.each do |key, value|
-          next unless value
-
-          @error[:flag] = !(
-            case key
-            when :start_up then vagrant.start_up?
-            when :reload then vagrant.reload?
-            when :hard_setup then vagrant.hard_setup?(vulenv_config['construction']['hard_setup']['msg'])
-            end
-          )
-
-          next unless error[:flag]
-
-          @error[:cause] = vagrant.stdout
-          return false
-        end
+    def prepare_operating_envrionment
+      case vulenv_config['construction']['os']['name']
+      when 'ubuntu' then Environment::Vulenv::Ubuntu.new(vulenv_config: vulenv_config)
+      when 'centos' then Environment::Vulenv::CentOS.new(vulenv_config: vulenv_config)
+      when 'windows' then Environment::Vulenv::Windows.new(vulenv_config: vulenv_config)
       end
-
-      manual_setup if vulenv_config['construction'].key?('prepare')
-
-      true
-    end
-
-    def manual_setup
-      VultestUI.warring('Following execute command')
-      puts("  [1] cd #{env_dir}")
-      puts('  [2] vagrant ssh')
-      vulenv_config['construction']['prepare']['msg'].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
     end
   end
 end

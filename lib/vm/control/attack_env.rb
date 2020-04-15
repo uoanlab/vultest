@@ -12,28 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/vm/base'
-require './lib/environment/attack_env'
-
+require './lib/vm/control/base'
 require './lib/vagrant/command'
 require './lib/vagrant/vagrantfile/attack_env'
 require './lib/ansible/attack_env'
 
 module VM
-  module AttackEnv
-    class AutoRemoteHost < ::VM::Base
+  module Control
+    class AttackEnv < Base
       attr_reader :host, :attack_config
 
       def initialize(args)
         super(env_dir: args[:env_dir])
         @host = args[:host]
         @attack_config = args[:attack_config]
-        @operating_environment = Environment::AttackEnv.new(
-          host: args[:host],
-          user: args[:user],
-          password: args[:password],
-          attack_config: args[:attack_config]
-        )
       end
 
       private
@@ -57,8 +49,14 @@ module VM
       end
 
       def start_vm?
-        Dir.chdir(env_dir) { @error[:flag] = !vagrant.start_up? }
-        error[:flag]
+        Dir.chdir(env_dir) do
+          if vagrant.start_up? then true
+          else
+            @error[:flag] = true
+            @error[:cause] = vagrant.stdout
+            false
+          end
+        end
       end
     end
   end

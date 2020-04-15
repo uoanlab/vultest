@@ -102,7 +102,7 @@ class CLI < App
     cmd = Command::Destroy.new(env: vulenv)
     cmd.execute { |value| @vulenv = value[:env] }
 
-    return unless attack_env.is_a?(VM::AttackEnv::AutoRemoteHost)
+    return if attack_env.control.nil?
 
     cmd = Command::Destroy.new(env: attack_env)
     cmd.execute { |value| @attack_env = value[:env] }
@@ -122,7 +122,7 @@ class CLI < App
       @setting[:attack_host] = value[:attack_host]
       @attack_env = value[:attack_env]
     end
-    end
+  end
 
   def report_command
     cmd = Command::Report.new(vulenv: vulenv, attack_env: attack_env, report_dir: setting[:test_dir])

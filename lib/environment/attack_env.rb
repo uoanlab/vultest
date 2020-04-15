@@ -40,12 +40,21 @@ module Environment
       attack.execute
     end
 
-    def fail_attack?
-      attack.error[:flag]
-    end
+    def startup_msfserver
+      begin
+        VultestUI.tty_spinner_begin('Metasploit server')
+        Net::SSH.start(host, user, password: password) do |ssh|
+          ssh.exec!("msfrpcd -a #{host} -p 55553 -U msf -P metasploit -S false \>/dev/null 2>&1")
+          ssh.exec!("msfrpcd -a #{host} -p 55553 -U msf -P metasploit -S false")
+        end
+      rescue StandardError
+        VultestUI.tty_spinner_end('error')
+        VultestUI.warring('Run your attack machine now')
 
-    def details_fail_attack
-      attack.error
+        TTY::Prompt.new.keypress(' If it is running now, puress ENTER key', keys: [:return])
+        retry
+      end
+      VultestUI.tty_spinner_end('success')
     end
   end
 end

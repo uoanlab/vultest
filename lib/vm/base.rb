@@ -12,14 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'bundler/setup'
-require 'fileutils'
-
-require './modules/ui'
-
 module VM
   class Base
-    attr_reader :env_dir, :operating_environment, :vagrant, :error
+    attr_reader :env_dir, :error, :control, :operating_environment
 
     def initialize(args)
       @env_dir = args[:env_dir]
@@ -27,44 +22,29 @@ module VM
     end
 
     def create?
-      VultestUI.execute(create_msg)
+      return false if control.nil?
 
-      FileUtils.mkdir_p(env_dir)
-      prepare_vagrant
-      prepare_ansible
-
-      start_vm?
+      if control.create? then true
+      else
+        @error.merge!(control.error)
+        false
+      end
     end
 
     def destroy?
-      Dir.chdir(env_dir) { return false unless vagrant.destroy! }
+      return false if control.nil?
 
-      VultestUI.tty_spinner_begin(destroy_msg)
-      FileUtils.rm_rf(env_dir)
-      VultestUI.tty_spinner_end('success')
-
+      control.destroy?
       true
     end
 
     private
 
-    def create_msg
+    def prepare_control
       raise NotImplementedError
     end
 
-    def destroy_msg
-      raise NotImplementedError
-    end
-
-    def prepare_vagrant
-      raise NotImplementedError
-    end
-
-    def prepare_ansible
-      raise NotImplementedError
-    end
-
-    def start_vm?
+    def prepare_operating_envrionment
       raise NotImplementedError
     end
   end
