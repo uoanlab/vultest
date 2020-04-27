@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/vm/control/base'
-require './lib/vagrant/command'
-require './lib/vagrant/vagrantfile/attack_env'
-require './lib/ansible/attack_env'
+require 'lib/vm/control/base'
+
+require 'lib/vagrant/command'
+require 'lib/vagrant/vagrantfile/attack_env'
+
+require 'lib/ansible/attack_env'
 
 module VM
   module Control

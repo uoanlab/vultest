@@ -18,7 +18,7 @@ require 'open3'
 require 'tty-table'
 require 'tty-prompt'
 
-require './lib/vagrant/vagrantfile/base'
+require 'lib/vagrant/vagrantfile/base'
 
 module Vagrant
   module Vagrantfile

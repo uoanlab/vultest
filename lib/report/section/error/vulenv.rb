@@ -14,7 +14,7 @@
 
 require 'json'
 
-require './lib/report/section/error/base'
+require 'lib/report/section/error/base'
 
 module Report
   module Section

@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/report/base'
-require './lib/report/section/vulenv'
-require './lib/report/section/vulnerability'
-require './lib/report/section/error/vulenv'
+require 'lib/report/base'
+require 'lib/report/section/vulenv'
+require 'lib/report/section/vulnerability'
+require 'lib/report/section/error/vulenv'
 
 module Report
   class ErrorVulenv < Report::Base

@@ -16,7 +16,7 @@ require 'bundler/setup'
 require 'fileutils'
 require 'tty-prompt'
 
-require './lib/vagrant/vagrantfile/base'
+require 'lib/vagrant/vagrantfile/base'
 
 module Vagrant
   module Vagrantfile

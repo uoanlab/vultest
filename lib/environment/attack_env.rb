@@ -16,8 +16,9 @@ require 'bundler/setup'
 require 'net/ssh'
 require 'tty-prompt'
 
-require './lib/attack/metasploit'
-require './modules/ui'
+require 'lib/attack/metasploit'
+
+require 'modules/ui'
 
 module Environment
   class AttackEnv

@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/vm/base'
-require './lib/environment/attack_env'
-require './lib/vm/control/attack_env'
+require 'lib/vm/base'
+require 'lib/vm/control/attack_env'
+
+require 'lib/environment/attack_env'
 
 module VM
   class AttackEnv < Base

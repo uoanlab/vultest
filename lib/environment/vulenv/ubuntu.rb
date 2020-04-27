@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'net/ssh'
 
-require './lib/environment/vulenv/linux'
+require 'lib/environment/vulenv/linux'
 
 module Environment
   module Vulenv

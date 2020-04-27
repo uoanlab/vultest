@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './modules/ui'
+require 'modules/ui'
 
 module VM
   module Control

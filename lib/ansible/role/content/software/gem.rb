@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/ansible/role/content/software/base'
+require 'lib/ansible/role/content/software/base'
 
 module Ansible
   module Role

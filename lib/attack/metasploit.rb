@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/api/metasploit'
-require './modules/ui'
+require 'lib/api/metasploit'
+
+require 'modules/ui'
 
 module Attack
   class Metasploit

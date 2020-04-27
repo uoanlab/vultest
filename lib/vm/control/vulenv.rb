@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/vm/control/base'
-require './lib/vagrant/command'
-require './lib/vagrant/vagrantfile/vulenv/linux'
-require './lib/vagrant/vagrantfile/vulenv/windows'
-require './lib/ansible/vulenv'
+require 'lib/vm/control/base'
+
+require 'lib/vagrant/command'
+require 'lib/vagrant/vagrantfile/vulenv/linux'
+require 'lib/vagrant/vagrantfile/vulenv/windows'
+
+require 'lib/ansible/vulenv'
 
 module VM
   module Control

@@ -15,8 +15,8 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/ansible/role/attack_env'
-require './lib/ansible/playbook/attack_env'
+require 'lib/ansible/role/attack_env'
+require 'lib/ansible/playbook/attack_env'
 
 module Ansible
   class AttackEnv < Base

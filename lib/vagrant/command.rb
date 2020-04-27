@@ -16,7 +16,7 @@ require 'bundler/setup'
 require 'open3'
 require 'tty-prompt'
 
-require './modules/ui'
+require 'modules/ui'
 
 module Vagrant
   class Command

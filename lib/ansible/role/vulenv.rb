@@ -15,14 +15,14 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/ansible/role/content/metasploit'
-require './lib/ansible/role/content/user'
-require './lib/ansible/role/content/software/apt'
-require './lib/ansible/role/content/software/yum'
-require './lib/ansible/role/content/software/gem'
-require './lib/ansible/role/content/software/source'
-require './lib/ansible/role/content/content'
-require './lib/ansible/role/content/service'
+require 'lib/ansible/role/content/metasploit'
+require 'lib/ansible/role/content/user'
+require 'lib/ansible/role/content/software/apt'
+require 'lib/ansible/role/content/software/yum'
+require 'lib/ansible/role/content/software/gem'
+require 'lib/ansible/role/content/software/source'
+require 'lib/ansible/role/content/content'
+require 'lib/ansible/role/content/service'
 
 module Ansible
   module Role

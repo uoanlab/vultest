@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './lib/vm/base'
-require './lib/environment/vulenv/ubuntu'
-require './lib/environment/vulenv/centos'
-require './lib/environment/vulenv/windows'
-require './lib/vm/control/vulenv'
+require 'lib/vm/base'
+require 'lib/vm/control/vulenv'
+
+require 'lib/environment/vulenv/ubuntu'
+require 'lib/environment/vulenv/centos'
+require 'lib/environment/vulenv/windows'
 
 module VM
   class Vulenv < Base
