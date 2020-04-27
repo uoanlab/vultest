@@ -14,13 +14,13 @@
 require 'bundler/setup'
 require 'optparse'
 
-require './app/app'
-require './app/command/test'
-require './app/command/destroy'
-require './app/command/exploit'
-require './app/command/report'
+require 'app/app'
+require 'app/command/test'
+require 'app/command/destroy'
+require 'app/command/exploit'
+require 'app/command/report'
 
-require './modules/ui'
+require 'modules/ui'
 
 class CLI < App
   attr_reader :cve, :test_flag, :destroy_flag

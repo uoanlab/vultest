@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './app/command/base'
-require './modules/ui'
-require './modules/util'
+require 'app/command/base'
+
+require 'modules/ui'
+require 'modules/util'
 
 module Command
   class Set

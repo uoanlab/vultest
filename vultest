@@ -15,8 +15,10 @@
 
 require 'bundler/setup'
 
-require './app/cli'
-require './app/console'
+$LOAD_PATH.unshift(File.join(File.expand_path(__dir__), '.'))
+
+require 'app/cli'
+require 'app/console'
 
 app = if ARGV.size.zero? then Console.new
       else CLI.new

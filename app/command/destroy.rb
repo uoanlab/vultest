@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './app/command/base'
-require './modules/ui'
+require 'app/command/base'
+
+require 'modules/ui'
 
 module Command
   class Destroy < Base

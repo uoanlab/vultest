@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require './app/command/base'
-require './lib/report/vultest'
-require './lib/report/error_vulenv'
-require './lib/report/error_attack'
-require './modules/ui'
+require 'app/command/base'
+
+require 'lib/report/vultest'
+require 'lib/report/error_vulenv'
+require 'lib/report/error_attack'
+
+require 'modules/ui'
 
 module Command
   class Report < Base

@@ -15,13 +15,14 @@
 require 'bundler/setup'
 require 'tty-prompt'
 
-require './app/app'
-require './app/command/test'
-require './app/command/destroy'
-require './app/command/exploit'
-require './app/command/report'
-require './app/command/set'
-require './modules/util'
+require 'app/app'
+require 'app/command/test'
+require 'app/command/destroy'
+require 'app/command/exploit'
+require 'app/command/report'
+require 'app/command/set'
+
+require 'modules/util'
 
 class Console < App
   attr_reader :prompt, :name
