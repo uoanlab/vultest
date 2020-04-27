@@ -15,9 +15,9 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/ansible/base'
-require './lib/ansible/playbook/vulenv'
-require './lib/ansible/role/vulenv'
+require 'lib/ansible/base'
+require 'lib/ansible/playbook/vulenv'
+require 'lib/ansible/role/vulenv'
 
 module Ansible
   class Vulenv < Base

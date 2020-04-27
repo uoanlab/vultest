@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require './lib/ansible/role/content/metasploit'
+require 'lib/ansible/role/content/metasploit'
 
 module Ansible
   module Role
