@@ -125,11 +125,12 @@
   become_user: postgres
 
 # Install metasploit
-- name: git clone --depth 1 https://github.com/rapid7/metasploit-framework.git
+- name: git clone -b 5.0.86 --depth 1 https://github.com/rapid7/metasploit-framework.git
   git:
     repo: https://github.com/rapid7/metasploit-framework.git
     dest: "{{user_dir}}/metasploit-framework"
     depth: 1
+    version: 5.0.86
   become_user: "{{user}}"
 
 - name: gem install bundler

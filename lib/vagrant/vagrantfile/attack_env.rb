@@ -39,11 +39,7 @@ module Vagrant
         content << "# vi: set ft=ruby :\n\n"
 
         content << "Vagrant.configure(2) do |config|\n\n"
-        content << "  config.vm.box = 'redsloop/ubuntu-18.04.1'\n"
-        content << "  config.vm.box_version = '2.0'\n\n"
-
-        content << "  config.ssh.username = 'vagrant'\n"
-        content << "  config.ssh.password = 'vagrant'\n\n"
+        content << "  config.vm.box = 'ubuntu/bionic64'\n"
 
         content << "  config.vm.network 'private_network', ip: '#{host}'\n\n"
 
