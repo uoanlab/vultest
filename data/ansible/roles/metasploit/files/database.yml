@@ -3,7 +3,7 @@ production:
   database: msf
   username: msf
   password: metasploit
- 
+
   host: 127.0.0.1
   port: 5432
   pool: 75

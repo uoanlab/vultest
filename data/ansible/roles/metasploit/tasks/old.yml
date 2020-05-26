@@ -27,32 +27,31 @@
 
 - name: Install necessary package
   apt:
-    name: "{{packages}}"
-  vars:
-    packages:
-      - build-essential
-      - libreadline5
-      - libreadline-dev
-      - libssl-dev
-      - libpcap-dev
-      - libxml2-dev
-      - libxslt1-dev
-      - libyaml-dev
-      - libsqlite3-dev
-      - postgresql
-      - libpq5
-      - libpq-dev
-      - subversion
-      - git
-      - git-core
-      - autoconf
-      - curl
-      - zlib1g-dev
+    name: "{{ item }}"
+  with_items:
+    - build-essential
+    - libreadline5
+    - libreadline-dev
+    - libssl-dev
+    - libpcap-dev
+    - libxml2-dev
+    - libxslt1-dev
+    - libyaml-dev
+    - libsqlite3-dev
+    - postgresql
+    - libpq5
+    - libpq-dev
+    - subversion
+    - git
+    - git-core
+    - autoconf
+    - curl
+    - zlib1g-dev
   when: ansible_distribution == "Ubuntu"
 
 - name: create user for metasploit
   user:
-    name: "{{user}}"
+    name: "{{ user }}"
     state: present
     shell: /bin/bash
 
@@ -61,49 +60,48 @@
   git:
     repo: "https://github.com/sstephenson/rbenv.git"
     dest: "{{user_dir}}/.rbenv"
-    depth: 1
-  become_user: "{{user}}"
+    depth: "1"
+  become_user: "{{ user }}"
 
 - name: git clone --depth 1 https://github.com/sstephenson/ruby-build.git
   git:
     repo: "https://github.com/sstephenson/ruby-build.git"
     dest: "{{user_dir}}/.rbenv/plugins/ruby-build"
-    depth: 1
-  become_user: "{{user}}"
+    depth: "1"
+  become_user: "{{ user }}"
 
 - name: set environment of ruby in .bashrc
   lineinfile:
-    dest: "{{user_dir}}/.profile"
-    line: "{{item}}"
+    dest: "{{ user_dir }}/.profile"
+    line: "{{ item }}"
   with_items:
     - 'export PATH="~/.rbenv/bin:$PATH"'
     - 'eval "$(rbenv init -)"'
-  become_user: "{{user}}"
+  become_user: "{{ user }}"
 
 - name: source .bashrc
-  shell: /bin/bash -lc "source {{user_dir}}/.profile"
-  become_user: "{{user}}"
+  shell: /bin/bash -lc "source {{ user_dir }}/.profile"
+  become_user: "{{ user }}"
 
-- name: rbenv install "{{ruby_version}}"
-  shell: /bin/bash -lc "rbenv install {{ruby_version}}"
-  become_user: "{{user}}"
+- name: rbenv install "{{ ruby_version }}"
+  shell: /bin/bash -lc "rbenv install {{ ruby_version }}"
+  become_user: "{{ user }}"
   ignore_errors: True
 
-- name: rbenv global "{{ruby_version}}"
-  shell: /bin/bash -lc "rbenv global {{ruby_version}}"
-  become_user: "{{user}}"
+- name: rbenv global "{{ ruby_version }}"
+  shell: /bin/bash -lc "rbenv global {{ ruby_version }}"
+  become_user: "{{ user }}"
 
 # Install PostgreSQL
 - name: Install PostgreSQL
   apt:
-    name: "{{packages}}"
+    name: "{{ item }}"
     update_cache: yes
-  vars:
-    packages:
-      - postgresql
-      - postgresql-contrib
-      - python3-psycopg2
-      - python-psycopg2
+  with_items:
+    - postgresql
+    - postgresql-contrib
+    - python3-psycopg2
+    - python-psycopg2
   when: ansible_distribution == "Ubuntu"
 
 - name: create user for postgresql
@@ -127,35 +125,35 @@
 - name: git clone -b 5.0.86 --depth 1 https://github.com/rapid7/metasploit-framework.git
   git:
     repo: https://github.com/rapid7/metasploit-framework.git
-    dest: "{{user_dir}}/metasploit-framework"
-    depth: 1
+    dest: "{{ user_dir }}/metasploit-framework"
+    depth: "1"
     version: 5.0.86
-  become_user: "{{user}}"
+  become_user: "{{ user }}"
 
 - name: gem install bundler
   gem:
     name: bundler
-    version: "{{bundler_version}}"
-    executable: "{{user_dir}}/.rbenv/shims/gem"
+    version: "{{ bundler_version }}"
+    executable: "{{ user_dir }}/.rbenv/shims/gem"
     user_install: no
-  become_user: "{{user}}"
+  become_user: "{{ user }}"
 
 - name: bundle install
   bundler:
     state: present
-    gemfile: "{{user_dir}}/metasploit-framework/Gemfile"
-    executable: "{{user_dir}}/.rbenv/shims/bundle"
+    gemfile: "{{ user_dir }}/metasploit-framework/Gemfile"
+    executable: "{{ user_dir }}/.rbenv/shims/bundle"
     user_install: no
-  become_user: "{{user}}"
+  become_user: "{{ user }}"
 
 # Database of metasploit
 - name: configure database of metasploit
   copy:
     src: ../files/database.yml
-    dest: "{{user_dir}}/metasploit-framework/config/database.yml"
-    owner: "{{user}}"
-    mode: 0755
+    dest: "{{ user_dir }}/metasploit-framework/config/database.yml"
+    owner: "{{ user }}"
+    mode: "0755"
 
 - name: metasploit server
-  shell: bash -lc "/home/msf/metasploit-framework/msfrpcd -a {{attack_host}} -p 55553 -U msf -P metasploit -S false"
-  become_user: "{{user}}"
+  shell: bash -lc "/home/msf/metasploit-framework/msfrpcd -a {{ attack_host }} -p 55553 -U msf -P metasploit -S false"
+  become_user: "{{ user }}"

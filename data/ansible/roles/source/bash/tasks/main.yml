@@ -2,45 +2,44 @@
 - name: download Bash
   get_url:
     url: "http://ftp.gnu.org/gnu/bash/bash-{{version}}.tar.gz"
-    dest: "{{src_dir}}"
+    dest: "{{ src_dir }}"
 
 - name: download Patches
   get_url:
     url: "http://ftp.gnu.org/gnu/bash/bash-{{version}}-patches/{{item.version}}"
-    dest: "{{src_dir}}/{{item.name}}"
-  with_items: "{{patches}}"
+    dest: "{{ src_dir }}/{{ item.name }}"
+  with_items: "{{ patches }}"
 
 - name: unarchive Bash
   unarchive:
-    src: "{{src_dir}}/bash-{{version}}.tar.gz"
-    dest: "{{src_dir}}"
+    src: "{{ src_dir }}/bash-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
     copy: no
 
 - name: execute Patches
-  shell: bash -lc "patch -p0 < {{src_dir}}/{{item.name}} "
+  shell: bash -lc "patch -p0 < {{ src_dir }}/{{ item.name }} "
   args:
-    chdir: "{{src_dir}}/bash-{{version}}"
-  with_items: "{{patches}}"
+    chdir: "{{ src_dir }}/bash-{{ version }}"
+  with_items: "{{ patches }}"
 
 - name: execute ./configure
-  shell: bash -lc "{{configure_command}}"
+  shell: bash -lc "{{ configure_command }}"
   args:
-    chdir: "{{src_dir}}/bash-{{version}}"
+    chdir: "{{ src_dir }}/bash-{{ version }}"
 
 - name: execute make
   shell: bash -lc "make"
   args:
-    chdir: "{{src_dir}}/bash-{{version}}"
+    chdir: "{{ src_dir }}/bash-{{ version }}"
 
 - name: execute make install
   shell: bash -lc "make install"
   args:
-    chdir: "{{src_dir}}/bash-{{version}}"
+    chdir: "{{ src_dir }}/bash-{{ version }}"
 
 - name: add /usr/local/bin/bash in /etc/shells
   lineinfile:
     dest: /etc/shells
-    line: "{{item}}"
+    line: "{{ item }}"
   with_items:
-    - '/usr/local/bin/bash'
-
+    - "/usr/local/bin/bash"
