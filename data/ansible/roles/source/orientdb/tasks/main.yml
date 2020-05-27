@@ -1,9 +1,9 @@
 ---
-- name: download orientdb
+- name: Download the orientdb
   get_url:
     url: "http://orientdb.com/download.php?file=orientdb-community-{{ version }}.zip"
     dest: /usr/local/src
-- name: unarchive "orientdb-community-{{ version }}.zip"
+- name: Unarchive the orientdb
   unarchive:
     src: "/usr/local/src/orientdb-community-{{ version }}.zip"
     dest: /usr/local/src
