@@ -1,5 +1,5 @@
 ---
-- name: Download the bash
+- name: Download bash
   get_url:
     url: "http://ftp.gnu.org/gnu/bash/bash-{{version}}.tar.gz"
     dest: "{{ src_dir }}"
@@ -10,7 +10,7 @@
     dest: "{{ src_dir }}/{{ item.name }}"
   with_items: "{{ patches }}"
 
-- name: Unarchive the bash
+- name: Unarchive bash
   unarchive:
     src: "{{ src_dir }}/bash-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
@@ -40,6 +40,4 @@
 - name: Add /usr/local/bin/bash in /etc/shells
   lineinfile:
     dest: /etc/shells
-    line: "{{ item }}"
-  with_items:
-    - "/usr/local/bin/bash"
+    line: /usr/local/bin/bash

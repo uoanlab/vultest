@@ -1,17 +1,20 @@
 ---
-- name: Download the orientdb
+- name: Download orientdb
   get_url:
     url: "http://orientdb.com/download.php?file=orientdb-community-{{ version }}.zip"
     dest: /usr/local/src
-- name: Unarchive the orientdb
+
+- name: Unarchive orientdb
   unarchive:
     src: "/usr/local/src/orientdb-community-{{ version }}.zip"
     dest: /usr/local/src
     copy: no
+
 - name: chmod 755 bin/*.sh
   shell: bash -lc "chmod 755 bin/*.sh"
   args:
     chdir: "/usr/local/src/orientdb-community-{{ version }}"
+
 - name: chmod -R 777 config
   shell: bash -lc "chmod -R 777 config"
   args:

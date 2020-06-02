@@ -1,5 +1,5 @@
 ---
-- name: Update the package
+- name: Update packages
   block:
     - name: apt update
       apt:
@@ -25,31 +25,32 @@
         update_cache: yes
   when: ansible_distribution == "Ubuntu"
 
-- name: Install the necessary package
+- name: Install the necessary packages
   apt:
-    name: "{{ item }}"
-  with_items:
-    - build-essential
-    - libreadline5
-    - libreadline-dev
-    - libssl-dev
-    - libpcap-dev
-    - libxml2-dev
-    - libxslt1-dev
-    - libyaml-dev
-    - libsqlite3-dev
-    - postgresql
-    - libpq5
-    - libpq-dev
-    - subversion
-    - git
-    - git-core
-    - autoconf
-    - curl
-    - zlib1g-dev
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - build-essential
+      - libreadline5
+      - libreadline-dev
+      - libssl-dev
+      - libpcap-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - libyaml-dev
+      - libsqlite3-dev
+      - postgresql
+      - libpq5
+      - libpq-dev
+      - subversion
+      - git
+      - git-core
+      - autoconf
+      - curl
+      - zlib1g-dev
   when: ansible_distribution == "Ubuntu"
 
-- name: Create the user for metasploit
+- name: Create a user for Metasploit
   user:
     name: "{{ user }}"
     state: present
@@ -93,18 +94,19 @@
   become_user: "{{ user }}"
 
 # Install PostgreSQL
-- name: Install the PostgreSQL
+- name: Install PostgreSQL
   apt:
-    name: "{{ item }}"
+    name: "{{ packages }}"
     update_cache: yes
-  with_items:
-    - postgresql
-    - postgresql-contrib
-    - python3-psycopg2
-    - python-psycopg2
+  vars:
+    packages:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+      - python-psycopg2
   when: ansible_distribution == "Ubuntu"
 
-- name: Create the user for postgresql
+- name: Create a user for PostgreSQL
   postgresql_user:
     name: msf
     password: metasploit
@@ -113,7 +115,7 @@
     role_attr_flags: NOSUPERUSER,NOCREATEROLE,NOCREATEDB
   become_user: postgres
 
-- name: Create the DB for metasploit
+- name: Create DB for Metasploit
   postgresql_db:
     name: msf
     owner: msf
@@ -147,13 +149,13 @@
   become_user: "{{ user }}"
 
 # Database of metasploit
-- name: Configure the DB of metasploit
+- name: Configure DB of Metasploit
   copy:
     src: ../files/database.yml
     dest: "{{ user_dir }}/metasploit-framework/config/database.yml"
     owner: "{{ user }}"
     mode: "0755"
 
-- name: Startup the metasploit server
+- name: Startup the Metasploit server
   shell: bash -lc "/home/msf/metasploit-framework/msfrpcd -a {{ attack_host }} -p 55553 -U msf -P metasploit -S false"
   become_user: "{{ user }}"
