@@ -40,6 +40,4 @@
 - name: Add /usr/local/bin/bash in /etc/shells
   lineinfile:
     dest: /etc/shells
-    line: "{{ item }}"
-  with_items:
-    - "/usr/local/bin/bash"
+    line: /usr/local/bin/bash
