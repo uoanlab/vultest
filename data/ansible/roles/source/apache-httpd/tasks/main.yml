@@ -1,5 +1,5 @@
 ---
-- name: Download apache-httpd
+- name: Download the apache-httpd
   get_url:
     url: "https://archive.apache.org/dist/httpd/httpd-{{version}}.tar.gz"
     dest: "{{ src_dir }}"
