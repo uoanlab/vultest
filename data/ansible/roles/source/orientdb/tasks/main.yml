@@ -1,5 +1,5 @@
 ---
-- name: Download the orientdb
+- name: Download orientdb
   get_url:
     url: "http://orientdb.com/download.php?file=orientdb-community-{{ version }}.zip"
     dest: /usr/local/src
