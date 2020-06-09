@@ -35,7 +35,7 @@ module Ansible
             FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
             File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
               vars_file.puts('---')
-              software_version = software['name'] == 'bash' ? source_bash : "version: #{software['version']}"
+              software_version = software['name'] == 'bash' ? bash_versions : "version: #{software['version']}"
               vars_file.puts(software_version)
               vars_file.puts(option_configure_command)
               vars_file.puts(option_src_dir)
@@ -43,7 +43,7 @@ module Ansible
             end
           end
 
-          def source_bash
+          def bash_versions
             version = software['version'].split('.')
             vars = "version: #{version[0] + '.' + version[1]}\n"
             vars << "patches:\n"
