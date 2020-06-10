@@ -74,7 +74,7 @@
 - name: Set the environment of ruby in .bashrc
   lineinfile:
     dest: "{{ user_dir }}/.profile"
-    line: "{{ lines }}"
+    line: "{{ item }}"
   with_items:
     - 'export PATH="~/.rbenv/bin:$PATH"'
     - 'eval "$(rbenv init -)"'
