@@ -37,7 +37,7 @@
   args:
     chdir: "{{ src_dir }}/bash-{{ version }}"
 
-- name: Add "{{ source_path }}" in /etc/shells
+- name: Add "{{ software_path }}" in /etc/shells
   lineinfile:
     dest: /etc/shells
-    line: "{{ source_path }}"
+    line: "{{ software_path }}"

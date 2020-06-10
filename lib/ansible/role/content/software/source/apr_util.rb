@@ -37,7 +37,6 @@ module Ansible
               File.open("#{role_dir}/apr-util/vars/main.yml", 'w') do |vars_file|
                 vars_file.puts('---')
                 vars_file.puts("version: #{software['version']}")
-                vars_file.puts(source_path)
                 vars_file.puts(configure_command)
                 vars_file.puts(src_dir)
                 vars_file.puts(user)
@@ -56,13 +55,6 @@ module Ansible
 
             def src_dir
               'src_dir: ' << software.fetch('src_dir', '/usr/local/src')
-            end
-
-            def source_path
-              path = software.fetch('configure_options', nil)
-              'source_path: ' << if path.nil? || !path.key?('prefix') then '/usr/local/apr'
-                                 elsif path.key?('prefix') then path['prefix']
-                                 end
             end
           end
         end

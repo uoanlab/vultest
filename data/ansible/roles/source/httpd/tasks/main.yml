@@ -26,5 +26,5 @@
   args:
     chdir: "{{ src_dir }}/httpd-{{ version }}"
 
-- name: Startup the apache-httpd
-  shell: bash -lc "{{ source_path }}/bin/apachectl start"
+- name: Startup httpd
+  shell: bash -lc "{{ software_path }}/bin/apachectl start"
