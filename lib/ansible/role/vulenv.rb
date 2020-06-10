@@ -20,6 +20,8 @@ require 'lib/ansible/role/content/user'
 require 'lib/ansible/role/content/software/apt'
 require 'lib/ansible/role/content/software/yum'
 require 'lib/ansible/role/content/software/gem'
+require 'lib/ansible/role/content/software/source/apr'
+require 'lib/ansible/role/content/software/source/apr_util'
 require 'lib/ansible/role/content/software/source/bash'
 require 'lib/ansible/role/content/software/source/ruby'
 require 'lib/ansible/role/content/software/source/orientdb'
@@ -118,6 +120,10 @@ module Ansible
 
       def source_software_type(software)
         case software['name']
+        when 'apr'
+          Content::Software::Source::APR.new(role_dir: role_dir, software: software)
+        when 'apr-util'
+          Content::Software::Source::APRUtil.new(role_dir: role_dir, software: software)
         when 'bash'
           Content::Software::Source::Bash.new(role_dir: role_dir, software: software)
         when 'ruby'

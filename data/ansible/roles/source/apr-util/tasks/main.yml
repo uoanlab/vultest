@@ -1,0 +1,27 @@
+---
+- name: Download the APR-utile
+  get_url:
+    url: "https://downloads.apache.org//apr/apr-util-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    validate_certs: no
+
+- name: Unarchive the APR-util
+  unarchive:
+    src: "/usr/local/src/apr-util-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    copy: no
+
+- name: ./configure
+  shell: bash -lc "{{ configure_command }}"
+  args:
+    chdir: "{{ src_dir }}/apr-util-{{ version }}"
+
+- name: make
+  shell: bash -lc "make"
+  args:
+    chdir: "{{ src_dir }}/apr-util-{{ version }}"
+
+- name: make install
+  shell: bash -lc "make install"
+  args:
+    chdir: "{{ src_dir }}/apr-util-{{ version }}"
