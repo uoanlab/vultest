@@ -1,11 +1,11 @@
 ---
-- name: Download apache-httpd
+- name: Download httpd
   get_url:
     url: "https://archive.apache.org/dist/httpd/httpd-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
     validate_certs: no
 
-- name: Unarchive apache-httpd
+- name: Unarchive httpd
   unarchive:
     src: "{{ src_dir }}/httpd-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
