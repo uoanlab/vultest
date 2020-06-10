@@ -1,11 +1,11 @@
 ---
-- name: Download the APR-utile
+- name: Download APR-utile
   get_url:
     url: "https://downloads.apache.org//apr/apr-util-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
     validate_certs: no
 
-- name: Unarchive the APR-util
+- name: Unarchive APR-util
   unarchive:
     src: "/usr/local/src/apr-util-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"

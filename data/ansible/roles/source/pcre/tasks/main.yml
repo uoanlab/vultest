@@ -1,10 +1,10 @@
-- name: Download the PCRE
+- name: Download PCRE
   get_url:
     url: "https://sourceforge.net/projects/pcre/files/pcre/{{ version }}/pcre-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
     validate_certs: no
 
-- name: Unarchive the PCRE
+- name: Unarchive PCRE
   unarchive:
     src: "/usr/local/src/pcre-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
