@@ -1,0 +1,25 @@
+- name: Download the PCRE
+  get_url:
+    url: "https://sourceforge.net/projects/pcre/files/pcre/{{ version }}/pcre-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    validate_certs: no
+
+- name: Unarchive the PCRE
+  unarchive:
+    src: "/usr/local/src/pcre-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    copy: no
+
+- name: ./configure
+  shell: bash -lc "{{ configure_command}}"
+  args:
+    chdir: "{{ src_dir }}/pcre-{{ version }}"
+- name: make
+  shell: bash -lc "make"
+  args:
+    chdir: "{{ src_dir }}/pcre-{{ version }}"
+
+- name: make install
+  shell: bash -lc "make install"
+  args:
+    chdir: "{{ src_dir }}/pcre-{{ version }}"
