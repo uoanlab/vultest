@@ -20,7 +20,10 @@ require 'lib/ansible/role/content/user'
 require 'lib/ansible/role/content/software/apt'
 require 'lib/ansible/role/content/software/yum'
 require 'lib/ansible/role/content/software/gem'
-require 'lib/ansible/role/content/software/source'
+require 'lib/ansible/role/content/software/source/bash'
+require 'lib/ansible/role/content/software/source/ruby'
+require 'lib/ansible/role/content/software/source/orientdb'
+require 'lib/ansible/role/content/software/source/apache_httpd'
 require 'lib/ansible/role/content/content'
 require 'lib/ansible/role/content/service'
 
@@ -77,7 +80,7 @@ module Ansible
             when 'apt' then Content::Software::Apt.new(role_dir: role_dir, software: software)
             when 'yum' then Content::Software::Yum.new(role_dir: role_dir, software: software)
             when 'gem' then Content::Software::Gem.new(role_dir: role_dir, software: software)
-            when 'source' then Content::Software::Source.new(role_dir: role_dir, software: software)
+            when 'source' then source_software_type(software)
             end
           role.create
         end
@@ -92,7 +95,7 @@ module Ansible
           when 'apt' then Content::Software::Apt.new(role_dir: role_dir, software: env_config['vul_software'])
           when 'yum' then Content::Software::Yum.new(role_dir: role_dir, software: env_config['vul_software'])
           when 'gem' then Content::Software::Gem.new(role_dir: role_dir, software: env_config['vul_software'])
-          when 'source' then Content::Software::Source.new(role_dir: role_dir, software: env_config['vul_software'])
+          when 'source' then source_software_type(env_config['vul_software'])
           end
         role.create
       end
@@ -110,6 +113,19 @@ module Ansible
         env_config['services'].each do |service|
           role = Content::Service.new(role_dir: role_dir, service: service)
           role.create
+        end
+      end
+
+      def source_software_type(software)
+        case software['name']
+        when 'bash'
+          Content::Software::Source::Bash.new(role_dir: role_dir, software: software)
+        when 'ruby'
+          Content::Software::Source::Ruby.new(role_dir: role_dir, software: software)
+        when 'orientdb'
+          Content::Software::Source::OrientDB.new(role_dir: role_dir, software: software)
+        when 'apache-httpd'
+          Content::Software::Source::ApacheHTTPd.new(role_dir: role_dir, software: software)
         end
       end
     end

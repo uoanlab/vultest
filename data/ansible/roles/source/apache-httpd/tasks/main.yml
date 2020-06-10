@@ -1,7 +1,7 @@
 ---
 - name: Download apache-httpd
   get_url:
-    url: "https://archive.apache.org/dist/httpd/httpd-{{version}}.tar.gz"
+    url: "https://archive.apache.org/dist/httpd/httpd-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
     validate_certs: no
 
@@ -25,5 +25,6 @@
   shell: bash -lc "make install"
   args:
     chdir: "{{ src_dir }}/httpd-{{ version }}"
+
 - name: Startup the apache-httpd
-  shell: bash -lc "/opt/httpd/bin/apachectl start"
+  shell: bash -lc "{{ source_path }}/bin/apachectl start"

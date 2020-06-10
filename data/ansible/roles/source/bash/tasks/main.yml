@@ -37,7 +37,7 @@
   args:
     chdir: "{{ src_dir }}/bash-{{ version }}"
 
-- name: Add /usr/local/bin/bash in /etc/shells
+- name: Add "{{ source_path }}" in /etc/shells
   lineinfile:
     dest: /etc/shells
-    line: /usr/local/bin/bash
+    line: "{{ source_path }}"

@@ -44,7 +44,7 @@ module Ansible
             raise NotImplementedError
           end
 
-          def option_user
+          def user
             content = nil
             if software.key?('user') && !software['user'].nil?
               content = "user: #{software['user']}\n"

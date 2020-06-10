@@ -38,7 +38,7 @@ module Ansible
               vars_file.puts('---')
               vars_file.puts("name: #{software['name']}")
               vars_file.puts("version: #{software['version']}")
-              vars_file.puts(option_user)
+              vars_file.puts(user)
             end
           end
         end
