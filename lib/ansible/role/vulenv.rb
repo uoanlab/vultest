@@ -18,13 +18,15 @@ require 'fileutils'
 require 'lib/ansible/role/content/metasploit'
 require 'lib/ansible/role/content/user'
 require 'lib/ansible/role/content/software/apt'
-require 'lib/ansible/role/content/software/yum'
+require 'lib/ansible/role/content/software/yum/package'
+require 'lib/ansible/role/content/software/yum/mysql'
 require 'lib/ansible/role/content/software/gem'
 require 'lib/ansible/role/content/software/source/apr'
 require 'lib/ansible/role/content/software/source/apr_util'
 require 'lib/ansible/role/content/software/source/bash'
 require 'lib/ansible/role/content/software/source/ruby'
 require 'lib/ansible/role/content/software/source/orientdb'
+require 'lib/ansible/role/content/software/source/pcre'
 require 'lib/ansible/role/content/software/source/httpd'
 require 'lib/ansible/role/content/content'
 require 'lib/ansible/role/content/service'
@@ -80,7 +82,7 @@ module Ansible
           role =
             case method
             when 'apt' then Content::Software::Apt.new(role_dir: role_dir, software: software)
-            when 'yum' then Content::Software::Yum.new(role_dir: role_dir, software: software)
+            when 'yum' then yum_software_type(software)
             when 'gem' then Content::Software::Gem.new(role_dir: role_dir, software: software)
             when 'source' then source_software_type(software)
             end
@@ -95,7 +97,7 @@ module Ansible
         role =
           case method
           when 'apt' then Content::Software::Apt.new(role_dir: role_dir, software: env_config['vul_software'])
-          when 'yum' then Content::Software::Yum.new(role_dir: role_dir, software: env_config['vul_software'])
+          when 'yum' then yum_software_type(env_config['vul_software'])
           when 'gem' then Content::Software::Gem.new(role_dir: role_dir, software: env_config['vul_software'])
           when 'source' then source_software_type(env_config['vul_software'])
           end
@@ -118,6 +120,13 @@ module Ansible
         end
       end
 
+      def yum_software_type(software)
+        case software['name']
+        when 'mysql' then Content::Software::Yum::MySQL.new(role_dir: role_dir, software: software, os_version: env_config['os']['version'])
+        else Content::Software::Yum::Package.new(role_dir: role_dir, software: software)
+        end
+      end
+
       def source_software_type(software)
         case software['name']
         when 'apr'
@@ -130,6 +139,8 @@ module Ansible
           Content::Software::Source::Ruby.new(role_dir: role_dir, software: software)
         when 'orientdb'
           Content::Software::Source::OrientDB.new(role_dir: role_dir, software: software)
+        when 'pcre'
+          Content::Software::Source::PCRE.new(role_dir: role_dir, software: software)
         when 'httpd'
           Content::Software::Source::Httpd.new(role_dir: role_dir, software: software)
         end
