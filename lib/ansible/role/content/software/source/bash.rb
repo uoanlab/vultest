@@ -63,10 +63,9 @@ module Ansible
             def configure_command
               cmd = 'configure_command: ./configure'
               software.fetch('configure_options', {}).each do |k, v|
-                if v == 'yes' then cmd << " --#{k}"
-                elsif v == 'no' then next
-                else cmd << " --#{k}=#{v}"
-                end
+                cmd << if v.empty? then " --#{k}"
+                       else " --#{k}=#{v}"
+                       end
               end
               cmd
             end
