@@ -23,7 +23,7 @@ require 'lib/ansible/role/content/software/gem'
 require 'lib/ansible/role/content/software/source/bash'
 require 'lib/ansible/role/content/software/source/ruby'
 require 'lib/ansible/role/content/software/source/orientdb'
-require 'lib/ansible/role/content/software/source/apache_httpd'
+require 'lib/ansible/role/content/software/source/httpd'
 require 'lib/ansible/role/content/content'
 require 'lib/ansible/role/content/service'
 
@@ -124,8 +124,8 @@ module Ansible
           Content::Software::Source::Ruby.new(role_dir: role_dir, software: software)
         when 'orientdb'
           Content::Software::Source::OrientDB.new(role_dir: role_dir, software: software)
-        when 'apache-httpd'
-          Content::Software::Source::ApacheHTTPd.new(role_dir: role_dir, software: software)
+        when 'httpd'
+          Content::Software::Source::Httpd.new(role_dir: role_dir, software: software)
         end
       end
     end

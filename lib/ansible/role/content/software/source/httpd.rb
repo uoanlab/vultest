@@ -21,20 +21,20 @@ module Ansible
     module Content
       module Software
         module Source
-          class ApacheHTTPd < Software::Base
+          class Httpd < Software::Base
             private
 
             def create_tasks
-              FileUtils.mkdir_p("#{role_dir}/apache-httpd/tasks")
+              FileUtils.mkdir_p("#{role_dir}/httpd/tasks")
               FileUtils.cp_r(
-                './data/ansible/roles/source/apache-httpd/tasks/main.yml',
-                "#{role_dir}/apache-httpd/tasks/main.yml"
+                './data/ansible/roles/source/httpd/tasks/main.yml',
+                "#{role_dir}/httpd/tasks/main.yml"
               )
             end
 
             def create_vars
-              FileUtils.mkdir_p("#{role_dir}/apache-httpd/vars")
-              File.open("#{role_dir}/apache-httpd/vars/main.yml", 'w') do |vars_file|
+              FileUtils.mkdir_p("#{role_dir}/httpd/vars")
+              File.open("#{role_dir}/httpd/vars/main.yml", 'w') do |vars_file|
                 vars_file.puts('---')
                 vars_file.puts("version: #{software['version']}")
                 vars_file.puts(source_path)
