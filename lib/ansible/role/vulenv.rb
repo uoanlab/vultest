@@ -27,6 +27,7 @@ require 'lib/ansible/role/content/software/source/bash'
 require 'lib/ansible/role/content/software/source/ruby'
 require 'lib/ansible/role/content/software/source/orientdb'
 require 'lib/ansible/role/content/software/source/pcre'
+require 'lib/ansible/role/content/software/source/php'
 require 'lib/ansible/role/content/software/source/httpd'
 require 'lib/ansible/role/content/content'
 require 'lib/ansible/role/content/service'
@@ -141,6 +142,8 @@ module Ansible
           Content::Software::Source::OrientDB.new(role_dir: role_dir, software: software)
         when 'pcre'
           Content::Software::Source::PCRE.new(role_dir: role_dir, software: software)
+        when 'php'
+          Content::Software::Source::PHP.new(role_dir: role_dir, software: software)
         when 'httpd'
           Content::Software::Source::Httpd.new(role_dir: role_dir, software: software)
         end

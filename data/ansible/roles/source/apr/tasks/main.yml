@@ -25,3 +25,33 @@
   shell: bash -lc "make install"
   args:
     chdir: "{{ src_dir }}/apr-{{ version }}"
+
+- name: Add path of APR in root user
+  block:
+    - name: Add path of APR in /root/.bashrc
+      lineinfile:
+        dest: /root/.bashrc
+        insertafter: EOF
+        line: "{{ item }}"
+      with_items:
+        - "PATH={{ software_path }}/bin:$PATH"
+        - export PATH
+
+    - name: source /root/.bashrc
+      shell: bash -lc "source /root/.bashrc"
+  when: software_path != "/usr/local/apr"
+
+- name: Add path of APR in user
+  block:
+    - name: "Add path of APR in {{ user_dir }}/.bashrc"
+      lineinfile:
+        dest: "{{ user_dir }}/.bashrc"
+        insertafter: EOF
+        line: "{{ item }}"
+      with_items:
+        - "PATH={{ software_path }}/bin:$PATH"
+        - export PATH
+
+    - name: "source {{ user_dir }}/.bashrc"
+      shell: bash -lc "source {{ user_dir }}/.bashrc"
+  when: (software_path != "/usr/local/apr") and (user_dir is defined)

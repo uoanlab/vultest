@@ -23,3 +23,33 @@
   shell: bash -lc "make install"
   args:
     chdir: "{{ src_dir }}/pcre-{{ version }}"
+
+- name: Add path of PCRE in root user
+  block:
+    - name: Add path of PCRE in /root/.bashrc
+      lineinfile:
+        dest: /root/.bashrc
+        insertafter: EOF
+        line: "{{ item }}"
+      with_items:
+        - "PATH={{ software_path }}/bin:$PATH"
+        - export PATH
+
+    - name: source /root/.bashrc
+      shell: bash -lc "source /root/.bashrc"
+  when: software_path != "/usr/local/share/doc/pcre"
+
+- name: Add path of PCRE in user
+  block:
+    - name: "Add path of PCRE in {{ user_dir }}/.bashrc"
+      lineinfile:
+        dest: "{{ user_dir }}/.bashrc"
+        insertafter: EOF
+        line: "{{ item }}"
+      with_items:
+        - "PATH={{ software_path }}/bin:$PATH"
+        - export PATH
+
+    - name: "source {{ user_dir }}/.bashrc"
+      shell: bash -lc "source {{ user_dir }}/.bashrc"
+  when: (software_path != "/usr/local/share/doc/pcre") and (user_dir is defined)

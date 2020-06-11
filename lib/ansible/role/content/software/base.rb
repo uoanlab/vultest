@@ -49,9 +49,6 @@ module Ansible
             if software.key?('user') && !software['user'].nil?
               content = "user: #{software['user']}\n"
               content << "user_dir: /home/#{software['user']}\n"
-            else
-              content = "user: test\n"
-              content << "user_dir: /home/test\n"
             end
             content
           end

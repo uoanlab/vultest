@@ -26,5 +26,48 @@
   args:
     chdir: "{{ src_dir }}/httpd-{{ version }}"
 
+- name: which perl
+  shell: which perl
+  register: perl_path
+
+- name: "Change /replace/with/path/to/perl/interpreter to {{ perl_path.stdout }}"
+  replace:
+    path: "{{ item }}"
+    regexp: "/replace/with/path/to/perl/interpreter"
+    replace: "{{ perl_path.stdout }}"
+  with_items:
+    - "{{ software_path }}/bin/apxs"
+    - "{{ software_path }}/bin/dbmmanage"
+
+- name: Add path of httpd in root user
+  block:
+    - name: Add path of httpd in /root/.bashrc
+      lineinfile:
+        dest: /root/.bashrc
+        insertafter: EOF
+        line: "{{ item }}"
+      with_items:
+        - "PATH={{ software_path }}/bin:$PATH"
+        - export PATH
+
+    - name: source /root/.bashrc
+      shell: bash -lc "source /root/.bashrc"
+  when: software_path != "/usr/local/apache2"
+
+- name: Add path of httpd in user
+  block:
+    - name: "Add path of httpd in {{ user_dir }}/.bashrc"
+      lineinfile:
+        dest: "{{ user_dir }}/.bashrc"
+        insertafter: EOF
+        line: "{{ item }}"
+      with_items:
+        - "PATH={{ software_path }}/bin:$PATH"
+        - export PATH
+
+    - name: "source {{ user_dir }}/.bashrc"
+      shell: bash -lc "source {{ user_dir }}/.bashrc"
+  when: (software_path != "/usr/local/apache2") and (user_dir is defined)
+
 - name: Startup httpd
-  shell: bash -lc "{{ software_path }}/bin/apachectl start"
+  shell: bash -lc "apachectl start"

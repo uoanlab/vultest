@@ -14,14 +14,14 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require 'lib/ansible/role/content/software/base'
+require 'lib/ansible/role/content/software/source/base'
 
 module Ansible
   module Role
     module Content
       module Software
         module Source
-          class Bash < Software::Base
+          class Bash < Base
             private
 
             def create_tasks
@@ -38,10 +38,12 @@ module Ansible
                 vars_file.puts('---')
 
                 vars_file.puts(software_version)
-                vars_file.puts(software_path)
-                vars_file.puts(configure_command)
+                vars_file.puts(software_path('/usr/local/bin/bash'))
+                vars_file.puts(configure)
                 vars_file.puts(src_dir)
-                vars_file.puts(user)
+
+                u = user
+                vars_file.puts(u) unless u.nil?
               end
             end
 
@@ -58,27 +60,6 @@ module Ansible
                 vars << "#{idx}}\n"
               end
               vars
-            end
-
-            def configure_command
-              cmd = 'configure_command: ./configure'
-              software.fetch('configure_options', {}).each do |k, v|
-                cmd << if v.empty? then " --#{k}"
-                       else " --#{k}=#{v}"
-                       end
-              end
-              cmd
-            end
-
-            def src_dir
-              'src_dir: ' << software.fetch('src_dir', '/usr/local/src')
-            end
-
-            def software_path
-              path = software.fetch('configure_options', nil)
-              'software_path: ' << if path.nil? || !path.key?('prefix') then '/usr/local/bin/bash'
-                                   elsif path.key?('prefix') then path['prefix']
-                                   end
             end
           end
         end

@@ -14,34 +14,35 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require 'lib/ansible/role/content/software/source/base'
+require 'lib/ansible/role/content/software/base'
 
 module Ansible
   module Role
     module Content
       module Software
         module Source
-          class OrientDB < Base
+          class Base < Software::Base
             private
 
-            def create_tasks
-              FileUtils.mkdir_p("#{role_dir}/orientdb/tasks")
-              FileUtils.cp_r(
-                './data/ansible/roles/source/orientdb/tasks/main.yml',
-                "#{role_dir}/orientdb/tasks/main.yml"
-              )
+            def configure
+              cmd = 'configure_command: ./configure'
+              software.fetch('configure_options', {}).each do |k, v|
+                cmd << if v.empty? then " --#{k}"
+                       else " --#{k}=#{v}"
+                       end
+              end
+              cmd
             end
 
-            def create_vars
-              FileUtils.mkdir_p("#{role_dir}/orientdb/vars")
-              File.open("#{role_dir}/orientdb/vars/main.yml", 'w') do |vars_file|
-                vars_file.puts('---')
-                vars_file.puts("version: #{software['version']}")
-                vars_file.puts(src_dir)
+            def src_dir
+              'src_dir: ' << software.fetch('src_dir', '/usr/local/src')
+            end
 
-                u = user
-                vars_file.puts(u) unless u.nil?
-              end
+            def software_path(default_path)
+              path = software.fetch('configure_options', nil)
+              'software_path: ' << if path.nil? || !path.key?('prefix') then default_path
+                                   elsif path.key?('prefix') then path['prefix']
+                                   end
             end
           end
         end

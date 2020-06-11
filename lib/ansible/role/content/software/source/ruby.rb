@@ -14,14 +14,14 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require 'lib/ansible/role/content/software/base'
+require 'lib/ansible/role/content/software/source/base'
 
 module Ansible
   module Role
     module Content
       module Software
         module Source
-          class Ruby < Software::Base
+          class Ruby < Base
             private
 
             def create_tasks
@@ -38,12 +38,10 @@ module Ansible
                 vars_file.puts('---')
                 vars_file.puts("version: #{software['version']}")
                 vars_file.puts(src_dir)
-                vars_file.puts(user)
-              end
-            end
 
-            def src_dir
-              'src_dir: ' + software.fetch('src_dir', '/usr/local/src')
+                u = user
+                vars_file.puts(u) unless u.nil?
+              end
             end
           end
         end

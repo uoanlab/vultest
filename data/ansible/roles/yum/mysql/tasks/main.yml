@@ -45,12 +45,13 @@
   pip:
     name: MySQL-python
 
+- name: Check to see if it needs to be initialized.
+  shell: cat /etc/my.cnf | grep "validate-password=OFF"
+  register: init_flag
+  failed_when: no
+
 - name: Initialization of MySQL
   block:
-    - name: cat /etc/my.cnf | grep "validate-password=OFF"
-      shell: cat /etc/my.cnf | grep "validate-password=OFF"
-
-  rescue:
     - name: "mkdir {{ data_dir }}"
       file:
         path: "{{ data_dir }}"
@@ -83,6 +84,7 @@
 
     - name: Change password of root in mysql
       shell: mysql -u root -p"{{ initial_password.stdout }}" --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ root_password }}';"
+  when: init_flag.rc  == 1
 
 - name: service mysqld start
   service:
