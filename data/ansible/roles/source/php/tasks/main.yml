@@ -1,0 +1,57 @@
+---
+- name: Download PHP
+  get_url:
+    url: http://php.net/get/php-{{ version }}.tar.gz/from/this/mirror
+    dest: "{{ src_dir }}/php-{{ version }}.tar.gz"
+    validate_certs: no
+
+- name: Unarchive PHP
+  unarchive:
+    src: "{{ src_dir }}/php-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    copy: no
+
+- name: ./configure
+  shell: bash -lc "{{ configure_command }}"
+  args:
+    chdir: "{{ src_dir }}/php-{{ version }}"
+
+- name: make
+  shell: bash -lc "make"
+  args:
+    chdir: "{{ src_dir }}/php-{{ version }}"
+
+- name: make install
+  shell: bash -lc "make install"
+  args:
+    chdir: "{{ src_dir }}/php-{{ version }}"
+
+- name: Add path of httpd in root user
+  block:
+    - name: Add path of httpd in /root/.bashrc
+      lineinfile:
+        dest: /root/.bashrc
+        insertafter: EOF
+        line: "{{ item }}"
+      with_items:
+        - "PATH={{ software_path }}/bin:$PATH"
+        - export PATH
+
+    - name: source /root/.bashrc
+      shell: bash -lc "source /root/.bashrc"
+  when: software_path != "/usr/local/bin/php"
+
+- name: Add path of httpd in user
+  block:
+    - name: "Add path of httpd in {{ user_dir }}/.bashrc"
+      lineinfile:
+        dest: "{{ user_dir }}/.bashrc"
+        insertafter: EOF
+        line: "{{ item }}"
+      with_items:
+        - "PATH={{ software_path }}/bin:$PATH"
+        - export PATH
+
+    - name: "source {{ user_dir }}/.bashrc"
+      shell: bash -lc "source {{ user_dir }}/.bashrc"
+  when: (software_path != "/usr/local/bin/php") and (user_dir is defined)
