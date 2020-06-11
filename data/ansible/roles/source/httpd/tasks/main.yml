@@ -52,7 +52,6 @@
 
     - name: source /root/.bashrc
       shell: bash -lc "source /root/.bashrc"
-  when: software_path != "/usr/local/apache2"
 
 - name: Add path of httpd in user
   block:
@@ -67,7 +66,7 @@
 
     - name: "source {{ user_dir }}/.bashrc"
       shell: bash -lc "source {{ user_dir }}/.bashrc"
-  when: (software_path != "/usr/local/apache2") and (user_dir is defined)
+  when: user_dir is defined
 
 - name: Startup httpd
   shell: bash -lc "apachectl start"

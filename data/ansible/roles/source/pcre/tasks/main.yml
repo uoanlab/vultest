@@ -37,7 +37,6 @@
 
     - name: source /root/.bashrc
       shell: bash -lc "source /root/.bashrc"
-  when: software_path != "/usr/local/share/doc/pcre"
 
 - name: Add path of PCRE in user
   block:
@@ -52,4 +51,4 @@
 
     - name: "source {{ user_dir }}/.bashrc"
       shell: bash -lc "source {{ user_dir }}/.bashrc"
-  when: (software_path != "/usr/local/share/doc/pcre") and (user_dir is defined)
+  when: user_dir is defined
