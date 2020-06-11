@@ -24,11 +24,12 @@ require 'lib/ansible/role/content/software/gem'
 require 'lib/ansible/role/content/software/source/apr'
 require 'lib/ansible/role/content/software/source/apr_util'
 require 'lib/ansible/role/content/software/source/bash'
-require 'lib/ansible/role/content/software/source/ruby'
+require 'lib/ansible/role/content/software/source/httpd'
 require 'lib/ansible/role/content/software/source/orientdb'
 require 'lib/ansible/role/content/software/source/pcre'
 require 'lib/ansible/role/content/software/source/php'
-require 'lib/ansible/role/content/software/source/httpd'
+require 'lib/ansible/role/content/software/source/ruby'
+require 'lib/ansible/role/content/software/source/wp_cli'
 require 'lib/ansible/role/content/content'
 require 'lib/ansible/role/content/service'
 
@@ -136,16 +137,18 @@ module Ansible
           Content::Software::Source::APRUtil.new(role_dir: role_dir, software: software)
         when 'bash'
           Content::Software::Source::Bash.new(role_dir: role_dir, software: software)
-        when 'ruby'
-          Content::Software::Source::Ruby.new(role_dir: role_dir, software: software)
+        when 'httpd'
+          Content::Software::Source::Httpd.new(role_dir: role_dir, software: software)
         when 'orientdb'
           Content::Software::Source::OrientDB.new(role_dir: role_dir, software: software)
         when 'pcre'
           Content::Software::Source::PCRE.new(role_dir: role_dir, software: software)
         when 'php'
           Content::Software::Source::PHP.new(role_dir: role_dir, software: software)
-        when 'httpd'
-          Content::Software::Source::Httpd.new(role_dir: role_dir, software: software)
+        when 'ruby'
+          Content::Software::Source::Ruby.new(role_dir: role_dir, software: software)
+        when 'wp-cli'
+          Content::Software::Source::WPCLI.new(role_dir: role_dir, software: software)
         end
       end
     end
