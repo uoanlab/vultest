@@ -29,6 +29,7 @@ require 'lib/ansible/role/content/software/source/orientdb'
 require 'lib/ansible/role/content/software/source/pcre'
 require 'lib/ansible/role/content/software/source/php'
 require 'lib/ansible/role/content/software/source/ruby'
+require 'lib/ansible/role/content/software/source/wordpress'
 require 'lib/ansible/role/content/software/source/wp_cli'
 require 'lib/ansible/role/content/content'
 require 'lib/ansible/role/content/service'
@@ -131,24 +132,16 @@ module Ansible
 
       def source_software_type(software)
         case software['name']
-        when 'apr'
-          Content::Software::Source::APR.new(role_dir: role_dir, software: software)
-        when 'apr-util'
-          Content::Software::Source::APRUtil.new(role_dir: role_dir, software: software)
-        when 'bash'
-          Content::Software::Source::Bash.new(role_dir: role_dir, software: software)
-        when 'httpd'
-          Content::Software::Source::Httpd.new(role_dir: role_dir, software: software)
-        when 'orientdb'
-          Content::Software::Source::OrientDB.new(role_dir: role_dir, software: software)
-        when 'pcre'
-          Content::Software::Source::PCRE.new(role_dir: role_dir, software: software)
-        when 'php'
-          Content::Software::Source::PHP.new(role_dir: role_dir, software: software)
-        when 'ruby'
-          Content::Software::Source::Ruby.new(role_dir: role_dir, software: software)
-        when 'wp-cli'
-          Content::Software::Source::WPCLI.new(role_dir: role_dir, software: software)
+        when 'apr' then Content::Software::Source::APR.new(role_dir: role_dir, software: software)
+        when 'apr-util' then Content::Software::Source::APRUtil.new(role_dir: role_dir, software: software)
+        when 'bash' then Content::Software::Source::Bash.new(role_dir: role_dir, software: software)
+        when 'httpd' then Content::Software::Source::Httpd.new(role_dir: role_dir, software: software)
+        when 'orientdb' then Content::Software::Source::OrientDB.new(role_dir: role_dir, software: software)
+        when 'pcre' then Content::Software::Source::PCRE.new(role_dir: role_dir, software: software)
+        when 'php' then Content::Software::Source::PHP.new(role_dir: role_dir, software: software)
+        when 'ruby' then Content::Software::Source::Ruby.new(role_dir: role_dir, software: software)
+        when 'wordpress' then Content::Software::Source::Wordpress.new(role_dir: role_dir, software: software)
+        when 'wp-cli' then Content::Software::Source::WPCLI.new(role_dir: role_dir, software: software)
         end
       end
     end

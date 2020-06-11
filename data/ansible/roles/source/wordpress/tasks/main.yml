@@ -1,0 +1,38 @@
+---
+- name: Donload WordPress
+  get_url:
+    url: "https://wordpress.org/wordpress-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    validate_certs: no
+
+- name: Unarchive WordPress
+  unarchive:
+    src: /usr/local/src/wordpress-{{ version }}.tar.gz
+    dest: "{{ src_dir }}"
+    copy: no
+
+- name: "cp -r {{ src_dir }}/wordpress {{ document_root }}"
+  copy:
+    src: "{{ src_dir }}/wordpress"
+    dest: "{{ document_root }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "rm -r /usr/local/src/wordpress"
+  file:
+    path: "{{ src_dir }}/wordpress"
+    state: absent
+
+- name: "cp {{ document_root }}/wordpress/wp-config-sample.php {{ document_root }}/wp-config.php"
+  copy:
+    src: "{{ document_root }}/wordpress/wp-config-sample.php"
+    dest: "{{ document_root }}/wordpress/wp-config.php"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "rm -r {{ document_root }}/wordpress/wp-config-sample.php"
+  file:
+    path: "{{ document_root }}/wordpress/wp-config-sample.php"
+    state: absent
