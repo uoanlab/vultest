@@ -45,10 +45,7 @@
       lineinfile:
         dest: /root/.bashrc
         insertafter: EOF
-        line: "{{ item }}"
-      with_items:
-        - "PATH={{ software_path }}/bin:$PATH"
-        - export PATH
+        line: "export PATH={{ software_path }}/bin:$PATH"
 
     - name: source /root/.bashrc
       shell: bash -lc "source /root/.bashrc"
@@ -59,10 +56,7 @@
       lineinfile:
         dest: "{{ user_dir }}/.bashrc"
         insertafter: EOF
-        line: "{{ item }}"
-      with_items:
-        - "PATH={{ software_path }}/bin:$PATH"
-        - export PATH
+        line: "export PATH={{ software_path }}/bin:$PATH"
 
     - name: "source {{ user_dir }}/.bashrc"
       shell: bash -lc "source {{ user_dir }}/.bashrc"
