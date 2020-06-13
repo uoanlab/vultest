@@ -12,39 +12,16 @@
     copy: no
 
 - name: ./configure
-  shell: bash -lc "{{ configure_command }}"
+  shell: "{{ configure_command }}"
   args:
     chdir: "{{ src_dir }}/apr-util-{{ version }}"
 
 - name: make
-  shell: bash -lc "make"
+  shell: make
   args:
     chdir: "{{ src_dir }}/apr-util-{{ version }}"
 
 - name: make install
-  shell: bash -lc "make install"
+  shell: make install
   args:
     chdir: "{{ src_dir }}/apr-util-{{ version }}"
-
-- name: Add path of APR-util in root user
-  block:
-    - name: Add path of APR-util in /root/.bashrc
-      lineinfile:
-        dest: /root/.bashrc
-        insertafter: EOF
-        line: "export PATH={{ software_path }}/bin:$PATH"
-
-    - name: source /root/.bashrc
-      shell: bash -lc "source /root/.bashrc"
-
-- name: Add path of APR-util in user
-  block:
-    - name: "Add path of APR-util in {{ user_dir }}/.bashrc"
-      lineinfile:
-        dest: "{{ user_dir }}/.bashrc"
-        insertafter: EOF
-        line: "export PATH={{ software_path }}/bin:$PATH"
-
-    - name: "source {{ user_dir }}/.bashrc"
-      shell: bash -lc "source {{ user_dir }}/.bashrc"
-  when: user_dir is defined

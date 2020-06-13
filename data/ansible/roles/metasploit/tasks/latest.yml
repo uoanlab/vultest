@@ -73,7 +73,7 @@
 
 - name: Set the environment of ruby in .bashrc
   lineinfile:
-    dest: "{{ user_dir }}/.profile"
+    dest: "{{ user_dir }}/.bashrc"
     line: "{{ item }}"
   with_items:
     - 'export PATH="~/.rbenv/bin:$PATH"'
@@ -81,17 +81,27 @@
   become_user: "{{ user }}"
 
 - name: source .bashrc
-  shell: /bin/bash -lc "source {{ user_dir }}/.profile"
+  shell: "source {{ user_dir }}/.bashrc"
   become_user: "{{ user }}"
+  args:
+    executable: /bin/bash
 
-- name: rbenv install "{{ ruby_version }}"
-  shell: /bin/bash -lc "rbenv install {{ ruby_version }}"
+- name: "rbenv install {{ ruby_version }}"
+  shell: "rbenv install {{ ruby_version }}"
   become_user: "{{ user }}"
-  ignore_errors: True
+  ignore_errors: true
+  args:
+    executable: /bin/bash
+  environment:
+    PATH: "{{ user_dir }}/.rbenv/bin:{{ ansible_env.PATH }}"
 
-- name: rbenv global "{{ ruby_version }}"
-  shell: /bin/bash -lc "rbenv global {{ ruby_version }}"
+- name: "rbenv global {{ ruby_version }}"
+  shell: "rbenv global {{ ruby_version }}"
   become_user: "{{ user }}"
+  args:
+    executable: /bin/bash
+  environment:
+    PATH: "{{ user_dir }}/.rbenv/bin:{{ ansible_env.PATH }}"
 
 # Install PostgreSQL
 - name: Install PostgreSQL
@@ -158,5 +168,9 @@
     mode: "0755"
 
 - name: Startup the Metasploit server
-  shell: bash -lc "/home/msf/metasploit-framework/msfrpcd -a {{ attack_host }} -p 55553 -U msf -P metasploit -S false"
+  shell: "/home/msf/metasploit-framework/msfrpcd -a {{ attack_host }} -p 55553 -U msf -P metasploit -S false"
   become_user: "{{ user }}"
+  args:
+    executable: /bin/bash
+  environment:
+    PATH: "{{ user_dir }}/.rbenv/shims:{{ ansible_env.PATH }}"

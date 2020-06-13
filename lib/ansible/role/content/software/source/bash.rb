@@ -41,9 +41,6 @@ module Ansible
                 vars_file.puts(software_path('/usr/local/bin/bash'))
                 vars_file.puts(configure)
                 vars_file.puts(src_dir)
-
-                u = user
-                vars_file.puts(u) unless u.nil?
               end
             end
 

@@ -41,8 +41,7 @@ module Ansible
                 vars_file.puts(configure)
                 vars_file.puts(src_dir)
 
-                u = user
-                vars_file.puts(u) unless u.nil?
+                vars_file.puts("perl_path: #{software['perl_path']}") if software.key?('perl_path')
               end
             end
           end

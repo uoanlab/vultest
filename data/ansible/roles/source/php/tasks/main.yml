@@ -12,64 +12,35 @@
     copy: no
 
 - name: ./configure
-  shell: bash -lc "{{ configure_command }}"
+  shell: "{{ configure_command }}"
   args:
     chdir: "{{ src_dir }}/php-{{ version }}"
 
 - name: make
-  shell: bash -lc "make"
+  shell: make
   args:
     chdir: "{{ src_dir }}/php-{{ version }}"
 
 - name: make install
-  shell: bash -lc "make install"
+  shell: make install
   args:
     chdir: "{{ src_dir }}/php-{{ version }}"
-
-- name: Add path of php in root user
-  block:
-    - name: "Add path of php in /root/.bashrc"
-      lineinfile:
-        dest: /root/.bashrc
-        insertafter: EOF
-        line: "export PATH={{ software_path }}/bin:$PATH"
-      when: software_path != "/usr/local/bin/php"
-
-    - name: "Add /usr/local/bin/php in /root/.bashrc"
-      lineinfile:
-        dest: /root/.bashrc
-        insertafter: EOF
-        line: "export PATH=/usr/local/bin:$PATH"
-      when: software_path == "/usr/local/bin/php"
-
-    - name: source /root/.bashrc
-      shell: bash -lc "source /root/.bashrc"
-
-- name: Add path of PHP in user
-  block:
-    - name: "Add path of php in {{ user_dir }}/.bashrc"
-      lineinfile:
-        dest: "{{ user_dir }}/.bashrc"
-        insertafter: EOF
-        line: "export PATH={{ software_path }}/bin:$PATH"
-      when: software_path != "/usr/local/bin/php"
-
-    - name: "Add /usr/local/bin/php in {{ user_dir }}/.bashrc"
-      lineinfile:
-        dest: "{{ user_dir }}/.bashrc"
-        insertafter: EOF
-        line: "export PATH=/usr/local/bin:$PATH"
-      when: software_path == "/usr/local/bin/php"
-
-    - name: "source {{ user_dir }}/.bashrc"
-      shell: bash -lc "source {{ user_dir }}/.bashrc"
-  when: user_dir is defined
 
 - name: Create php.ini
   block:
     - name: Search path of phpinfo
-      shell: bash -lc "php -r 'echo phpinfo();' | grep 'php.ini' | sed 's/.* => //'"
+      shell: "php -r 'echo phpinfo();' | grep 'php.ini' | sed 's/.* => //'"
       register: phpinfo_path
+      environment:
+        PATH: "/usr/local/bin/php:{{ ansible_env.PATH }}"
+      when: software_path == "/usr/local/bin/php"
+
+    - name: Search path of phpinfo
+      shell: "php -r 'echo phpinfo();' | grep 'php.ini' | sed 's/.* => //'"
+      register: phpinfo_path
+      environment:
+        PATH: "{{ software_path }}/bin:{{ ansible_env.PATH }}"
+      when: software_path != "/usr/local/bin/php"
 
     - name: "cp {{ src_dir }}/php-{{ version }}/php.ini-production {{ phpinfo_path.stdout }}/php.ini"
       copy:
