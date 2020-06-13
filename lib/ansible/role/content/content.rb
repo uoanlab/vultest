@@ -35,6 +35,7 @@ module Ansible
           create_tasks
           create_vars if Dir.exist?("#{db_path}/data/#{content}/vars")
           create_files if Dir.exist?("#{db_path}/data/#{content}/files")
+          create_handlers if Dir.exist?("#{db_path}/data/#{content}/handlers")
         end
 
         private
@@ -64,6 +65,14 @@ module Ansible
               "#{role_dir}/#{cve}/files/#{file_path[file_path.size - 1]}"
             )
           end
+        end
+
+        def create_handlers
+          FileUtils.mkdir_p("#{role_dir}/#{cve}/handlers")
+          FileUtils.cp_r(
+            "#{db_path}/data/#{content}/handlers/main.yml",
+            "#{role_dir}/#{cve}/handlers/main.yml"
+          )
         end
       end
     end
