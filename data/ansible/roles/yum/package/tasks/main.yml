@@ -1,5 +1,5 @@
 ---
-- name: yum install "{{ name_and_version }}"
+- name: "yum install {{ name_and_version }}"
   yum:
     name: "{{ name_and_version }}"
     state: present
