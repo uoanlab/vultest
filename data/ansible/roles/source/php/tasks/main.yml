@@ -26,21 +26,13 @@
   args:
     chdir: "{{ src_dir }}/php-{{ version }}"
 
-- name: Create php.ini
+- name: Create php.ini (php_path = /usr/local/bin/php)
   block:
     - name: Search path of phpinfo
-      shell: "php -r 'echo phpinfo();' | grep 'php.ini' | sed 's/.* => //'"
+      shell: "php -r 'echo phpinfo();' | grep '(php.ini)' | sed 's/.* => //'"
       register: phpinfo_path
       environment:
-        PATH: "/usr/local/bin/php:{{ ansible_env.PATH }}"
-      when: software_path == "/usr/local/bin/php"
-
-    - name: Search path of phpinfo
-      shell: "php -r 'echo phpinfo();' | grep 'php.ini' | sed 's/.* => //'"
-      register: phpinfo_path
-      environment:
-        PATH: "{{ software_path }}/bin:{{ ansible_env.PATH }}"
-      when: software_path != "/usr/local/bin/php"
+        PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
 
     - name: "cp {{ src_dir }}/php-{{ version }}/php.ini-production {{ phpinfo_path.stdout }}/php.ini"
       copy:
@@ -49,3 +41,21 @@
         owner: root
         group: root
         mode: "0755"
+  when: software_path == "/usr/local/bin/php"
+
+- name: "Create php.ini (php_path = {{ software_path }})"
+  block:
+    - name: Search path of phpinfo
+      shell: "php -r 'echo phpinfo();' | grep '(php.ini)' | sed 's/.* => //'"
+      register: phpinfo_path
+      environment:
+        PATH: "{{ software_path }}/bin:{{ ansible_env.PATH }}"
+
+    - name: "cp {{ src_dir }}/php-{{ version }}/php.ini-production {{ phpinfo_path.stdout }}/php.ini"
+      copy:
+        src: "{{ src_dir }}/php-{{ version }}/php.ini-production"
+        dest: "{{ phpinfo_path.stdout }}/php.ini"
+        owner: root
+        group: root
+        mode: "0755"
+  when: software_path != "/usr/local/bin/php"
