@@ -1,7 +1,7 @@
 ---
 - name: Download WP-CLI
   get_url:
-    url: https://github.com/wp-cli/wp-cli/releases/download/v0.24.1/wp-cli-0.24.1.phar
+    url: https://github.com/wp-cli/wp-cli/releases/download/v{{ version }}/wp-cli-{{ version }}.phar
     dest: "{{ src_dir }}/wp-cli.phar"
     validate_certs: no
 
