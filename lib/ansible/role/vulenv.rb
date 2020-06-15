@@ -17,10 +17,14 @@ require 'fileutils'
 
 require 'lib/ansible/role/content/metasploit'
 require 'lib/ansible/role/content/user'
-require 'lib/ansible/role/content/software/apt'
+
+require 'lib/ansible/role/content/software/apt/package'
+
 require 'lib/ansible/role/content/software/yum/package'
 require 'lib/ansible/role/content/software/yum/mysql'
+
 require 'lib/ansible/role/content/software/gem'
+
 require 'lib/ansible/role/content/software/source/apr'
 require 'lib/ansible/role/content/software/source/apr_util'
 require 'lib/ansible/role/content/software/source/bash'
@@ -31,6 +35,7 @@ require 'lib/ansible/role/content/software/source/php'
 require 'lib/ansible/role/content/software/source/ruby'
 require 'lib/ansible/role/content/software/source/wordpress'
 require 'lib/ansible/role/content/software/source/wp_cli'
+
 require 'lib/ansible/role/content/content'
 require 'lib/ansible/role/content/service'
 
@@ -84,7 +89,7 @@ module Ansible
           method = software.fetch('method', default_method)
           role =
             case method
-            when 'apt' then Content::Software::Apt.new(role_dir: role_dir, software: software)
+            when 'apt' then apt_software_type(software)
             when 'yum' then yum_software_type(software)
             when 'gem' then Content::Software::Gem.new(role_dir: role_dir, software: software)
             when 'source' then source_software_type(software)
@@ -99,7 +104,7 @@ module Ansible
         method = env_config['vul_software'].fetch('method', default_method)
         role =
           case method
-          when 'apt' then Content::Software::Apt.new(role_dir: role_dir, software: env_config['vul_software'])
+          when 'apt' then apt_software_type(env_config['vul_software'])
           when 'yum' then yum_software_type(env_config['vul_software'])
           when 'gem' then Content::Software::Gem.new(role_dir: role_dir, software: env_config['vul_software'])
           when 'source' then source_software_type(env_config['vul_software'])
@@ -121,6 +126,10 @@ module Ansible
           role = Content::Service.new(role_dir: role_dir, service: service)
           role.create
         end
+      end
+
+      def apt_software_type(software)
+        Content::Software::Apt::Package.new(role_dir: role_dir, software: software)
       end
 
       def yum_software_type(software)

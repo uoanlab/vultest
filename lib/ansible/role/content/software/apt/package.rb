@@ -20,21 +20,23 @@ module Ansible
   module Role
     module Content
       module Software
-        class Apt < Base
-          private
+        module Apt
+          class Package < Software::Base
+            private
 
-          def create_tasks
-            FileUtils.mkdir_p("#{role_dir}/#{software['name']}/tasks")
-            FileUtils.cp_r('./data/ansible/roles/apt/tasks/main.yml', "#{role_dir}/#{software['name']}/tasks/main.yml")
-          end
+            def create_tasks
+              FileUtils.mkdir_p("#{role_dir}/#{software['name']}/tasks")
+              FileUtils.cp_r('./data/ansible/roles/apt/package/tasks/main.yml', "#{role_dir}/#{software['name']}/tasks/main.yml")
+            end
 
-          def create_vars
-            FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
-            File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
-              vars_file.puts('---')
-              name_and_version = "name_and_version: #{software['name']}"
-              name_and_version << "=#{software['version']}" if software.key?('version')
-              vars_file.puts(name_and_version)
+            def create_vars
+              FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
+              File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
+                vars_file.puts('---')
+                name_and_version = "name_and_version: #{software['name']}"
+                name_and_version << "=#{software['version']}" if software.key?('version')
+                vars_file.puts(name_and_version)
+              end
             end
           end
         end
