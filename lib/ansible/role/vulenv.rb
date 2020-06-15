@@ -23,7 +23,7 @@ require 'lib/ansible/role/content/software/apt/package'
 require 'lib/ansible/role/content/software/yum/package'
 require 'lib/ansible/role/content/software/yum/mysql'
 
-require 'lib/ansible/role/content/software/gem'
+require 'lib/ansible/role/content/software/gem/package'
 
 require 'lib/ansible/role/content/software/source/apr'
 require 'lib/ansible/role/content/software/source/apr_util'
@@ -91,7 +91,7 @@ module Ansible
             case method
             when 'apt' then apt_software_type(software)
             when 'yum' then yum_software_type(software)
-            when 'gem' then Content::Software::Gem.new(role_dir: role_dir, software: software)
+            when 'gem' then gem_software_type(software)
             when 'source' then source_software_type(software)
             end
           role.create
@@ -106,7 +106,7 @@ module Ansible
           case method
           when 'apt' then apt_software_type(env_config['vul_software'])
           when 'yum' then yum_software_type(env_config['vul_software'])
-          when 'gem' then Content::Software::Gem.new(role_dir: role_dir, software: env_config['vul_software'])
+          when 'gem' then gem_software_type(env_config['vul_software'])
           when 'source' then source_software_type(env_config['vul_software'])
           end
         role.create
@@ -137,6 +137,10 @@ module Ansible
         when 'mysql' then Content::Software::Yum::MySQL.new(role_dir: role_dir, software: software, os_version: env_config['os']['version'])
         else Content::Software::Yum::Package.new(role_dir: role_dir, software: software)
         end
+      end
+
+      def gem_software_type(software)
+        Content::Software::Gem::Package.new(role_dir: role_dir, software: software)
       end
 
       def source_software_type(software)

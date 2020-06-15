@@ -21,24 +21,26 @@ module Ansible
   module Role
     module Content
       module Software
-        class Gem < Base
-          private
+        module Gem
+          class Package < Software::Base
+            private
 
-          def create_tasks
-            FileUtils.mkdir_p("#{role_dir}/#{software['name']}/tasks")
-            FileUtils.cp_r(
-              './data/ansible/roles/gem/tasks/main.yml',
-              "#{role_dir}/#{software['name']}/tasks/main.yml"
-            )
-          end
+            def create_tasks
+              FileUtils.mkdir_p("#{role_dir}/#{software['name']}/tasks")
+              FileUtils.cp_r(
+                './data/ansible/roles/gem/package/tasks/main.yml',
+                "#{role_dir}/#{software['name']}/tasks/main.yml"
+              )
+            end
 
-          def create_vars
-            FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
-            File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
-              vars_file.puts('---')
-              vars_file.puts("name: #{software['name']}")
-              vars_file.puts("version: #{software['version']}")
-              vars_file.puts(user)
+            def create_vars
+              FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
+              File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |vars_file|
+                vars_file.puts('---')
+                vars_file.puts("name: #{software['name']}")
+                vars_file.puts("version: #{software['version']}")
+                vars_file.puts(user)
+              end
             end
           end
         end
