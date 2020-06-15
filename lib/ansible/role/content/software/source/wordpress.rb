@@ -38,7 +38,12 @@ module Ansible
                 vars_file.puts('---')
                 vars_file.puts("version: #{software['version']}")
                 vars_file.puts(src_dir)
+
                 vars_file.puts('document_root: ' << software.fetch('document_root', '/usr/local/apache2/htdocs'))
+
+                vars_file.puts('wordpress_database: ' << software.fetch('wordpress_database', 'wordpressdb'))
+                vars_file.puts('wordpress_user: ' << software.fetch('wordpress_user', 'wordpressuser'))
+                vars_file.puts('wordpress_password: ' << software.fetch('wordpress_password', 'WordpressPassword123&'))
               end
             end
           end
