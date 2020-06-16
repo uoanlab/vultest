@@ -44,7 +44,7 @@
 
 - name: Use the defineded perl
   block:
-    - name: "Change /replace/with/path/to/perl/interpreter to {{ perl_path }}"
+    - name: "Change /replace/with/path/to/perl/interpreter to {{ perl_path.stdout }}"
       replace:
         path: "{{ item }}"
         regexp: "/replace/with/path/to/perl/interpreter"
