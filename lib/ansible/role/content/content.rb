@@ -49,10 +49,10 @@ module Ansible
         end
 
         def create_vars
-          FileUtils.mkdir_p("#{role_dir}/#{cve}/tasks/vars")
+          FileUtils.mkdir_p("#{role_dir}/#{cve}/vars")
           FileUtils.cp_r(
             "#{db_path}/data/#{content}/vars/main.yml",
-            "#{role_dir}/#{cve}/var/main.yml"
+            "#{role_dir}/#{cve}/vars/main.yml"
           )
         end
 
