@@ -42,10 +42,11 @@ module Ansible
                 vars_file.puts('---')
                 vars_file.puts("os_core_version: #{os_core_version}")
                 vars_file.puts("version: #{software['version']}")
+
                 vars_file.puts('user: ' << software.fetch('user', 'mysql'))
                 vars_file.puts('base_dir: ' << software.fetch('base_dir', '/usr/local/mysql'))
                 vars_file.puts('data_dir: ' << software.fetch('data_dir', '/usr/local/mysql/data'))
-                vars_file.puts('root_password: ' << software.fetch('root_password', 'vulnerability'))
+                vars_file.puts('root_password: ' << software.fetch('root_password', 'Vulnerability123&'))
               end
             end
           end

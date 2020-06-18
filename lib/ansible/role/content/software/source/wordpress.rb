@@ -43,7 +43,7 @@ module Ansible
 
                 vars_file.puts('wordpress_database: ' << software.fetch('wordpress_database', 'wordpressdb'))
                 vars_file.puts('wordpress_user: ' << software.fetch('wordpress_user', 'wordpressuser'))
-                vars_file.puts('wordpress_password: ' << software.fetch('wordpress_password', 'WordpressPassword123&'))
+                vars_file.puts('wordpress_password: ' << software.fetch('wordpress_password', 'wordpresspassword'))
               end
             end
           end
