@@ -24,13 +24,13 @@ module Vagrant
       class Linux < Base
         def create
           if TTY::Prompt.new.yes?('Do you select a vagrant image in local?')
-            puts("Please, you select a vagrant image below:\n  OS name: #{os_name}\n  OS version: #{os_version}")
+            Print.stdout("Please, you select a vagrant image below:\n  OS name: #{os_name}\n  OS version: #{os_version}")
             box = select_vagrant_image_in_local
 
             create_vagrantfile(box)
           elsif TTY::Prompt.new.yes?('Do you select a vagrant image in Vagrant Cloud?')
             box = {}
-            puts("Please, you input a vagrant image below:\n  OS name: #{os_name}\n  OS version: #{os_version}")
+            Print.stdout("Please, you input a vagrant image below:\n  OS name: #{os_name}\n  OS version: #{os_version}")
 
             print('Name of Vagrant image: ')
             box[:box_name] = gets.chomp!

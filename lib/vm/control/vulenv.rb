@@ -20,6 +20,8 @@ require 'lib/vagrant/vagrantfile/vulenv/windows'
 
 require 'lib/ansible/vulenv'
 
+require 'lib/print'
+
 module VM
   module Control
     class Vulenv < Base
@@ -99,10 +101,10 @@ module VM
       end
 
       def manual_setup
-        VultestUI.warring('Following execute command')
-        puts("  [1] cd #{env_dir}")
-        puts('  [2] vagrant ssh')
-        vulenv_config['construction']['prepare']['msg'].each.with_index(3) { |msg, i| puts "  [#{i}] #{msg}" }
+        Print.warring('Following execute command')
+        Print.command("1. cd #{env_dir}")
+        Print.command('2. vagrant ssh')
+        vulenv_config['construction']['prepare']['msg'].each.with_index(3) { |msg, i| Print.command("#{i}. #{msg}") }
       end
     end
   end

@@ -17,11 +17,13 @@ require 'pastel'
 require 'optparse'
 require 'tty-font'
 
+require 'lib/print'
+
 class App
   attr_reader :setting, :vultest_case, :vulenv, :attack_env
 
   def initialize
-    puts Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST'))
+    Print.stdout(Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST')))
 
     @setting = {}
     @setting[:test_dir] = ENV.fetch('TESTDIR', './test_dir')

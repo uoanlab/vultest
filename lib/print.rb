@@ -16,7 +16,7 @@ require 'bundler/setup'
 require 'rainbow'
 require 'tty-spinner'
 
-module VultestUI
+module Print
   class << self
     def execute(msg)
       puts("[#{Rainbow('*').blue}] #{msg}")
@@ -30,12 +30,20 @@ module VultestUI
       puts("[#{Rainbow('!').yellow}] #{msg}")
     end
 
-    def tty_spinner_begin(msg)
+    def command(msg)
+      puts("[#{Rainbow('>').green}] #{msg}")
+    end
+
+    def stdout(msg)
+      puts msg
+    end
+
+    def spinner_begin(msg)
       @spinner = TTY::Spinner.new("[:spinner] #{msg}", success_mark: Rainbow('+').cyan.to_s, error_mark: Rainbow('-').red.to_s)
       @spinner.auto_spin
     end
 
-    def tty_spinner_end(status)
+    def spinner_end(status)
       status == 'success' ? @spinner.success : @spinner.error
     end
   end

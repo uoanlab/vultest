@@ -17,8 +17,8 @@ require 'tty-table'
 require 'tty-prompt'
 require 'yaml'
 
-require 'modules/db'
-require 'modules/ui'
+require 'lib/db'
+require 'lib/print'
 
 class VultestCase
   attr_reader :cve, :config, :vulenv_config, :attack_config
@@ -34,7 +34,7 @@ class VultestCase
     vultest_configs = DB.get_vultest_configs(cve)
 
     if vultest_configs.empty?
-      VultestUI.error('Cannot test vulnerability because the software doesn\'t have config file')
+      Print.error('Cannot test vulnerability because the software doesn\'t have config file')
       return false
     end
 
@@ -62,11 +62,11 @@ class VultestCase
       name_list << config['name']
     end
 
-    puts('Vulnerability environment list')
+    Print.stdout('Vulnerability environment list')
     header = ['id', 'vulenv name']
     table = TTY::Table.new(header, table)
     table.render(:ascii).each_line do |line|
-      puts line.chomp
+      Print.stdout(line.chomp)
     end
 
     { name_list: name_list, index_info: idx_info }

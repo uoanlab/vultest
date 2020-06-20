@@ -14,8 +14,8 @@
 
 require 'app/command/base'
 
-require 'modules/ui'
-require 'modules/util'
+require 'lib/print'
+require 'lib/print'
 
 module Command
   class Set
@@ -34,13 +34,13 @@ module Command
       if type == 'testdir'
         return unless require_for_setting_in_test_dir?
 
-        VultestUI.execute("#{type} => #{value}")
+        Print.execute("#{type} => #{value}")
         @type = :test_dir
         @value = Util.create_dir(value)
       elsif type[0..5] == 'attack'
         return unless require_for_setting_in_attack_config?
 
-        VultestUI.execute("#{type} => #{value}")
+        Print.execute("#{type} => #{value}")
         @type = "#{type[0..5]}_#{type[6..]}".intern
 
         @value = Util.create_dir(value) if type == :attack_dir
@@ -53,7 +53,7 @@ module Command
 
     def require_for_setting_in_test_dir?
       unless vulenv.nil?
-        VultestUI.error('Cannot change a setting in a vulnerable test')
+        Print.error('Cannot change a setting in a vulnerable test')
         return false
       end
 
@@ -62,7 +62,7 @@ module Command
 
     def require_for_setting_in_attack_config?
       unless attack_env.nil?
-        VultestUI.error('Cannot change a setting in a vulnerable test')
+        Print.error('Cannot change a setting in a vulnerable test')
         return false
       end
       true

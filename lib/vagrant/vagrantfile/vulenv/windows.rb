@@ -16,6 +16,7 @@ require 'bundler/setup'
 require 'fileutils'
 require 'open3'
 
+require 'lib/print'
 require 'lib/vagrant/vagrantfile/vulenv/base'
 
 module Vagrant
@@ -23,7 +24,7 @@ module Vagrant
     module Vulenv
       class Windows < Base
         def create
-          puts("Please, you select a vagrant image below:\n  OS name: #{os_name}\n  OS version: #{os_version}")
+          Print.stdout("Please, you select a vagrant image below:\n  OS name: #{os_name}\n  OS version: #{os_version}")
           box = select_vagrant_image_in_local
 
           create_vagrantfile(box)

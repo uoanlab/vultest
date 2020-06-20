@@ -15,7 +15,7 @@
 require 'bundler/setup'
 require 'fileutils'
 
-require 'modules/ui'
+require 'lib/print'
 
 module VM
   module Control
@@ -28,7 +28,7 @@ module VM
       end
 
       def create?
-        VultestUI.execute(create_msg)
+        Print.execute(create_msg)
 
         FileUtils.mkdir_p(env_dir)
         prepare_vagrant
@@ -40,9 +40,9 @@ module VM
       def destroy?
         Dir.chdir(env_dir) { return false unless vagrant.destroy! }
 
-        VultestUI.tty_spinner_begin(destroy_msg)
+        Print.spinner_begin(destroy_msg)
         FileUtils.rm_rf(env_dir)
-        VultestUI.tty_spinner_end('success')
+        Print.spinner_end('success')
 
         true
       end

@@ -18,7 +18,7 @@ require 'lib/report/vultest'
 require 'lib/report/error_vulenv'
 require 'lib/report/error_attack'
 
-require 'modules/ui'
+require 'lib/print'
 
 module Command
   class Report < Base
@@ -31,12 +31,12 @@ module Command
 
     def execute
       if vulenv.nil?
-        VultestUI.error('There is no a vulnerable environment')
+        Print.error('There is no a vulnerable environment')
         return
       end
 
       if attack_env.nil? && !vulenv.error[:flag]
-        VultestUI.error('Execute exploit command')
+        Print.error('Execute exploit command')
         return
       end
 

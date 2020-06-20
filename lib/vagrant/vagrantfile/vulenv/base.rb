@@ -18,6 +18,7 @@ require 'open3'
 require 'tty-table'
 require 'tty-prompt'
 
+require 'lib/print'
 require 'lib/vagrant/vagrantfile/base'
 
 module Vagrant
@@ -49,11 +50,11 @@ module Vagrant
           end
           box_list = table.dup
 
-          puts('Vagrant box list in your machine')
+          Print.stdout('Vagrant box list in your machine')
           header = ['id', 'box name', 'box version']
           table = TTY::Table.new(header, table)
           table.render(:ascii).each_line do |line|
-            puts line.chomp
+            Print.stdout(line.chomp)
           end
 
           box_list

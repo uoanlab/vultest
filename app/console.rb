@@ -22,7 +22,7 @@ require 'app/command/exploit'
 require 'app/command/report'
 require 'app/command/set'
 
-require 'modules/util'
+require 'lib/print'
 
 class Console < App
   attr_reader :prompt, :name
@@ -65,7 +65,7 @@ class Console < App
 
   def destroy_command(env_name)
     if env_name.nil?
-      VultestUI.error('Usage: destory <attack_env or vulenv>')
+      Print.error('Usage: destory <attack_env or vulenv>')
       return
     end
 
@@ -113,7 +113,7 @@ class Console < App
 
   def set_command(type, value)
     if type.nil? || value.nil?
-      VultestUI.error('The usage of set command is incorrect')
+      Print.error('The usage of set command is incorrect')
       return
     end
 

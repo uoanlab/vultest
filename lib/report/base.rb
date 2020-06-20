@@ -15,6 +15,8 @@
 require 'bundler/setup'
 require 'tty-markdown'
 
+require 'lib/print'
+
 module Report
   class Base
     attr_reader :report_dir
@@ -25,7 +27,7 @@ module Report
 
     def show
       create
-      puts TTY::Markdown.parse_file("#{report_dir}/report.md")
+      Print.stdout(TTY::Markdown.parse_file("#{report_dir}/report.md"))
     end
 
     private

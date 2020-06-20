@@ -14,7 +14,7 @@
 
 require 'app/command/base'
 
-require 'modules/ui'
+require 'lib/print'
 
 module Command
   class Destroy < Base
@@ -26,13 +26,13 @@ module Command
 
     def execute(&block)
       if env.nil?
-        VultestUI.error('Doesn\'t exist the environment')
+        Print.error('Doesn\'t exist the environment')
         return
       end
 
       return unless env.destroy?
 
-      VultestUI.execute('Delete the environment')
+      Print.execute('Delete the environment')
       block.call(env: nil)
     end
   end

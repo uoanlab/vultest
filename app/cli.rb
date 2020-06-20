@@ -20,7 +20,7 @@ require 'app/command/destroy'
 require 'app/command/exploit'
 require 'app/command/report'
 
-require 'modules/ui'
+require 'lib/print'
 
 class CLI < App
   attr_reader :cve, :test_flag, :destroy_flag
@@ -51,7 +51,7 @@ class CLI < App
 
   def execute
     if cve.nil?
-      VultestUI.error('Input CVE')
+      Print.error('Input CVE')
       return
     end
 

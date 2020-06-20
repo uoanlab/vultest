@@ -17,7 +17,7 @@ require 'app/command/base'
 require 'lib/vultest_case'
 require 'lib/vm/vulenv'
 
-require 'modules/ui'
+require 'lib/print'
 
 module Command
   class Test < Base
@@ -33,7 +33,7 @@ module Command
       return unless vultest_case.nil?
 
       unless cve =~ /^(CVE|cve)-\d+\d+/i
-        VultestUI.error('The CVE entered is incorrect')
+        Print.error('The CVE entered is incorrect')
         return
       end
 
@@ -41,7 +41,7 @@ module Command
       return unless vultest_case.select_test_case?
 
       vulenv = prepare_vulenv
-      VultestUI.warring('Can look at a report about error in construction of vulnerable environment') unless vulenv.create?
+      Print.warring('Can look at a report about error in construction of vulnerable environment') unless vulenv.create?
 
       block.call(cve: cve, vultest_case: vultest_case, vulenv: vulenv)
     end

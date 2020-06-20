@@ -14,7 +14,7 @@
 
 require 'lib/api/metasploit'
 
-require 'modules/ui'
+require 'lib/print'
 
 module Attack
   class Metasploit
@@ -42,7 +42,7 @@ module Attack
         break if error[:flag]
       end
 
-      error[:flag] ? VultestUI.warring('Can look at a report about error in attack execution') : execute_payload
+      error[:flag] ? Print.warring('Can look at a report about error in attack execution') : execute_payload
     end
 
     private
@@ -66,17 +66,17 @@ module Attack
     end
 
     def success_exploit?(exploit_name, exploit_info)
-      VultestUI.tty_spinner_begin(exploit_name)
+      Print.spinner_begin(exploit_name)
       time_count = 0
 
       loop do
         time_count += sleep(1)
 
         if (time_count % ATTACK_TIME_LIMIT).zero?
-          VultestUI.tty_spinner_end('error')
+          Print.spinner_end('error')
           return false unless TTY::Prompt.new.yes?('There\'s a possibility that attack is fail. Are you still going to continue that?')
 
-          VultestUI.tty_spinner_begin(exploit_name)
+          Print.spinner_begin(exploit_name)
         end
 
         session = msf_api.module_session_list.select do |_key, value|
@@ -86,13 +86,13 @@ module Attack
 
         next if session.empty?
 
-        VultestUI.tty_spinner_end('success')
+        Print.spinner_end('success')
         return !@session_list.merge!(session).empty?
       end
     end
 
     def execute_payload
-      VultestUI.execute('Brake into target machine')
+      Print.execute('Brake into target machine')
 
       session_list.each do |id, value|
         next if value['via_payload'].empty?
@@ -136,7 +136,7 @@ module Attack
           res = msf_api.meterpreter_read(args[:id])
           break if res['data'].empty?
 
-          puts res['data']
+          Print.stdout(res['data'])
         end
       end
       msf_api.session_stop(args[:id])
