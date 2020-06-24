@@ -15,7 +15,7 @@
 require 'app/command/base'
 
 require 'lib/print'
-require 'lib/print'
+require 'lib/util'
 
 module Command
   class Set
