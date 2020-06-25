@@ -25,7 +25,12 @@ module Report
 
       def create
         section = "## Attack Method\n\n"
-        section << metasploit_modules_section
+
+        if attack_env.operating_environment.attack.instance_of?(::Attack::Metasploit)
+          section << metasploit_modules_section
+        elsif attack_env.operating_environment.attack.instance_of?(::Attack::HTTP)
+          section << http_section
+        end
       end
 
       private
@@ -38,6 +43,33 @@ module Report
           attack_method['options'].each { |option| section << "- #{option['name']} : #{option['var']}\n" }
           section << "\n"
         end
+        section << "\n"
+      end
+
+      def http_section
+        section = ''
+        http_request = attack_env.operating_environment.attack.request
+
+        section << "#### The URL used\n"
+        section << http_request['url']
+        section << "\n\n"
+
+        section << "#### Method\n"
+        section << http_request['method'].upcase
+        section << "\n\n"
+
+        if http_request.key?('headers')
+          section << "#### Headers\n"
+          http_request['headers'].each { |key, value| section << "- #{key} : #{value}\n" }
+          section << "\n\n"
+        end
+
+        if http_request.key?('form_data')
+          section << "#### Form Data\n"
+          http_request['form_data'].each { |key, value| section << "- #{key} : #{value}\n" }
+          section << "\n\n"
+        end
+
         section << "\n"
       end
     end

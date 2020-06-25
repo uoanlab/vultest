@@ -90,7 +90,7 @@ module Report
       end
 
       def port_section
-        return '' unless status_vulenv.key?(:port_list)
+        return '' if !status_vulenv.key?(:port_list) || status_vulenv[:port_list].empty?
 
         section = "### Port\n"
         status_vulenv[:port_list].each do |socket|
@@ -102,7 +102,7 @@ module Report
       end
 
       def service_section
-        return '' unless status_vulenv.key?(:service_list)
+        return '' if !status_vulenv.key?(:service_list) || status_vulenv[:service_list].empty?
 
         section = "### Services\n"
         status_vulenv[:service_list].each { |service| section << "- #{service}\n" }
