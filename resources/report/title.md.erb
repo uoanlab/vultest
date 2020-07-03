@@ -1,0 +1,11 @@
+<% case error_type %>
+<% when 'vulenv' %>
+# Vultest Report: Error in Construction of Vulnerable Environment
+
+<% when 'attack' %>
+# Vultest Report: Error in Attack Execution
+
+<% else %>
+# Vultest Report
+
+<% end %>

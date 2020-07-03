@@ -39,7 +39,11 @@ module Print
     end
 
     def spinner_begin(msg)
-      @spinner = TTY::Spinner.new("[:spinner] #{msg}", success_mark: Rainbow('+').cyan.to_s, error_mark: Rainbow('-').red.to_s)
+      @spinner = TTY::Spinner.new(
+        "[:spinner] #{msg}",
+        success_mark: Rainbow('+').cyan.to_s,
+        error_mark: Rainbow('-').red.to_s
+      )
       @spinner.auto_spin
     end
 

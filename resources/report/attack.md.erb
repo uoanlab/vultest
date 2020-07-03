@@ -1,0 +1,17 @@
+
+## Attack Method
+
+### <%= attack_tool %>
+
+<% case attack_tool %>
+<% when 'Metasploit' %>
+<% attack_methods.each do |attack_method| %>
+#### Module Name: <%= attack_method['module_name'] %>
+<% attack_method['options'].each do |option| %>
+- <%= option['name'] %> : <%= option['var'] %>
+<% end %>
+
+
+<% end %>
+
+<%end%>

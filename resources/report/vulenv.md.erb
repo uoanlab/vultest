@@ -1,0 +1,66 @@
+
+## Vulnerable Environment
+
+### Vulnerable Software
+<% if os[:vulnerability] %>
+- OS Name: <%= os[:name] %>
+- OS Version: <%= os[:version] %>
+<% if os[:name] == 'windows' %>
+- Buid Version: <%= os[:base_version] %>
+<% else %>
+- Kernel Version: <%= os[:base_version] %>
+<% end %>
+<% else %>
+<% if !vul_software[:name].nil? && !vul_software[:version] %>
+<%= vul_software[:name] %> : <%= vul_software[:version] %>
+<% end %>
+
+### Operating System
+- Name: <%= os[:name] %>
+- Version: <%= os[:version] %>
+<% if os[:name] == 'windows' %>
+- Buid Version: <%= os[:base_version] %>
+<% else %>
+- Kernel Version: <%= os[:base_version] %>
+<% end %>
+<% end %>
+
+<% unless related_softwares.empty?%>
+### Related Software
+<% related_softwares.each do |software| %>
+- <%= software[:name] %> : <%= software[:version] %>
+<% end %>
+<% end %>
+
+<% unless ipadders.empty? %>
+### IP Infomation
+
+<% ipadders.each do |ipadder| %>
+<% if os[:name] == 'windows'%>
+#### Network Adapter: <%= ipadder[:adapter] %>
+<% else %>
+#### Interface: <%= ipadder[:interface] %>
+<% end %>
+- IPv4: <%= ipadder[:inet] %>
+- IPv6: <%= ipadder[:inet6] %>
+
+<% end %>
+<% end %>
+
+<% unless port_list.empty? %>
+### Port
+<% port_list.each do |socket| %>
+<% if socket[:port] == socket[:service] %>
+- <%= socket[:port] %>/<%= socket[:protocol] %>
+<% else %>
+- <%= socket[:port] %>/<%= socket[:protocol]%>(<%= socket[:service] %>)
+<% end %>
+<% end %>
+<% end %>
+
+<% unless services.empty? %>
+### Services
+<% services.each do |service| %>
+- <%= service %>
+<% end %>
+<% end %>

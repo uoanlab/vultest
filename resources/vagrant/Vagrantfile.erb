@@ -1,0 +1,51 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = '<%= box_name %>'
+<% unless box_version.nil? %>
+  config.vm.box_version = '<%= box_version %>'
+<% end %>
+<% if os_name == 'windows'%>
+  config.vm.guest = :windows
+  config.vm.communicator = 'winrm'
+  config.winrm.username = 'vagrant'
+  config.winrm.password = 'vagrant'
+  config.winrm.retry_limit = 30
+<% end %>
+
+  config.vm.network 'private_network', ip: '<%= host %>'
+<% if os_name == 'windows' %>
+  config.vm.network :forwarded_port, guest: 3389, host: 13_389
+  config.vm.network :forwarded_port, guest: 5985, host: 15_985, id: 'winrm', auto_correct: true
+
+  config.vm.provider 'virtualbox' do |vb|
+    vb.gui = true
+  end
+
+  config.vm.provision 'shell' do |shell|
+    shell.path = 'ConfigureRemotingForAnsible.ps1'
+  end
+<% end %>
+
+<% unless os_name.scan(/CentOS/i).empty? %>
+  config.vm.provision 'shell', inline: <<-SHELL
+    yum update nss -y
+  SHELL
+<% end %>
+
+<% if os_name == 'windows'%>
+  config.vm.provision 'ansible', run: 'always' do |ansible|
+    ansible.playbook = './ansible/playbook/main.yml'
+    ansible.inventory_path = './ansible/hosts/hosts.yml'
+    ansible.limit = 'vagrant'
+  end
+<% else %>
+  config.vm.provision 'ansible_local', run: 'always' do |ansible|
+    ansible.playbook = './ansible/playbook/main.yml'
+    ansible.inventory_path = './ansible/hosts/hosts.yml'
+    ansible.config_file = './ansible/ansible.cfg'
+    ansible.limit = 'all'
+  end
+<% end %>
+end

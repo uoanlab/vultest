@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 # reference: https://www.mbsd.jp/blog/20180228.html
-
-require 'bundler/setup'
 require 'msgpack'
 require 'net/http'
 
@@ -68,7 +66,7 @@ module API
       msf_api(params)
     end
 
-    def module_session_list
+    def module_sessions
       params = ['session.list', @token]
       msf_api(params)
     end

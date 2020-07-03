@@ -1,0 +1,24 @@
+## Root Cause
+
+<% case error_type %>
+<% when 'vulenv' %>
+### Error Ansible Role
+<%= error_ansible_role %>
+
+
+### Error Command
+<%= error_command %>
+
+
+<% when 'attack' %>
+### Error Attack Method
+
+<%= error_method %>
+
+
+#### Error Method Settings
+<% error_method_settings.each do |key, value| %>
+- <%= key %> : <%= value %>
+<% end %>
+
+<% end %>

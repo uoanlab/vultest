@@ -16,11 +16,9 @@ require 'bundler/setup'
 require 'sqlite3'
 
 module DB
-  @config = YAML.load_file('./config.yml')
-
   class << self
     def get_cve_info(cve)
-      db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/data/cve.sqlite3")
+      db = SQLite3::Database.new("#{BASE_CONFIG['vultest_db_path']}/db/data/cve.sqlite3")
       db.results_as_hash = true
       cve_info = {}
 
@@ -34,7 +32,7 @@ module DB
     end
 
     def get_cwe(cve)
-      db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/data/cwe.sqlite3")
+      db = SQLite3::Database.new("#{BASE_CONFIG['vultest_db_path']}/db/data/cwe.sqlite3")
       db.results_as_hash = true
       cwe = nil
       db.execute('select * from cwe where cve=?', cve) { |cwe_info| cwe = cwe.nil? ? cwe_info['cwe'] : "#{cwe}\n#{cwe_info['cwe']}" }
@@ -44,7 +42,7 @@ module DB
     end
 
     def get_cpe(cve)
-      db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/data/cpe.sqlite3")
+      db = SQLite3::Database.new("#{BASE_CONFIG['vultest_db_path']}/db/data/cpe.sqlite3")
       db.results_as_hash = true
       cpe = []
       db.execute('select * from cpe where cve=?', cve) { |cpe_info| cpe << cpe_info['cpe'] }
@@ -54,7 +52,7 @@ module DB
     end
 
     def get_cvss_v2(cve)
-      db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/data/cvss_v2.sqlite3")
+      db = SQLite3::Database.new("#{BASE_CONFIG['vultest_db_path']}/db/data/cvss_v2.sqlite3")
       db.results_as_hash = true
       cvss_v2 = {}
       db.execute('select * from cvss_v2 where cve=?', cve) do |cvss|
@@ -73,7 +71,7 @@ module DB
     end
 
     def get_cvss_v3(cve)
-      db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/data/cvss_v3.sqlite3")
+      db = SQLite3::Database.new("#{BASE_CONFIG['vultest_db_path']}/db/data/cvss_v3.sqlite3")
       db.results_as_hash = true
       cvss_v3 = {}
 
@@ -96,7 +94,7 @@ module DB
     end
 
     def get_vultest_configs(cve)
-      db = SQLite3::Database.new("#{@config['vultest_db_path']}/db/data/vultest.sqlite3")
+      db = SQLite3::Database.new("#{BASE_CONFIG['vultest_db_path']}/db/data/vultest.sqlite3")
       db.results_as_hash = true
 
       vul_configs = []
