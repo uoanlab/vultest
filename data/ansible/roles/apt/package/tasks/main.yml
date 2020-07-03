@@ -1,6 +1,0 @@
----
-- name: "apt install {{ name_and_version }}"
-  apt:
-    name: "{{ name_and_version }}"
-    state: present
-    update_cache: no

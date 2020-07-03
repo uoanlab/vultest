@@ -1,0 +1,12 @@
+---
+name: <%= name %>
+<% unless version.nil? %>
+version: <%= version %>
+<% end %>
+<% if name == 'mysql' %>
+os_core_version: <%= os_core_version %>
+user: <%= user %>
+base_dir: <%= base_dir %>
+data_dir: <%= data_dir %>
+root_password: <%= root_password %>
+<% end %>

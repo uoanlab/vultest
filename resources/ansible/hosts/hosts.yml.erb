@@ -1,0 +1,10 @@
+---
+vagrant:
+  hosts: <%= host %>
+<% if os_name == 'windows' %>
+  vars:
+    ansible_user: vagrant
+    ansible_password: vagrant
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+<% end %>
