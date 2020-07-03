@@ -110,7 +110,7 @@ unless ARGV.size.zero?
       setting[:attack_user],
       setting[:attack_passwd]
     )
-  elsif flag[:create_attack_env]
+  elsif flag[:create_attack_env] == 'yes'
     core.create_attack_env
   end
 
