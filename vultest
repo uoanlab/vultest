@@ -48,7 +48,6 @@ unless ARGV.size.zero?
     'attack_passwd:',
     'attack_host:',
     'attack_dir:',
-    'create_attack_env: no',
     'dir:',
     'destroy:no'
   )
@@ -65,7 +64,6 @@ unless ARGV.size.zero?
   flag = {
     test: opts['test'],
     destroy: opts['destroy'],
-    create_attack_env: opts['create_attack_env'],
     startup_msf_server: false
   }
 
@@ -75,6 +73,8 @@ unless ARGV.size.zero?
   end
 
   core = Core.new
+
+  Print.part('Vulenv')
   return unless core.select_vultest_case?(cve: cve)
 
   unless core.create_vulenv?(vulenv_dir: setting[:test_dir])
@@ -84,9 +84,11 @@ unless ARGV.size.zero?
 
   return if flag[:test] == 'no'
 
+  print "\n"
+  Print.part('Attack')
   if core.vulenv_config['attack_vector'] == 'local'
     setting[:attack_host] = '192.168.177.177'
-  elsif flag[:create_attack_env] == 'yes'
+  elsif !setting[:attack_dir].nil?
     setting[:attack_host] = '192.168.77.77'
     setting[:attack_user] = 'vagrant'
     setting[:attack_passwd] = 'vagrant'
@@ -110,17 +112,22 @@ unless ARGV.size.zero?
       setting[:attack_user],
       setting[:attack_passwd]
     )
-  elsif flag[:create_attack_env] == 'yes'
-    core.create_attack_env
+  elsif !setting[:attack_dir].nil? then core.create_attack_env
   end
 
   TTY::Prompt.new.keypress('If you start the attack, puress ENTER key', keys: [:return])
   Print.execute('Exploit attack')
   core.exec_attack
 
+  print "\n"
+  Print.part('Report')
   core.create_report(report_dir: setting[:test_dir])
 
-  core.destroy_env if flag[:destroy] == 'yes'
+  return unless flag[:destroy] == 'yes'
+
+  print "\n"
+  Print.part('Destroy')
+  core.destroy_env
 
   return
 end

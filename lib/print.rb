@@ -38,6 +38,10 @@ module Print
       puts msg
     end
 
+    def part(msg)
+      puts(Rainbow('+' * 20 + " #{msg} Part " + '+' * 20).aqua)
+    end
+
     def spinner_begin(msg)
       @spinner = TTY::Spinner.new(
         "[:spinner] #{msg}",
