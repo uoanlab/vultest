@@ -78,6 +78,8 @@ unless ARGV.size.zero?
   return unless core.select_vultest_case?(cve: cve)
 
   unless core.create_vulenv?(vulenv_dir: setting[:test_dir])
+    print "\n"
+    Print.part('Report')
     core.create_report(report_dir: setting[:test_dir])
     return
   end
