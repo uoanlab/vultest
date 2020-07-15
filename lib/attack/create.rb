@@ -50,7 +50,6 @@ module Attack
         env_dir: @env_dir,
         hosts: '192.168.77.77',
         os_name: 'ubuntu',
-        os_version: '18.04',
         install_method: 'apt',
         host: '192.168.77.77',
         msf: true

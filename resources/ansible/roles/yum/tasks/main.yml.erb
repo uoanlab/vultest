@@ -16,44 +16,44 @@
   block:
     - name: Download MySQL
       get_url:
-        url: "https://downloads.mysql.com/archives/get/p/23/file/mysql-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm-bundle.tar"
+        url: "https://downloads.mysql.com/archives/get/p/23/file/mysql-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm-bundle.tar"
         dest: /usr/local/src
         validate_certs: no
 
     - name: Unarchive mysql
       unarchive:
-        src: "/usr/local/src/mysql-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm-bundle.tar"
+        src: "/usr/local/src/mysql-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm-bundle.tar"
         dest: /usr/local/src
         copy: no
 
-    - name: "yum localinstall mysql-community-common-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+    - name: "yum localinstall mysql-community-common-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
       yum:
-        name: "/usr/local/src/mysql-community-common-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+        name: "/usr/local/src/mysql-community-common-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
         state: present
 
-    - name: "yum localinstall mysql-community-libs-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+    - name: "yum localinstall mysql-community-libs-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
       yum:
-        name: "/usr/local/src/mysql-community-libs-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+        name: "/usr/local/src/mysql-community-libs-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
         state: present
 
-    - name: "yum localinstall mysql-community-libs-compat-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+    - name: "yum localinstall mysql-community-libs-compat-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
       yum:
-        name: "/usr/local/src/mysql-community-libs-compat-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+        name: "/usr/local/src/mysql-community-libs-compat-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
         state: present
 
-    - name: "yum localinstall mysql-community-devel-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+    - name: "yum localinstall mysql-community-devel-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
       yum:
-        name: "/usr/local/src/mysql-community-devel-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+        name: "/usr/local/src/mysql-community-devel-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
         state: present
 
-    - name: "yum localinstall mysql-community-client-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+    - name: "yum localinstall mysql-community-client-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
       yum:
-        name: "/usr/local/src/mysql-community-client-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+        name: "/usr/local/src/mysql-community-client-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
         state: present
 
-    - name: "yum localinstall mysql-community-server-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+    - name: "yum localinstall mysql-community-server-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
       yum:
-        name: "/usr/local/src/mysql-community-server-{{ version }}-1.el{{ os_core_version }}.x86_64.rpm"
+        name: "/usr/local/src/mysql-community-server-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
         state: present
 
 - name: Install a MySQL extension

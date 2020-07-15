@@ -19,12 +19,11 @@ module Ansible
     module Yum
       class << self
         def create(args)
-          os_version = args.fetch(:os_version, nil)
           role_dir = args[:role_dir]
           software = args[:software]
 
           create_tasks(role_dir, software)
-          create_vars(role_dir, software, os_version)
+          create_vars(role_dir, software)
         end
 
         private
@@ -43,7 +42,7 @@ module Ansible
           end
         end
 
-        def create_vars(role_dir, software, os_version)
+        def create_vars(role_dir, software)
           FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
           erb = ERB.new(
             File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/yum/vars/main.yml.erb"),
@@ -54,7 +53,6 @@ module Ansible
           version = software.fetch('version', nil)
 
           if name == 'mysql'
-            os_core_version = os_version.to_s.split('.')[0]
             user = software.fetch('user', 'mysql')
             base_dir = software.fetch('base_dir', '/usr/local/mysql')
             data_dir = software.fetch('data_dir', '/usr/local/mysql/data')

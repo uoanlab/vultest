@@ -64,7 +64,6 @@ module Vulenv
       Ansible::Core.new(
         hosts: '192.168.177.177',
         os_name: @os[:name],
-        os_version: @os[:version],
         install_method: @os[:install_method],
         host: '192.168.177.177',
         env_dir: @env_dir,

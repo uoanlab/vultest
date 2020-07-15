@@ -108,11 +108,7 @@ module Ansible
         when 'apt'
           Roles::Apt.create(role_dir: @ansible_dir[:roles], software: software)
         when 'yum'
-          Roles::Yum.create(
-            role_dir: @ansible_dir[:roles],
-            software: software,
-            os_version: @os[:version]
-          )
+          Roles::Yum.create(role_dir: @ansible_dir[:roles], software: software)
         when 'gem'
           Roles::Gem.create(role_dir: @ansible_dir[:roles], software: software)
         when 'source'
