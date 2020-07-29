@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+require 'lib/attack/tool/http'
 require 'lib/attack/tool/metasploit'
 require 'lib/attack/create'
 require 'lib/print'
@@ -36,10 +37,12 @@ module Attack
     end
 
     def exec
-      @attack_tool = Tool::Metasploit.new(
-        host: @host,
-        exploits: attack_config['metasploit']
-      )
+      @attack_tool =
+        if attack_config.key?('metasploit')
+          Tool::Metasploit.new(host: @host, exploits: attack_config['metasploit'])
+        elsif attack_config.key?('http')
+          Tool::HTTP.new(exploits: attack_config['http'])
+        end
 
       attack_tool.exec
     end

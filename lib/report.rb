@@ -13,6 +13,7 @@
 # limitations under the License.
 require 'erb'
 require 'fileutils'
+require 'json'
 require 'tty-markdown'
 
 require 'lib/db'
@@ -104,11 +105,18 @@ class Report
     attack_tool = nil
     attack_methods = []
 
-    if @attack.attack_config.key?('metasploit')
+    if @attack.attack_tool.instance_of?(::Attack::Tool::Metasploit)
       attack_tool = 'Metasploit'
       attack_methods = @attack.attack_config['metasploit']
-    elsif @attack.attack_config.key?('metasploit')
+    elsif @attack.attack_tool.instance_of?(::Attack::Tool::HTTP)
       attack_tool = 'HTTP'
+      target_url = @attack.attack_tool.target_url
+      attack_url = @attack.attack_tool.attack_request_setting[:url]
+      attack_http_method = @attack.attack_tool.attack_request_setting[:method]
+      request_header = @attack.attack_tool.request[:header]
+      request_body = @attack.attack_tool.request[:body]
+      response_header = @attack.attack_tool.response[:header]
+      response_body = JSON.pretty_generate(JSON.parse(@attack.attack_tool.response[:body]))
     end
 
     File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
