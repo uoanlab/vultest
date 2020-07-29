@@ -10,6 +10,9 @@
 <% attack_method['options'].each do |option| %>
 - <%= option['name'] %> : <%= option['var'] %>
 <% end %>
+
+
+
 <% end %>
 
 <% when 'HTTP' %>
@@ -17,7 +20,7 @@
 <%= target_url %>
 
 
-### Attack Request
+### HTTP Details
 
 
 #### Attack URL

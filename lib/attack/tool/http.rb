@@ -62,13 +62,17 @@ module Attack
         res.each_header { |key, value| @response[:header][key] = value }
         @response[:body] = res.body
 
-        return if res.msg == 'OK'
+        if res.msg == 'OK'
+          Print.result('no judement')
+          return
+        end
 
         @error = {
           code: res.code,
           header: response[:header],
           body: response[:body]
         }
+        Print.result('fail')
       end
 
       private

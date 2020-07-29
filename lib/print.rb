@@ -42,6 +42,14 @@ module Print
       puts(Rainbow('+' * 20 + " #{msg} Part " + '+' * 20).aqua)
     end
 
+    def result(status)
+      case status
+      when 'success' then puts('Result: ' + Rainbow('Success').cyan + '(See Report)')
+      when 'fail' then puts('Result: ' + Rainbow('Fail').red + '(See Report)')
+      else puts('Result: ' + Rainbow('No judgment').aliceblue + '(See Report)')
+      end
+    end
+
     def spinner_begin(msg)
       @spinner = TTY::Spinner.new(
         "[:spinner] #{msg}",
