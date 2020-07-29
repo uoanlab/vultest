@@ -49,9 +49,11 @@ module Ansible
             src_dir = software.fetch('src_dir', '/usr/local/src')
             software_path = SourceInstall.create_software_path(software, '/usr/local/src')
             document_root = software.fetch('document_root', '/usr/local/apache2/htdocs')
-            wordpress_database = software.fetch('wordpress_database', 'wordpressdb')
-            wordpress_user = software.fetch('wordpress_user', 'wordpressuser')
-            wordpress_password = software.fetch('wordpress_password', 'wordpresspassword')
+
+            database = software.fetch('database', {})
+            wordpress_database = database.fetch('name', 'wordpressdb')
+            wordpress_user = database.fetch('user_name', 'wordpressuser')
+            wordpress_password = database.fetch('user_password', 'wordpresspassword')
 
             File.open("#{role_dir}/wordpress/vars/main.yml", 'w') do |f|
               f.puts(erb.result(binding))
