@@ -23,7 +23,7 @@
   with_items: "{{ patches }}"
 
 - name: ./configure
-  shell: "{{ configure_command }}"
+  shell: "{{ configure }}"
   args:
     chdir: "{{ src_dir }}/bash-{{ version }}"
 
@@ -37,7 +37,7 @@
   args:
     chdir: "{{ src_dir }}/bash-{{ version }}"
 
-- name: Add "{{ software_path }}" in /etc/shells
+- name: Add "{{ path }}" in /etc/shells
   lineinfile:
     dest: /etc/shells
-    line: "{{ software_path }}"
+    line: "{{ path }}"

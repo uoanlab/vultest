@@ -12,7 +12,7 @@
     copy: no
 
 - name: ./configure
-  shell: "{{ configure_command }}"
+  shell: "{{ configure }}"
   args:
     chdir: "{{ src_dir }}/httpd-{{ version }}"
 
@@ -38,8 +38,8 @@
         regexp: "/replace/with/path/to/perl/interpreter"
         replace: "{{ perl_path.stdout }}"
       with_items:
-        - "{{ software_path }}/bin/apxs"
-        - "{{ software_path }}/bin/dbmmanage"
+        - "{{ path }}/bin/apxs"
+        - "{{ path }}/bin/dbmmanage"
   when: perl_path is undefined
 
 - name: Use the defineded perl
@@ -50,11 +50,11 @@
         regexp: "/replace/with/path/to/perl/interpreter"
         replace: "{{ perl_path }}"
       with_items:
-        - "{{ software_path }}/bin/apxs"
-        - "{{ software_path }}/bin/dbmmanage"
+        - "{{ path }}/bin/apxs"
+        - "{{ path }}/bin/dbmmanage"
   when: perl_path is defined
 
 - name: Startup httpd
   shell: apachectl start
   environment:
-    PATH: "{{ software_path }}/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ path }}/bin:{{ ansible_env.PATH }}"

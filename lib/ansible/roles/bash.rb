@@ -59,8 +59,11 @@ module Ansible
             end
 
             src_dir = software.fetch('src_dir', '/usr/local/src')
-            software_path = SourceInstall.create_software_path(software, '/usr/local/bin/bash')
-            configure_command = SourceInstall.create_configure_command(software)
+            configure = software.fetch('configure', './configure')
+            path =
+              if configure.match(/prefix=(.*)/).nil? then '/usr/local/bin/bash'
+              else configure.match(/prefix=(.*)/)[1].split(' ')[0]
+              end
 
             File.open("#{role_dir}/bash/vars/main.yml", 'w') { |f| f.puts(erb.result(binding)) }
           end

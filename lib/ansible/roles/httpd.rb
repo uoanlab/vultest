@@ -47,8 +47,13 @@ module Ansible
 
             version = software['version']
             src_dir = software.fetch('src_dir', '/usr/local/src')
-            software_path = SourceInstall.create_software_path(software, '/usr/local/apache2')
-            configure_command = SourceInstall.create_configure_command(software)
+            configure = software.fetch('configure', './configure')
+
+            path =
+              if configure.match(/prefix=(.*)/).nil? then '/usr/local/apache2'
+              else configure.match(/prefix=(.*)/)[1].split(' ')[0]
+              end
+
             perl_path = software.fetch('perl_path', nil)
 
             File.open("#{role_dir}/httpd/vars/main.yml", 'w') do |f|

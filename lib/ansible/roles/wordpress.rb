@@ -47,7 +47,6 @@ module Ansible
 
             version = software['version']
             src_dir = software.fetch('src_dir', '/usr/local/src')
-            software_path = SourceInstall.create_software_path(software, '/usr/local/src')
             document_root = software.fetch('document_root', '/usr/local/apache2/htdocs')
 
             database = software.fetch('database', {})

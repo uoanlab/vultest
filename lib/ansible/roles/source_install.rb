@@ -46,25 +46,6 @@ module Ansible
           when 'wp-cli' then WPCLI.create(role_dir, software)
           end
         end
-
-        def create_configure_command(software)
-          cmd = './configure'
-          software.fetch('configure_options', {}).each do |k, v|
-            cmd << if v.empty? then " --#{k}"
-                   else " --#{k}=#{v}"
-                   end
-          end
-          cmd
-        end
-
-        def create_software_path(software, default_path)
-          path = software.fetch('configure_options', nil)
-          if path.nil? || !path.key?('prefix')
-            default_path
-          elsif path.key?('prefix')
-            path['prefix']
-          end
-        end
       end
     end
   end

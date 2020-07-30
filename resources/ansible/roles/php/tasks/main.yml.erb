@@ -12,7 +12,7 @@
     copy: no
 
 - name: ./configure
-  shell: "{{ configure_command }}"
+  shell: "{{ configure }}"
   args:
     chdir: "{{ src_dir }}/php-{{ version }}"
 
@@ -41,15 +41,15 @@
         owner: root
         group: root
         mode: "0755"
-  when: software_path == "/usr/local/bin/php"
+  when: path == "/usr/local/bin/php"
 
-- name: "Create php.ini (php_path = {{ software_path }})"
+- name: "Create php.ini (php_path = {{ path }})"
   block:
     - name: Search path of phpinfo
       shell: "php -r 'echo phpinfo();' | grep '(php.ini)' | sed 's/.* => //'"
       register: phpinfo_path
       environment:
-        PATH: "{{ software_path }}/bin:{{ ansible_env.PATH }}"
+        PATH: "{{ path }}/bin:{{ ansible_env.PATH }}"
 
     - name: "cp {{ src_dir }}/php-{{ version }}/php.ini-production {{ phpinfo_path.stdout }}/php.ini"
       copy:
@@ -58,4 +58,4 @@
         owner: root
         group: root
         mode: "0755"
-  when: software_path != "/usr/local/bin/php"
+  when: path != "/usr/local/bin/php"

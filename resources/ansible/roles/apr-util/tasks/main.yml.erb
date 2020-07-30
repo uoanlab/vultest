@@ -12,7 +12,7 @@
     copy: no
 
 - name: ./configure
-  shell: "{{ configure_command }}"
+  shell: "{{ configure }}"
   args:
     chdir: "{{ src_dir }}/apr-util-{{ version }}"
 
