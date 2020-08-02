@@ -52,12 +52,7 @@ module Ansible
           name = software['name']
           version = software.fetch('version', nil)
 
-          if name == 'mysql'
-            user = software.fetch('user', 'mysql')
-            base_dir = software.fetch('base_dir', '/usr/local/mysql')
-            data_dir = software.fetch('data_dir', '/usr/local/mysql/data')
-            root_password = software.fetch('root_password', 'Vulnerability123&')
-          end
+          password = software.fetch('password', 'Vulnerability123&') if name == 'mysql'
 
           File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |f|
             f.puts(erb.result(binding))
