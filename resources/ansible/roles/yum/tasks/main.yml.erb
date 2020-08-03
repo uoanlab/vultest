@@ -62,6 +62,39 @@
     path: /var/lib/mysql
     state: absent
 
+- name: "rm -rf {{ base_dir }}"
+  file:
+    path: "{{ base_dir }}"
+    state: absent
+
+- name: "rm -rf {{ data_dir }}"
+  file:
+    path: "{{ data_dir }}"
+    state: absent
+
+- name: "mkdir {{ base_dir }}"
+  file:
+    path: "{{ base_dir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+
+- name: "mkdir {{ data_dir }}"
+  file:
+    path: "{{ data_dir }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0755
+
+- name: "mysqld --initialize  --user={{ user }} --basedir={{ base_dir }} --datadir={{ data_dir }}"
+  shell: >-
+    mysqld --initialize
+    --user="{{ user }}"
+    --basedir="{{ base_dir }}"
+    --datadir="{{ data_dir }}"
+
 - name: service mysqld restart
   service:
     name: mysqld
@@ -82,18 +115,18 @@
   register: default_password
 
 - name: Change password of root in mysql
-  shell: mysql -u root -p"{{ default_password.stdout }}" --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ password }}';"
+  shell: mysql -u root -p"{{ default_password.stdout }}" --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ database_root_password }}';"
 
 - name: Change root privileges
   mysql_user:
     name: root
-    password: "{{ password }}"
+    password: "{{ database_root_password }}"
     host: "localhost"
     priv: "*.*:ALL,GRANT"
     state: present
     host_all: yes
     login_user: root
-    login_password: "{{ password }}"
+    login_password: "{{ database_root_password }}"
     config_file: /etc/my.cnf
 
 <% else %>
