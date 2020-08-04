@@ -57,7 +57,7 @@ module Ansible
 
             database = software.fetch('database', {})
             base_dir = database.fetch('base_dir', '/var/lib/mysql')
-            data_dir = database.fetch('base_dir', '/var/lib/mysql/data')
+            data_dir = database.fetch('data_dir', '/var/lib/mysql/data')
             database_root_password = database.fetch('root_password', 'Vulnerability123&')
           end
 
