@@ -12,35 +12,35 @@
 - name: Download MySQL
   get_url:
     url: "https://downloads.mysql.com/archives/get/p/23/file/mysql-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm-bundle.tar"
-    dest: /usr/local/src
+    dest: /usr/local/src/mysql.rpm-bundle.tar
     validate_certs: no
 - name: Unarchive mysql
   unarchive:
-    src: "/usr/local/src/mysql-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm-bundle.tar"
+    src: /usr/local/src/mysql.rpm-bundle.tar
     dest: /usr/local/src
     copy: no
 
-- name: "yum localinstall mysql-community-common"
+- name: yum localinstall mysql-community-common
   yum:
     name: "/usr/local/src/mysql-community-common-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
     state: present
-- name: "yum localinstall mysql-community-libs"
+- name: yum localinstall mysql-community-libs
   yum:
     name: "/usr/local/src/mysql-community-libs-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
     state: present
-- name: "yum localinstall mysql-community-libs-compat"
+- name: yum localinstall mysql-community-libs-compat
   yum:
     name: "/usr/local/src/mysql-community-libs-compat-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
     state: present
-- name: "yum localinstall mysql-community-devel"
+- name: yum localinstall mysql-community-devel
   yum:
     name: "/usr/local/src/mysql-community-devel-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
     state: present
-- name: "yum localinstall mysql-community-client"
+- name: yum localinstall mysql-community-client
   yum:
     name: "/usr/local/src/mysql-community-client-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
     state: present
-- name: "yum localinstall mysql-community-server"
+- name: yum localinstall mysql-community-server
   yum:
     name: "/usr/local/src/mysql-community-server-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
     state: present
@@ -53,25 +53,20 @@
     packages:
       - python-devel
       - python-pip
-- name: pip install MySQL-python
-  pip:
-    name: MySQL-python
+      - MySQL-python
 
 - name: rm -rf /var/lib/mysql
   file:
     path: /var/lib/mysql
     state: absent
-
 - name: "rm -rf {{ base_dir }}"
   file:
     path: "{{ base_dir }}"
     state: absent
-
 - name: "rm -rf {{ data_dir }}"
   file:
     path: "{{ data_dir }}"
     state: absent
-
 - name: "mkdir {{ base_dir }}"
   file:
     path: "{{ base_dir }}"
@@ -79,7 +74,6 @@
     owner: mysql
     group: mysql
     mode: 0755
-
 - name: "mkdir {{ data_dir }}"
   file:
     path: "{{ data_dir }}"
@@ -91,9 +85,11 @@
 - name: "mysqld --initialize  --user={{ user }} --basedir={{ base_dir }} --datadir={{ data_dir }}"
   shell: >-
     mysqld --initialize
-    --user="{{ user }}"
-    --basedir="{{ base_dir }}"
-    --datadir="{{ data_dir }}"
+    --user={{ user }}
+    --basedir={{ base_dir }}
+    --datadir={{ data_dir }}
+  register: result
+  when: version >= '5.7.13'
 
 - name: service mysqld restart
   service:
@@ -106,7 +102,7 @@
     state: touch
     mode: 0755
 
-- name: Get the password of root(mysql)
+- name: Get the password of root (version 5.7.x, 8.x)
   shell: >-
     cat /var/log/mysqld.log |
     grep  "root@localhost:" |
@@ -114,8 +110,20 @@
     sed -e "s/\(.*\): \(.*\)/\2/g"
   register: default_password
 
-- name: Change password of root in mysql
-  shell: mysql -u root -p"{{ default_password.stdout }}" --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ database_root_password }}';"
+- name: Change password of root in mysql in (version 8.x)
+  shell: >-
+    mysql
+    -u root
+    -p"{{ default_password.stdout }}"
+    --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ database_root_password }}';"
+  when: version >= '8.0'
+- name: Change password of root in mysql in (version 5.7.x)
+  shell: >-
+    mysql
+    -u root
+    -p"{{ default_password.stdout }}"
+    --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ database_root_password }}';"
+  when: version < '8.0'
 
 - name: Change root privileges
   mysql_user:
