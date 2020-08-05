@@ -20,13 +20,13 @@ module Ansible
       module WPCLI
         class << self
           def create(role_dir, software)
-            create_tasks(role_dir, software)
+            create_tasks(role_dir)
             create_vars(role_dir, software)
           end
 
           private
 
-          def create_tasks(role_dir, software)
+          def create_tasks(role_dir)
             FileUtils.mkdir_p("#{role_dir}/wp-cli/tasks")
             erb = ERB.new(
               File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/wp-cli/tasks/main.yml.erb"),
