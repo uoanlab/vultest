@@ -18,6 +18,7 @@ require 'lib/ansible/roles/apr'
 require 'lib/ansible/roles/apr_util'
 require 'lib/ansible/roles/bash'
 require 'lib/ansible/roles/httpd'
+require 'lib/ansible/roles/mysql'
 require 'lib/ansible/roles/orientdb'
 require 'lib/ansible/roles/pcre'
 require 'lib/ansible/roles/php'
@@ -38,6 +39,7 @@ module Ansible
           when 'apr-util' then APRUtil.create(role_dir, software)
           when 'bash' then Bash.create(role_dir, software)
           when 'httpd' then Httpd.create(role_dir, software)
+          when 'mysql' then MySQL.create(role_dir, software)
           when 'orientdb' then OrientDB.create(role_dir, software)
           when 'pcre' then PCRE.create(role_dir, software)
           when 'php' then PHP.create(role_dir, software)

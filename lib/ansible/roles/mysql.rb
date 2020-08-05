@@ -16,43 +16,43 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    module Yum
+    module MySQL
       class << self
-        def create(args)
-          role_dir = args[:role_dir]
-          software = args[:software]
-
-          create_tasks(role_dir, software)
+        def create(role_dir, software)
+          create_tasks(role_dir)
           create_vars(role_dir, software)
         end
 
         private
 
-        def create_tasks(role_dir, software)
-          FileUtils.mkdir_p("#{role_dir}/#{software['name']}/tasks")
+        def create_tasks(role_dir)
+          FileUtils.mkdir_p("#{role_dir}/mysql/tasks")
           erb = ERB.new(
-            File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/yum/tasks/main.yml.erb"),
+            File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/mysql/tasks/main.yml.erb"),
             trim_mode: 2
           )
 
-          name = software['name']
-          version = software.fetch('version', nil)
-          File.open("#{role_dir}/#{software['name']}/tasks/main.yml", 'w') do |f|
+          File.open("#{role_dir}/mysql/tasks/main.yml", 'w') do |f|
             f.puts(erb.result(binding))
           end
         end
 
         def create_vars(role_dir, software)
-          FileUtils.mkdir_p("#{role_dir}/#{software['name']}/vars")
+          FileUtils.mkdir_p("#{role_dir}/mysql/vars")
           erb = ERB.new(
-            File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/yum/vars/main.yml.erb"),
+            File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/mysql/vars/main.yml.erb"),
             trim_mode: 2
           )
 
-          name = software['name']
-          version = software.fetch('version', nil)
+          version = software['version']
 
-          File.open("#{role_dir}/#{software['name']}/vars/main.yml", 'w') do |f|
+          user = software.fetch('user', 'root')
+
+          base_dir = software.fetch('base_dir', '/var/lib/mysql')
+          data_dir = software.fetch('data_dir', '/var/lib/mysql/data')
+          database_root_password = software.fetch('root_password', 'Vulnerability123&')
+
+          File.open("#{role_dir}/mysql/vars/main.yml", 'w') do |f|
             f.puts(erb.result(binding))
           end
         end

@@ -3,9 +3,3 @@ name: <%= name %>
 <% unless version.nil? %>
 version: <%= version %>
 <% end %>
-<% if name == 'mysql' %>
-user: <%= user %>
-base_dir: <%= base_dir %>
-data_dir: <%= data_dir %>
-database_root_password: <%= database_root_password %>
-<% end %>
