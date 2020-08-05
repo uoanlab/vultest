@@ -46,10 +46,10 @@ module Attack
         end
 
         if !error.nil?
-          Print.result('fail')
+          Print.result('Attack Failed')
           Print.warring('Can look at a report about error in attack execution')
         else
-          Print.result('success')
+          Print.result('Attack Succeed')
           print "\n"
 
           exec_payload

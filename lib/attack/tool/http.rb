@@ -63,7 +63,7 @@ module Attack
         @response[:body] = res.body
 
         if res.msg == 'OK'
-          Print.result('no judement')
+          Print.result('No Judement')
           return
         end
 
@@ -72,7 +72,7 @@ module Attack
           header: response[:header],
           body: response[:body]
         }
-        Print.result('fail')
+        Print.result('Attack Failed')
       end
 
       private
