@@ -1,0 +1,21 @@
+---
+- name: Download orientdb
+  get_url:
+    url: "wget https://s3.us-east-2.amazonaws.com/orientdb3/releases/{{ version }}/orientdb-community-{{ version }}.zip"
+    dest: /usr/local/src
+
+- name: Unarchive orientdb
+  unarchive:
+    src: "/usr/local/src/orientdb-community-{{ version }}.zip"
+    dest: /usr/local/src
+    copy: no
+
+- name: chmod 755 bin/*.sh
+  shell: chmod 755 bin/*.sh
+  args:
+    chdir: "/usr/local/src/orientdb-community-{{ version }}"
+
+- name: chmod -R 777 config
+  shell: chmod -R 777 config
+  args:
+    chdir: "/usr/local/src/orientdb-community-{{ version }}"

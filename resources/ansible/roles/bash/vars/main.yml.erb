@@ -1,0 +1,11 @@
+---
+version: <%= version %>
+<% unless patches.empty? %>
+patches:
+<% patches.each do |patch| %>
+  - {name: <%= patch['name'] %>, version: <%= patch['version'] %>}
+<% end %>
+<% end %>
+path: <%= path %>
+configure: <%= configure %>
+src_dir: <%= src_dir %>

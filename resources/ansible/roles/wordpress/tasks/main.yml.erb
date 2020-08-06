@@ -1,0 +1,82 @@
+---
+- name: Donload WordPress
+  get_url:
+    url: "https://wordpress.org/wordpress-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    validate_certs: no
+
+- name: Unarchive WordPress
+  unarchive:
+    src: /usr/local/src/wordpress-{{ version }}.tar.gz
+    dest: "{{ src_dir }}"
+    copy: no
+
+- name: "cp -r {{ src_dir }}/wordpress {{ document_root }}"
+  copy:
+    src: "{{ src_dir }}/wordpress"
+    dest: "{{ document_root }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "rm -r /usr/local/src/wordpress"
+  file:
+    path: "{{ src_dir }}/wordpress"
+    state: absent
+
+- name: "cp {{ document_root }}/wordpress/wp-config-sample.php {{ document_root }}/wp-config.php"
+  copy:
+    src: "{{ document_root }}/wordpress/wp-config-sample.php"
+    dest: "{{ document_root }}/wordpress/wp-config.php"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "rm -r {{ document_root }}/wordpress/wp-config-sample.php"
+  file:
+    path: "{{ document_root }}/wordpress/wp-config-sample.php"
+    state: absent
+
+- name: Set the database of Wordpress
+  replace:
+    path: "{{ document_root }}/wordpress/wp-config.php"
+    regexp: "database_name_here"
+    replace: "{{ wordpress_database }}"
+
+- name: Set the username of Wordpress
+  replace:
+    path: "{{ document_root }}/wordpress/wp-config.php"
+    regexp: "username_here"
+    replace: "{{ wordpress_user }}"
+
+- name: Set the password of wordpress
+  replace:
+    path: "{{ document_root }}/wordpress/wp-config.php"
+    regexp: "password_here"
+    replace: "{{ wordpress_password }}"
+
+- name: Set the url of wordpress
+  replace:
+    path: "{{ document_root }}/wordpress/wp-config.php"
+    regexp: "localhost"
+    replace: 127.0.0.1
+
+- name: Create new databases with names 'wordpressdb'
+  mysql_db:
+    name: "{{ wordpress_database }}"
+    state: present
+    login_user: "{{ database_login_user }}"
+    login_password: "{{ database_login_password }}"
+    config_file: /etc/my.cnf
+  when: type == "mysql"
+
+- name: "Create database user with name '{{ wordpress_user }}' and password '{{ wordpress_password }}' with all database privileges"
+  mysql_user:
+    name: "{{ wordpress_user }}"
+    password: "{{ wordpress_password }}"
+    priv: "*.*:ALL"
+    state: present
+    login_user: "{{ database_login_user }}"
+    login_password: "{{ database_login_password }}"
+    config_file: /etc/my.cnf
+  when: type == "mysql"
