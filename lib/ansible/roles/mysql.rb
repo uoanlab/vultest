@@ -45,7 +45,7 @@ module Ansible
           )
 
           version = software['version']
-
+          src_dir = software.fetch('src_dir', '/usr/local/src')
           user = software.fetch('user', 'root')
 
           base_dir = software.fetch('base_dir', '/var/lib/mysql')
