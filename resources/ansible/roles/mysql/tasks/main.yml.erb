@@ -16,12 +16,12 @@
     - name: Download MySQL
       get_url:
         url: "https://downloads.mysql.com/archives/get/p/23/file/mysql-{{ version }}-1.el{{ ansible_distribution_major_version }}.x86_64.rpm-bundle.tar"
-        dest: /usr/local/src/mysql.rpm-bundle.tar
+        dest: "{{ src_dir }}/mysql.rpm-bundle.tar"
         validate_certs: no
     - name: Unarchive mysql
       unarchive:
-        src: /usr/local/src/mysql.rpm-bundle.tar
-        dest: /usr/local/src
+        src: "{{ src_dir }}/mysql.rpm-bundle.tar"
+        dest: "{{ src_dir }}"
         copy: no
   when: ansible_distribution == "CentOS"
 
