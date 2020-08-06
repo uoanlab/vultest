@@ -72,7 +72,7 @@ module Attack
           header: response[:header],
           body: response[:body]
         }
-        Print.result('Attack Failed')
+        Print.result('failure')
       end
 
       private
