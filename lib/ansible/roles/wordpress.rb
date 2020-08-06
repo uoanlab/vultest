@@ -50,6 +50,9 @@ module Ansible
             document_root = software.fetch('document_root', '/usr/local/apache2/htdocs')
 
             database = software.fetch('database', {})
+            type = database.fetch('type', '')
+            database_login_user = database.fetch('login_user', 'root')
+            database_login_password = database.fetch('login_password', '')
             wordpress_database = database.fetch('name', 'wordpressdb')
             wordpress_user = database.fetch('user_name', 'wordpressuser')
             wordpress_password = database.fetch('user_password', 'wordpresspassword')
