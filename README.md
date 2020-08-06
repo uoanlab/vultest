@@ -16,11 +16,13 @@ University of Aizu, 2019
 - CVE-2015-1318
 - CVE-2015-1328
 - CVE-2015-3224
+- CVE-2017-5487
 - CVE-2017-11467
 - CVE-2019-0708
 
 # Releases
 
+- [20200401, v0.6.0](https://github.com/uoanlab/vultest/releases/tag/v0.6.0)
 - [20200401, v0.5.0](https://github.com/uoanlab/vultest/releases/tag/v0.5.0)
 - [20200222, v0.4.0](https://github.com/uoanlab/vultest/releases/tag/v0.4.0)
 - [20191108, v0.3.0](https://github.com/uoanlab/vultest/releases/tag/v0.3.0)

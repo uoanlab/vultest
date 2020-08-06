@@ -1,0 +1,14 @@
+---
+<% if version.nil?%>
+- name: "yum install {{ name }}"
+  yum:
+    name: "{{ name }}"
+    state: present
+    update_cache: no
+<% else %>
+- name: "yum install {{ name }}-{{ version }}"
+  yum:
+    name: "{{ name }}-{{ version }}"
+    state: present
+    update_cache: no
+<% end %>

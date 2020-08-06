@@ -1,0 +1,22 @@
+---
+- hosts: vagrant
+<% unless os_name == 'windows' %>
+  connection: local
+  become: yes
+<% end %>
+  roles:
+<% users.each do |user| %>
+    - ../roles/<%= user %>-user
+<% end %>
+<% softwares.each do |software|%>
+    - ../roles/<%= software %>
+<% end %>
+<% if msf %>
+   - ../roles/metasploit
+<% end %>
+<% unless content.nil? %>
+    - ../roles/content
+<% end %>
+<% services.each do |service| %>
+    - ../roles/service-<%= service %>
+<% end %>

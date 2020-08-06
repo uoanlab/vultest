@@ -1,0 +1,43 @@
+---
+- name: Download bash
+  get_url:
+    url: "http://ftp.gnu.org/gnu/bash/bash-{{version}}.tar.gz"
+    dest: "{{ src_dir }}"
+
+- name: Download the patches
+  get_url:
+    url: "http://ftp.gnu.org/gnu/bash/bash-{{version}}-patches/{{item.version}}"
+    dest: "{{ src_dir }}/{{ item.name }}"
+  with_items: "{{ patches }}"
+
+- name: Unarchive bash
+  unarchive:
+    src: "{{ src_dir }}/bash-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    copy: no
+
+- name: Execute the patches
+  shell: "patch -p0 < {{ src_dir }}/{{ item.name }} "
+  args:
+    chdir: "{{ src_dir }}/bash-{{ version }}"
+  with_items: "{{ patches }}"
+
+- name: ./configure
+  shell: "{{ configure }}"
+  args:
+    chdir: "{{ src_dir }}/bash-{{ version }}"
+
+- name: make
+  shell: make
+  args:
+    chdir: "{{ src_dir }}/bash-{{ version }}"
+
+- name: make install
+  shell: make install
+  args:
+    chdir: "{{ src_dir }}/bash-{{ version }}"
+
+- name: Add "{{ path }}" in /etc/shells
+  lineinfile:
+    dest: /etc/shells
+    line: "{{ path }}"

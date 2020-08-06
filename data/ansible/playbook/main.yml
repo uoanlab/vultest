@@ -1,4 +1,0 @@
----
-- hosts: vagrant
-  connection: local
-  become: yes

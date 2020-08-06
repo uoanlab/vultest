@@ -1,7 +1,0 @@
----
-- name: create user
-  user:
-    name: "{{user}}"
-    state: present
-    shell: /bin/bash
-

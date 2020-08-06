@@ -1,0 +1,62 @@
+
+## Attack Method
+
+### <%= attack_tool %>
+
+<% case attack_tool %>
+<% when 'Metasploit' %>
+<% attack_methods.each do |attack_method| %>
+#### Module Name: <%= attack_method['module_name'] %>
+<% attack_method['options'].each do |option| %>
+- <%= option['name'] %> : <%= option['var'] %>
+<% end %>
+
+
+
+<% end %>
+
+<% when 'HTTP' %>
+### Target URL
+<%= target_url %>
+
+
+### HTTP Details
+
+
+#### Attack URL
+<%= attack_url %>
+
+
+#### HTTP Method
+<%= attack_http_method %>
+
+
+#### Request
+
+
+##### Header
+<% request_header.each do |key, value| %>
+<%= key %>: <%= value %>
+
+<% end %>
+
+
+##### Body
+<%= request_body %>
+
+
+#### Response
+
+
+##### Header
+<% response_header.each do |key, value| %>
+<%= key %>: <%= value %>
+
+<% end %>
+
+
+##### Body(JSON)
+<%= response_body %>
+
+
+<% end %>

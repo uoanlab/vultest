@@ -14,12 +14,181 @@
 # limitations under the License.
 
 require 'bundler/setup'
+require 'pastel'
+require 'optparse'
+require 'tty-table'
+require 'tty-prompt'
+require 'yaml'
+require 'tty-font'
 
-require './app/cli'
-require './app/console'
+$LOAD_PATH.unshift(File.join(File.expand_path(__dir__), '.'))
+require 'lib/core'
+require 'lib/msf_server'
+require 'lib/print'
 
-app = if ARGV.size.zero? then Console.new
-      else CLI.new
-      end
+BASE_CONFIG = YAML.load_file('./config.yml')
 
-app.execute
+Print.stdout(Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST')))
+core = nil
+setting = {
+  test_dir: ENV.fetch('TESTDIR', './test_dir'),
+  attack_dir: ENV.fetch('ATTACKDIR', './attack_dir'),
+  attack_host: ENV.fetch('ATTACKHOST', nil),
+  attack_user: ENV.fetch('ATTACKERUSER', 'root'),
+  attack_passwd: ENV.fetch('ATTACKPASSWD', 'toor')
+}
+
+# Vultest CLI
+unless ARGV.size.zero?
+  opts = ARGV.getopts(
+    '',
+    'cve:',
+    'test:yes',
+    'attack_user:',
+    'attack_passwd:',
+    'attack_host:',
+    'attack_dir:',
+    'dir:',
+    'destroy:no'
+  )
+
+  cve = opts.fetch('cve', nil)
+  setting = {
+    attack_host: opts.fetch('attack_host', setting[:attack_host]),
+    attack_user: opts.fetch('attack_user', setting[:attack_user]),
+    attack_passwd: opts.fetch('attack_passwd', setting[:attack_passwd]),
+    attack_dir: opts.fetch('attack_dir', setting[:attack_dir]),
+    test_dir: opts.fetch('dir', setting[:test_dir])
+  }
+
+  flag = {
+    test: opts['test'],
+    destroy: opts['destroy'],
+    startup_msf_server: false
+  }
+
+  if cve.nil?
+    Print.error('Input CVE')
+    return
+  end
+
+  core = Core.new
+
+  Print.part('Vulenv')
+  return unless core.select_vultest_case?(cve: cve)
+
+  unless core.create_vulenv?(vulenv_dir: setting[:test_dir])
+    print "\n"
+    Print.part('Report')
+    core.create_report(report_dir: setting[:test_dir])
+    return
+  end
+
+  return if flag[:test] == 'no'
+
+  print "\n"
+  Print.part('Attack')
+  if core.attack_config.key?('http')
+    setting[:attack_host] = '127.0.0.1'
+    setting[:attack_user] = nil
+    setting[:attack_passwd] = nil
+
+    flag[:startup_msf_server] = false
+  elsif core.vulenv_config['attack_vector'] == 'local'
+    setting[:attack_host] = '192.168.177.177'
+  elsif !setting[:attack_dir].nil?
+    setting[:attack_host] = '192.168.77.77'
+    setting[:attack_user] = 'vagrant'
+    setting[:attack_passwd] = 'vagrant'
+  else
+    return if setting[:attack_host].nil?
+
+    flag[:startup_msf_server] = true
+  end
+
+  Print.execute('Prepare for an attack envionment')
+  core.prepare_attack(
+    attack_host: setting[:attack_host],
+    attack_user: setting[:attack_user],
+    attack_passwd: setting[:attack_passwd],
+    attack_env_dir: setting[:attack_dir]
+  )
+
+  if flag[:startup_msf_server]
+    MsfServer.startup(
+      setting[:attack_host],
+      setting[:attack_user],
+      setting[:attack_passwd]
+    )
+  elsif !setting[:attack_dir].nil? then core.create_attack_env
+  end
+
+  TTY::Prompt.new.keypress('If you start the attack, puress ENTER key', keys: [:return])
+  Print.execute('Exploit attack')
+  core.exec_attack
+
+  print "\n"
+  Print.part('Report')
+  core.create_report(report_dir: setting[:test_dir])
+
+  return unless flag[:destroy] == 'yes'
+
+  print "\n"
+  Print.part('Destroy')
+  core.destroy_env
+
+  return
+end
+
+# Vultest Command line
+prompt = TTY::Prompt.new(
+  active_color: :cyan,
+  help_color: :bright_white,
+  track_history: true
+)
+prompt_name = 'vultest'
+
+require 'lib/command/destroy'
+require 'lib/command/exploit'
+require 'lib/command/report'
+require 'lib/command/set'
+require 'lib/command/test'
+loop do
+  cmd = prompt.ask("#{prompt_name} >")
+  cmd.nil? ? next : cmd = cmd.split(' ')
+
+  case cmd[0]
+  when /test/i
+    next unless core.nil?
+
+    core = Command::Test.exec(cve: cmd[1], core: core, vulenv_dir: setting[:test_dir])
+    next if core.nil?
+
+    prompt_name = cmd[1]
+
+  when /destroy/i
+    Command::Destroy.exec(core: core)
+
+  when /exploit/i
+    Command::Eploit.exec(core: core, setting: setting)
+
+  when /report/i
+    Command::Report.exec(core: core, report_dir: setting[:test_dir])
+
+  when /set/i
+    Command::Set.exec(core: core, type: cmd[1], value: cmd[2], setting: setting)
+
+  when /back/i
+    next if core.nil?
+
+    next unless prompt.yes?("Finish the vultest for #{prompt_name}")
+
+    prompt_name = 'vultest'
+    core = nil
+
+  when /exit/i
+    break
+
+  else prompt.error("vultest: command not found: #{cmd[0]}")
+  end
+end

@@ -1,0 +1,60 @@
+---
+- name: Download httpd
+  get_url:
+    url: "https://archive.apache.org/dist/httpd/httpd-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    validate_certs: no
+
+- name: Unarchive httpd
+  unarchive:
+    src: "{{ src_dir }}/httpd-{{ version }}.tar.gz"
+    dest: "{{ src_dir }}"
+    copy: no
+
+- name: ./configure
+  shell: "{{ configure }}"
+  args:
+    chdir: "{{ src_dir }}/httpd-{{ version }}"
+
+- name: make
+  shell: make
+  args:
+    chdir: "{{ src_dir }}/httpd-{{ version }}"
+
+- name: make install
+  shell: make install
+  args:
+    chdir: "{{ src_dir }}/httpd-{{ version }}"
+
+- name: Use default perl
+  block:
+    - name: which perl
+      shell: which perl
+      register: perl_path
+
+    - name: "Change /replace/with/path/to/perl/interpreter to {{ perl_path.stdout }}"
+      replace:
+        path: "{{ item }}"
+        regexp: "/replace/with/path/to/perl/interpreter"
+        replace: "{{ perl_path.stdout }}"
+      with_items:
+        - "{{ path }}/bin/apxs"
+        - "{{ path }}/bin/dbmmanage"
+  when: perl_path is undefined
+
+- name: Use the defineded perl
+  block:
+    - name: "Change /replace/with/path/to/perl/interpreter to {{ perl_path.stdout }}"
+      replace:
+        path: "{{ item }}"
+        regexp: "/replace/with/path/to/perl/interpreter"
+        replace: "{{ perl_path }}"
+      with_items:
+        - "{{ path }}/bin/apxs"
+        - "{{ path }}/bin/dbmmanage"
+  when: perl_path is defined
+
+- name: Startup httpd
+  shell: apachectl start
+  environment:
+    PATH: "{{ path }}/bin:{{ ansible_env.PATH }}"
