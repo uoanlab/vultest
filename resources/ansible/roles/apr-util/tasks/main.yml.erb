@@ -7,7 +7,7 @@
 
 - name: Unarchive APR-util
   unarchive:
-    src: "/usr/local/src/apr-util-{{ version }}.tar.gz"
+    src: "{{ src_dir }}/apr-util-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
     copy: no
 

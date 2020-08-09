@@ -7,7 +7,7 @@
 
 - name: Unarchive WordPress
   unarchive:
-    src: /usr/local/src/wordpress-{{ version }}.tar.gz
+    src: "{{ src_dir }}/wordpress-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
     copy: no
 

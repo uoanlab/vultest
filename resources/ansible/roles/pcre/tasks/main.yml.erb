@@ -6,7 +6,7 @@
 
 - name: Unarchive PCRE
   unarchive:
-    src: "/usr/local/src/pcre-{{ version }}.tar.gz"
+    src: "{{ src_dir }}/pcre-{{ version }}.tar.gz"
     dest: "{{ src_dir }}"
     copy: no
 
