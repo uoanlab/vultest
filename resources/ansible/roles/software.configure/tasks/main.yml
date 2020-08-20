@@ -1,0 +1,5 @@
+---
+- name: Execute configure
+  shell: "{{ configure }}"
+  args:
+    chdir: "{{ src_dir }}"

@@ -26,39 +26,60 @@ module Vulenv
       def retrieve_os
         conn = prepare_winrm
 
-        base = nil
+        major_version = nil
         conn.shell(:powershell) do |shell|
           shell.run('$PSVersionTable') do |stdout, _stderr|
-            base = stdout.split(' ')[1] if stdout.include?('BuildVersion')
+            major_version = stdout.split(' ')[1] if stdout.include?('BuildVersion')
           end
         end
 
         {
           name: @env_config['construction']['os']['name'],
           version: @env_config['construction']['os']['version'],
-          base_version: base,
+          major_version: major_version,
           vulnerability: @env_config['construction']['os']['vulnerability']
         }
       end
 
       def retrieve_vul_software
-        return { name: nil, version: nil } unless @env_config['construction'].key?('vul_software')
-
-        {
-          name: @env_config['construction']['vul_software']['name'],
-          version: @env_config['construction']['vul_software']['version']
+        vul_software = {
+          name: nil,
+          version: nil
         }
+
+        return vul_software unless @env_config['construction'].key?('softwares')
+
+        @env_config['construction']['softwares'].each do |s|
+          if s.key?('vulnerability') && s['vulnerability']
+            vul_software = { name: s['name'], version: s['version'] }
+          end
+        end
+
+        vul_software
       end
 
       def retrieve_related_softwares
-        return [] unless @env_config['construction'].key?('related_software')
+        return [] unless @env_config['construction'].key?('softwares')
 
-        @env_config['construction']['related_software'].map do |s|
-          {
-            name: s['name'],
-            version: s.fetch('version', 'The latest version of the repository')
-          }
+        softwares = create_related_software_list(@env_config['construction']['softwares'])
+      end
+
+      def create_related_software_list(softwares)
+        res = []
+        softwares.each do |software|
+          next if software.key?('vulnerability') && software['vulnerability']
+
+          res.push(
+            {
+              name: software['name'],
+              version: software.fetch('version', 'The latest version of the repository')
+            }
+          )
+          if software.key?('softwares')
+            res.push(create_related_software_list(software['softwares']))
+          end
         end
+        res
       end
 
       def retrieve_ipaddrs

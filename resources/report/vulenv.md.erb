@@ -6,22 +6,23 @@
 - OS Name: <%= os[:name] %>
 - OS Version: <%= os[:version] %>
 <% if os[:name] == 'windows' %>
-- Buid Version: <%= os[:base_version] %>
+- Buid Version: <%= os[:major_version] %>
 <% else %>
-- Kernel Version: <%= os[:base_version] %>
+- Kernel Version: <%= os[:major_version] %>
 <% end %>
 <% else %>
-<% if !vul_software[:name].nil? && !vul_software[:version] %>
+<% if !vul_software[:name].nil? && !vul_software[:version].nil? %>
 <%= vul_software[:name] %> : <%= vul_software[:version] %>
 <% end %>
+
 
 ### Operating System
 - Name: <%= os[:name] %>
 - Version: <%= os[:version] %>
 <% if os[:name] == 'windows' %>
-- Buid Version: <%= os[:base_version] %>
+- Buid Version: <%= os[:major_version] %>
 <% else %>
-- Kernel Version: <%= os[:base_version] %>
+- Kernel Version: <%= os[:major_version] %>
 <% end %>
 <% end %>
 

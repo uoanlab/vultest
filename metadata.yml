@@ -1,0 +1,11 @@
+softwares:
+  bash:
+    uri: http://ftp.gnu.org/gnu/bash
+    file: bash-{{ version }}.tar.gz
+    patch:
+      uri: http://ftp.gnu.org/gnu/bash/bash-{{ version }}-patches
+      file: "bash{{ version }}-{{ patch_version }}"
+
+  httpd:
+    uri: https://archive.apache.org/dist/httpd
+    file: httpd-{{ version }}.tar.gz

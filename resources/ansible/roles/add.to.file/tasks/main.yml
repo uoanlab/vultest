@@ -1,0 +1,4 @@
+- name: Add "{{ content }}" in "{{ dest }}"
+  lineinfile:
+    dest: "{{ dest }}"
+    line: "{{ content }}"

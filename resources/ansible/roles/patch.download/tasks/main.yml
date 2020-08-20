@@ -1,0 +1,6 @@
+---
+- name: Download patch
+  get_url:
+    url: "{{ uri }}/{{ file_name }}"
+    dest: "{{ src_dir }}"
+    validate_certs: no

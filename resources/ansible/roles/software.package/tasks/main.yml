@@ -1,0 +1,36 @@
+---
+- name: "apt install {{ name }}"
+  apt:
+    name: "{{ name }}"
+    state: present
+    update_cache: no
+  when:
+    - ansible_distribution == "Ubuntu"
+    - version is undefined
+
+- name: "apt install {{ name }}={{ version }}"
+  apt:
+    name: "{{ name }}={{ version }}"
+    state: present
+    update_cache: no
+  when:
+    - ansible_distribution == "Ubuntu"
+    - version is defined
+
+- name: "yum install {{ name }}"
+  yum:
+    name: "{{ name }}"
+    state: present
+    update_cache: no
+  when:
+    - ansible_distribution == "CentOS"
+    - version is undefined
+
+- name: "yum install {{ name }}-{{ version }}"
+  yum:
+    name: "{{ name }}-{{ version }}"
+    state: present
+    update_cache: no
+  when:
+    - ansible_distribution == "CentOS"
+    - version is defined

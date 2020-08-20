@@ -1,0 +1,12 @@
+---
+- name: Download software
+  get_url:
+    url: "{{ uri }}/{{ file_name }}"
+    dest: "{{ src_dir }}"
+    validate_certs: no
+
+- name: Unarchive source code of software
+  unarchive:
+    src: "{{ src_dir }}/{{ file_name }}"
+    dest: "{{ src_dir }}"
+    copy: no

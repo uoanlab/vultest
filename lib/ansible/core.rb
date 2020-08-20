@@ -13,20 +13,27 @@
 # limitations under the License.
 require 'erb'
 require 'fileutils'
+require 'yaml'
 
-require 'lib/ansible/roles/apt'
-require 'lib/ansible/roles/content'
-require 'lib/ansible/roles/gem'
-require 'lib/ansible/roles/metasploit'
-require 'lib/ansible/roles/service'
-require 'lib/ansible/roles/source_install'
-require 'lib/ansible/roles/user'
-require 'lib/ansible/roles/yum'
+require 'lib/ansible/config'
+require 'lib/ansible/hosts'
+require 'lib/ansible/playbook'
+
+require 'lib/ansible/roles/add_to_file'
+require 'lib/ansible/roles/attack_tool_msf'
+require 'lib/ansible/roles/create_file'
+require 'lib/ansible/roles/patch_download'
+require 'lib/ansible/roles/patch_install'
+require 'lib/ansible/roles/software_build'
+require 'lib/ansible/roles/software_configure'
+require 'lib/ansible/roles/software_download'
+require 'lib/ansible/roles/software_package'
+require 'lib/ansible/roles/software_service'
 
 module Ansible
-  ANSIBLE_CONFIG_TEMPLATE_PATH = './resources/ansible/ansible.cfg.erb'.freeze
+  ANSIBLE_CONFIG_TEMPLATE_PATH = './resources/ansible/ansible.cfg'.freeze
   ANSIBLE_HOSTS_TEMPLATE_PATH = './resources/ansible/hosts/hosts.yml.erb'.freeze
-  ANSIBLE_PLAYBOOK_TEMPLATE_PATH = './resources/ansible/playbook/main.yml.erb'.freeze
+  ANSIBLE_PLAYBOOK_TEMPLATE_PATH = './resources/ansible/playbook.yml.erb'.freeze
   ANSIBLE_ROLES_TEMPLATE_PATH = './resources/ansible/roles'.freeze
 
   class Core
@@ -34,24 +41,21 @@ module Ansible
       @ansible_dir = {
         base: "#{args[:env_dir]}/ansible",
         hosts: "#{args[:env_dir]}/ansible/hosts",
-        playbook: "#{args[:env_dir]}/ansible/playbook",
-        roles: "#{args[:env_dir]}/ansible/roles"
+        role: "#{args[:env_dir]}/ansible/roles"
       }
 
       @host = args[:host]
       @os = {
         name: args[:os_name],
-        version: args[:os_version],
-        install_method: args[:install_method]
+        version: args[:os_version]
       }
 
       @env_config = {
-        users: args.fetch(:users, []),
-        msf: args.fetch(:msf, true),
-        services: args.fetch(:services, []),
-        content: args.fetch(:content, nil),
-        softwares: args.fetch(:softwares, [])
+        softwares: args.fetch(:softwares, []),
+        attack_tool: args.fetch(:attack_tool, nil)
       }
+
+      @playbook = nil
     end
 
     def create
@@ -64,65 +68,142 @@ module Ansible
     private
 
     def create_cfg
-      FileUtils.mkdir_p(@ansible_dir[:base])
-
-      erb = ERB.new(File.read(ANSIBLE_CONFIG_TEMPLATE_PATH), trim_mode: 2)
-      File.open("#{@ansible_dir[:base]}/ansible.cfg", 'w') { |f| f.puts(erb.result(binding)) }
+      Config.new(@ansible_dir[:base]).create
     end
 
     def create_hosts
-      FileUtils.mkdir_p(@ansible_dir[:hosts])
-
-      erb = ERB.new(File.read(ANSIBLE_HOSTS_TEMPLATE_PATH), trim_mode: 2)
-      os_name = @os[:name]
-      host = @host
-      File.open("#{@ansible_dir[:hosts]}/hosts.yml", 'w') { |f| f.puts(erb.result(binding)) }
+      Hosts.new(@ansible_dir[:hosts]).create(@host, @os[:name])
     end
 
     def create_playbook
-      FileUtils.mkdir_p(@ansible_dir[:playbook])
-
-      erb = ERB.new(File.read(ANSIBLE_PLAYBOOK_TEMPLATE_PATH), trim_mode: 2)
-      os_name = @os[:name]
-      users = @env_config[:users]
-      msf = @env_config[:msf]
-      softwares = @env_config[:softwares].map { |software| software['name'] }
-      content = @env_config[:content]
-      services = @env_config[:services]
-
-      File.open("#{@ansible_dir[:playbook]}/main.yml", 'w') do |f|
-        f.puts(erb.result(binding))
-      end
+      @playbook = Playbook.new(@ansible_dir[:base])
+      @playbook.create(@os[:name])
     end
 
     def create_roles
-      Roles::Metasploit.create(role_dir: @ansible_dir[:roles], host: @host) if @env_config[:msf]
+      FileUtils.mkdir_p((@ansible_dir[:role]).to_s)
 
-      @env_config[:users].each do |user|
-        Roles::User.create(role_dir: @ansible_dir[:roles], user: user)
+      if @env_config[:attack_tool] == 'msf'
+        Roles::AttackToolMSF.new(
+          role_dir: @ansible_dir[:role],
+          host: @host
+        ).create
+        @playbook.add('    - attack.tool.msf')
       end
 
-      @env_config[:softwares].each do |software|
-        install_method = software.fetch('method', @os[:install_method])
-        case install_method
-        when 'apt'
-          Roles::Apt.create(role_dir: @ansible_dir[:roles], software: software)
-        when 'yum'
-          Roles::Yum.create(role_dir: @ansible_dir[:roles], software: software)
-        when 'gem'
-          Roles::Gem.create(role_dir: @ansible_dir[:roles], software: software)
-        when 'source'
-          Roles::SourceInstall.create(role_dir: @ansible_dir[:roles], software: software)
+      create_software(@env_config[:softwares])
+    end
+
+    def create_software(softwares)
+      softwares.each do |software|
+        create_software(software['softwares']) if software.key?('softwares')
+
+        method = software.fetch('method', '')
+        software_version = software.fetch('version', nil)
+        patch_version = nil
+        if software.key?('patch')
+          software_version = "#{software['version'].split('.')[0]}.#{software['version'].split('.')[1]}"
+          patch_version = software['version'].split('.')[2]
         end
-      end
 
-      unless @env_config[:content].nil?
-        Roles::Content.create(role_dir: @ansible_dir[:roles], content: @env_config[:content])
-      end
+        case method
+        when 'source'
+          Roles::SoftwareDownload.new(
+            role_dir: @ansible_dir[:role],
+            software_name: software['name'],
+            software_version: software_version,
+            software_src_dir: software['src_dir']
+          ).create
+          @playbook.add("    - #{software['name']}.download")
+        else
+          Roles::SoftwarePackage.new(
+            role_dir: @ansible_dir[:role],
+            software_name: software['name'],
+            software_version: software_version
+          ).create
+          @playbook.add("    - #{software['name']}.package")
+        end
 
-      @env_config[:services].each do |service|
-        Roles::Service.create(role_dir: @ansible_dir[:roles], service: service)
+        unless patch_version.nil?
+          1.upto(patch_version.to_i) do |v|
+            role = Roles::PatchDownload.new(
+              role_dir: @ansible_dir[:role],
+              software_name: software['name'],
+              software_version: software_version,
+              software_src_dir: software['src_dir'],
+              patch_version: v
+            )
+            role.create
+            @playbook.add("    - #{role.path}")
+
+            role = Roles::PatchInstall.new(
+              role_dir: @ansible_dir[:role],
+              software_name: software['name'],
+              software_version: software_version,
+              software_src_dir: software['src_dir'],
+              patch_version: v
+            )
+            role.create
+            @playbook.add("    - #{role.path}")
+          end
+        end
+
+        config = software.fetch('config', {})
+        if config.key?('pre_config')
+          create_pre_config(software['name'], software_version, software['src_dir'], config['pre_config'])
+        end
+        if config.key?('build')
+          create_build(software['name'], software_version, software['src_dir'], config['build'])
+        end
+        create_post_config(config['post_config']) if config.key?('post_config')
+        create_service(software['name'], software['service']) if software.key?('service')
       end
+    end
+
+    def create_pre_config(name, version, src_dir, config)
+      if config.key?('configure')
+        Roles::SoftwareConfigure.new(
+          role_dir: @ansible_dir[:role],
+          software_name: name,
+          software_version: version,
+          software_src_dir: src_dir,
+          software_configure: config['configure']
+        ).create
+        @playbook.add("    - #{name}.configure")
+      end
+    end
+
+    def create_build(name, version, src_dir, config)
+      Roles::SoftwareBuild.new(
+        role_dir: @ansible_dir[:role],
+        software_name: name,
+        software_version: version,
+        software_src_dir: src_dir,
+        build_method: config['method']
+      ).create
+      @playbook.add("    - #{name}.build")
+    end
+
+    def create_post_config(configs)
+      configs.each do |config|
+        next unless config.key?('type')
+
+        role = case config['type']
+               when 'create_file' then Roles::CreateFile.new(role_dir: @ansible_dir[:role], config: config)
+               when 'add_to_file' then Roles::AddtoFile.new(role_dir: @ansible_dir[:role], config: config)
+               end
+        role.create
+        @playbook.add("    - #{role.path}")
+      end
+    end
+
+    def create_service(name, service)
+      Roles::SoftwareService.new(
+        role_dir: @ansible_dir[:role],
+        software_name: name,
+        service: service
+      ).create
+      @playbook.add("    - #{name}.service")
     end
   end
 end

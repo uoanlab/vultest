@@ -21,6 +21,7 @@ module Attack
       attr_reader :host, :msf_api, :error, :exploits, :sessions
 
       ATTACK_TIME_LIMIT = 30
+      LOGIN_TIME_LIMIT = 10
 
       def initialize(args)
         @host = args[:host]
@@ -60,7 +61,17 @@ module Attack
 
       def prepare_metasploit_api
         @msf_api ||= API::Metasploit.new(host)
-        msf_api.auth_login
+
+        time = 0
+        begin
+          msf_api.auth_login
+        rescue Errno::ECONNREFUSED => e
+          sleep(1)
+          time += 1
+          retry if time < LOGIN_TIME_LIMIT
+          Print.error(e)
+        end
+
         msf_api.console_create
       end
 
