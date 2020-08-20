@@ -29,6 +29,7 @@ require 'lib/ansible/roles/software_configure'
 require 'lib/ansible/roles/software_download'
 require 'lib/ansible/roles/software_package'
 require 'lib/ansible/roles/software_service'
+require 'lib/ansible/roles/user'
 
 module Ansible
   ANSIBLE_CONFIG_TEMPLATE_PATH = './resources/ansible/ansible.cfg'.freeze
@@ -51,6 +52,7 @@ module Ansible
       }
 
       @env_config = {
+        users: args.fetch(:users, []),
         softwares: args.fetch(:softwares, []),
         attack_tool: args.fetch(:attack_tool, nil)
       }
@@ -89,6 +91,15 @@ module Ansible
           host: @host
         ).create
         @playbook.add('    - attack.tool.msf')
+      end
+
+      @env_config[:users].each do |user|
+        Roles::User.new(
+          role_dir: @ansible_dir[:role],
+          user_name: user['name'],
+          user_shell: user['shell']
+        ).create
+        @playbook.add("    - #{user['name']}.user")
       end
 
       create_software(@env_config[:softwares])

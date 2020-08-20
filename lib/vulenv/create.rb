@@ -26,6 +26,7 @@ module Vulenv
         name: @env_config['construction']['os']['name'],
         version: @env_config['construction']['os']['version']
       }
+      @users = @env_config['construction'].fetch('user', [])
       @softwares = @env_config['construction'].fetch('softwares', [])
 
       @vagrant = nil
@@ -62,6 +63,7 @@ module Vulenv
         env_dir: @env_dir,
         host: '192.168.177.177',
         os_name: @os[:name],
+        users: @users,
         softwares: @softwares,
         attack_tool: attack_tool
       )
