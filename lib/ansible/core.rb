@@ -24,6 +24,7 @@ require 'lib/ansible/roles/attack_tool_msf'
 require 'lib/ansible/roles/create_file'
 require 'lib/ansible/roles/patch_download'
 require 'lib/ansible/roles/patch_install'
+require 'lib/ansible/roles/replace_in_file'
 require 'lib/ansible/roles/software_build'
 require 'lib/ansible/roles/software_configure'
 require 'lib/ansible/roles/software_download'
@@ -202,6 +203,7 @@ module Ansible
         role = case config['type']
                when 'create_file' then Roles::CreateFile.new(role_dir: @ansible_dir[:role], config: config)
                when 'add_to_file' then Roles::AddtoFile.new(role_dir: @ansible_dir[:role], config: config)
+               when 'replace_in_file' then Roles::ReplaceinFile.new(role_dir: @ansible_dir[:role], config: config)
                end
         role.create
         @playbook.add("    - #{role.path}")

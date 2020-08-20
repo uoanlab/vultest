@@ -9,3 +9,19 @@ softwares:
   httpd:
     uri: https://archive.apache.org/dist/httpd
     file: httpd-{{ version }}.tar.gz
+
+  apr:
+    uri: https://downloads.apache.org//apr
+    file: apr-{{ version }}.tar.gz
+
+  apr-util:
+    uri: https://downloads.apache.org//apr
+    file: apr-util-{{ version }}.tar.gz
+
+  pcre:
+    uri: https://sourceforge.net/projects/pcre/files/pcre/{{ version }}
+    file: pcre-{{ version }}.tar.gz
+
+  wordpress:
+    uri: https://wordpress.org
+    file: wordpress-{{ version }}.tar.gz

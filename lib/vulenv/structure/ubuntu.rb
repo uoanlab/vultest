@@ -88,9 +88,7 @@ module Vulenv
               version: software.fetch('version', 'The latest version of the repository')
             }
           )
-          if software.key?('softwares')
-            res.push(create_related_software_list(software['softwares']))
-          end
+          res += create_related_software_list(software['softwares']) if software.key?('softwares')
         end
         res
       end

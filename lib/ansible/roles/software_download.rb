@@ -32,6 +32,7 @@ module Ansible
       end
 
       def create
+        @uri.gsub!(/{{ version }}/, @software[:version].to_s)
         @file_name.gsub!(/{{ version }}/, @software[:version].to_s)
 
         FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.download")
