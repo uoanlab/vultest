@@ -15,31 +15,34 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    module Software
-      class Build
+    module File
+      class Add
+        attr_reader :path
+
         def initialize(args)
           @role_dir = args[:role_dir]
-          @build_method = args[:build_method]
-          @software = { name: args[:software_name], version: args[:software_version] }
-          @src_dir = args[:software_src_dir]
+          @config = args[:config]
         end
 
         def create
-          FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.build")
+          FileUtils.mkdir_p("#{@role_dir}/#{@config['name']}.file.add")
 
           FileUtils.cp_r(
-            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/#{@build_method}/tasks",
-            "#{@role_dir}/#{@software[:name]}.build"
+            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/tasks",
+            "#{@role_dir}/#{@config['name']}.file.add"
           )
 
           FileUtils.cp_r(
-            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/#{@build_method}/vars",
-            "#{@role_dir}/#{@software[:name]}.build"
+            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/vars",
+            "#{@role_dir}/#{@config['name']}.file.add"
           )
 
-          ::File.open("#{@role_dir}/#{@software[:name]}.build/vars/main.yml", 'a') do |f|
-            f.puts("path: #{@src_dir}/#{@software[:name]}-#{@software[:version]}")
+          ::File.open("#{@role_dir}/#{@config['name']}.file.add/vars/main.yml", 'a') do |f|
+            f.puts("dest: #{@config['path']}")
+            f.puts("content: #{@config['content']}")
           end
+
+          @path = "#{@config['name']}.file.add"
         end
       end
     end

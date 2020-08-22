@@ -55,7 +55,7 @@ module Ansible
             "#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install"
           )
 
-          File.open("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install/vars/main.yml", 'a') do |f|
+          ::File.open("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install/vars/main.yml", 'a') do |f|
             f.puts("src_dir: #{@software[:src_dir]}")
             f.puts("software_name: #{@software[:name]}")
             f.puts("software_version: #{@software[:version]}")

@@ -38,7 +38,7 @@ module Ansible
           "#{@role_dir}/#{@user[:name]}.user"
         )
 
-        File.open("#{@role_dir}/#{@user[:name]}.user/vars/main.yml", 'a') do |f|
+        ::File.open("#{@role_dir}/#{@user[:name]}.user/vars/main.yml", 'a') do |f|
           f.puts("name: #{@user[:name]}")
           f.puts("shell: #{@user[:shell]}")
         end

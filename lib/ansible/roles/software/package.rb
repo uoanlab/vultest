@@ -39,7 +39,7 @@ module Ansible
             "#{@role_dir}/#{@software[:name]}.package"
           )
 
-          File.open("#{@role_dir}/#{@software[:name]}.package/vars/main.yml", 'a') do |f|
+          ::File.open("#{@role_dir}/#{@software[:name]}.package/vars/main.yml", 'a') do |f|
             f.puts("name: #{@software[:name]}")
             f.puts("version: #{@software[:version]}") unless @software[:version].nil?
           end

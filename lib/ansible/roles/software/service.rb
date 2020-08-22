@@ -36,7 +36,7 @@ module Ansible
             "#{@role_dir}/#{@software_name}.service"
           )
 
-          File.open("#{@role_dir}/#{@software_name}.service/vars/main.yml", 'a') do |f|
+          ::File.open("#{@role_dir}/#{@software_name}.service/vars/main.yml", 'a') do |f|
             f.puts("command: #{@service['command']}") if @service.key?('command')
             f.puts("service_name: #{@service['linux_daemon']}") if @service.key?('linux_daemon')
           end

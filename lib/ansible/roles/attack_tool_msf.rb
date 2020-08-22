@@ -39,7 +39,7 @@ module Ansible
           "#{@role_dir}/attack.tool.msf"
         )
 
-        File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
+        ::File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
           f.puts("attack_host: #{@host}")
         end
       end

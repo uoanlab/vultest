@@ -19,10 +19,11 @@ require 'lib/ansible/config'
 require 'lib/ansible/hosts'
 require 'lib/ansible/playbook'
 
-require 'lib/ansible/roles/add_to_file'
 require 'lib/ansible/roles/attack_tool_msf'
-require 'lib/ansible/roles/create_file'
-require 'lib/ansible/roles/replace_in_file'
+
+require 'lib/ansible/roles/file/add'
+require 'lib/ansible/roles/file/create'
+require 'lib/ansible/roles/file/replace'
 
 require 'lib/ansible/roles/patch/download'
 require 'lib/ansible/roles/patch/install'
@@ -204,9 +205,9 @@ module Ansible
         next unless config.key?('type')
 
         role = case config['type']
-               when 'create_file' then Roles::CreateFile.new(role_dir: @ansible_dir[:role], config: config)
-               when 'add_to_file' then Roles::AddtoFile.new(role_dir: @ansible_dir[:role], config: config)
-               when 'replace_in_file' then Roles::ReplaceinFile.new(role_dir: @ansible_dir[:role], config: config)
+               when 'create_file' then Roles::File::Create.new(role_dir: @ansible_dir[:role], config: config)
+               when 'add_to_file' then Roles::File::Add.new(role_dir: @ansible_dir[:role], config: config)
+               when 'replace_in_file' then Roles::File::Replace.new(role_dir: @ansible_dir[:role], config: config)
                end
         role.create
         @playbook.add("    - #{role.path}")

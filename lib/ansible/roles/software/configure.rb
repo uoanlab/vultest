@@ -41,7 +41,7 @@ module Ansible
             "#{@role_dir}/#{@software[:name]}.configure"
           )
 
-          File.open("#{@role_dir}/#{@software[:name]}.configure/vars/main.yml", 'a') do |f|
+          ::File.open("#{@role_dir}/#{@software[:name]}.configure/vars/main.yml", 'a') do |f|
             f.puts("src_dir: #{@software[:src_dir]}/#{@software[:name]}-#{@software[:version]}")
             f.puts("configure: #{@software[:configure]}")
           end

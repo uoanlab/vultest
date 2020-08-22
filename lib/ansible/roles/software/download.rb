@@ -48,7 +48,7 @@ module Ansible
             "#{@role_dir}/#{@software[:name]}.download"
           )
 
-          File.open("#{@role_dir}/#{@software[:name]}.download/vars/main.yml", 'a') do |f|
+          ::File.open("#{@role_dir}/#{@software[:name]}.download/vars/main.yml", 'a') do |f|
             f.puts("src_dir: #{@software[:src_dir]}")
             f.puts("uri: #{@uri}")
             f.puts("file_name: #{@file_name}")
