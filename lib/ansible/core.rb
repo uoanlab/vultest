@@ -25,11 +25,13 @@ require 'lib/ansible/roles/create_file'
 require 'lib/ansible/roles/patch_download'
 require 'lib/ansible/roles/patch_install'
 require 'lib/ansible/roles/replace_in_file'
-require 'lib/ansible/roles/software_build'
-require 'lib/ansible/roles/software_configure'
-require 'lib/ansible/roles/software_download'
-require 'lib/ansible/roles/software_package'
-require 'lib/ansible/roles/software_service'
+
+require 'lib/ansible/roles/software/build'
+require 'lib/ansible/roles/software/configure'
+require 'lib/ansible/roles/software/download'
+require 'lib/ansible/roles/software/package'
+require 'lib/ansible/roles/software/service'
+
 require 'lib/ansible/roles/user'
 
 module Ansible
@@ -120,7 +122,7 @@ module Ansible
 
         case method
         when 'source'
-          Roles::SoftwareDownload.new(
+          Roles::Software::Download.new(
             role_dir: @ansible_dir[:role],
             software_name: software['name'],
             software_version: software_version,
@@ -128,7 +130,7 @@ module Ansible
           ).create
           @playbook.add("    - #{software['name']}.download")
         else
-          Roles::SoftwarePackage.new(
+          Roles::Software::Package.new(
             role_dir: @ansible_dir[:role],
             software_name: software['name'],
             software_version: software_version
@@ -174,7 +176,7 @@ module Ansible
 
     def create_pre_config(name, version, src_dir, config)
       if config.key?('configure')
-        Roles::SoftwareConfigure.new(
+        Roles::Software::Configure.new(
           role_dir: @ansible_dir[:role],
           software_name: name,
           software_version: version,
@@ -186,7 +188,7 @@ module Ansible
     end
 
     def create_build(name, version, src_dir, config)
-      Roles::SoftwareBuild.new(
+      Roles::Software::Build.new(
         role_dir: @ansible_dir[:role],
         software_name: name,
         software_version: version,
@@ -211,7 +213,7 @@ module Ansible
     end
 
     def create_service(name, service)
-      Roles::SoftwareService.new(
+      Roles::Software::Service.new(
         role_dir: @ansible_dir[:role],
         software_name: name,
         service: service
