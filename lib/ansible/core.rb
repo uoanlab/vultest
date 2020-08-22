@@ -22,9 +22,10 @@ require 'lib/ansible/playbook'
 require 'lib/ansible/roles/add_to_file'
 require 'lib/ansible/roles/attack_tool_msf'
 require 'lib/ansible/roles/create_file'
-require 'lib/ansible/roles/patch_download'
-require 'lib/ansible/roles/patch_install'
 require 'lib/ansible/roles/replace_in_file'
+
+require 'lib/ansible/roles/patch/download'
+require 'lib/ansible/roles/patch/install'
 
 require 'lib/ansible/roles/software/build'
 require 'lib/ansible/roles/software/configure'
@@ -140,7 +141,7 @@ module Ansible
 
         unless patch_version.nil?
           1.upto(patch_version.to_i) do |v|
-            role = Roles::PatchDownload.new(
+            role = Roles::Patch::Download.new(
               role_dir: @ansible_dir[:role],
               software_name: software['name'],
               software_version: software_version,
@@ -150,7 +151,7 @@ module Ansible
             role.create
             @playbook.add("    - #{role.path}")
 
-            role = Roles::PatchInstall.new(
+            role = Roles::Patch::Install.new(
               role_dir: @ansible_dir[:role],
               software_name: software['name'],
               software_version: software_version,
