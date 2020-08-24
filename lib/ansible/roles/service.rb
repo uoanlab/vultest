@@ -15,36 +15,33 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    class AttackToolMSF
+    class Service
       attr_reader :path
+
       def initialize(args)
         @role_dir = args[:role_dir]
-        @host = args[:host]
+        @name = args[:name]
+        @config = args[:config]
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/attack.tool.msf")
+        FileUtils.mkdir_p("#{@role_dir}/#{@name}.service")
 
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/tasks",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/tasks",
+          "#{@role_dir}/#{@name}.service"
         )
 
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/vars",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/vars",
+          "#{@role_dir}/#{@name}.service"
         )
 
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
-          "#{@role_dir}/attack.tool.msf"
-        )
-
-        ::File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
-          f.puts("attack_host: #{@host}")
+        ::File.open("#{@role_dir}/#{@name}.service/vars/main.yml", 'a') do |f|
+          f.puts("name: #{@config['service']}")
         end
 
-        @path = 'attack.tool.msf'
+        @path = "#{@name}.service"
       end
     end
   end

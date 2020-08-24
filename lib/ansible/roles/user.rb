@@ -16,6 +16,8 @@ require 'fileutils'
 module Ansible
   module Roles
     class User
+      attr_reader :path
+
       def initialize(args)
         @role_dir = args[:role_dir]
 
@@ -42,6 +44,8 @@ module Ansible
           f.puts("name: #{@user[:name]}")
           f.puts("shell: #{@user[:shell]}")
         end
+
+        @path = "#{@user[:name]}.user"
       end
     end
   end

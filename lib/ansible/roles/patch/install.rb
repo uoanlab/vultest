@@ -30,17 +30,26 @@ module Ansible
           }
 
           metadata = YAML.load_file('./metadata.yml')
-          @patch_name = metadata['softwares'][@software[:name]]['patch']['file']
+          @software_dir = metadata['softwares'][@software[:name]]['unzip_file']
+          @patch_name = metadata['softwares'][@software[:name]]['patch']['unzip_file']
           @patch_version = args[:patch_version]
         end
 
         def create
+          @software_dir.gsub!(
+            /{{ core_version }}/,
+            "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+          )
+
           @patch_version = case @patch_version.to_s.length
                            when 1 then "00#{@patch_version}"
                            when 2 then "0#{@patch_version}"
                            else @patch_version.to_s
                            end
-          @patch_name.gsub!(/{{ version }}/, "#{@software[:version].to_s.split('.')[0]}#{@software[:version].to_s.split('.')[1]}")
+          @patch_name.gsub!(
+            /{{ core_version }}/,
+            "#{@software[:version].to_s.split('.')[0]}#{@software[:version].to_s.split('.')[1]}"
+          )
           @patch_name.gsub!(/{{ patch_version }}/, @patch_version.to_s)
 
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install")
@@ -57,8 +66,7 @@ module Ansible
 
           ::File.open("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install/vars/main.yml", 'a') do |f|
             f.puts("src_dir: #{@software[:src_dir]}")
-            f.puts("software_name: #{@software[:name]}")
-            f.puts("software_version: #{@software[:version]}")
+            f.puts("software_dir: #{@software_dir}")
             f.puts("patch_name: #{@patch_name}")
           end
 

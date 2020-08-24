@@ -2,4 +2,4 @@
 - name: Execute the patches
   patch:
     src: "{{ src_dir }}/{{ patch_name }}"
-    basedir: "{{ src_dir }}/{{ software_name}}-{{ software_version }}/"
+    basedir: "{{ src_dir }}/{{ software_dir }}/"

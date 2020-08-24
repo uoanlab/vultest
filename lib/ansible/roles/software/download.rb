@@ -18,6 +18,8 @@ module Ansible
   module Roles
     module Software
       class Download
+        attr_reader :path
+
         def initialize(args)
           @role_dir = args[:role_dir]
 
@@ -28,13 +30,22 @@ module Ansible
           }
 
           metadata = YAML.load_file('./metadata.yml')
-          @uri = metadata['softwares'][@software[:name]]['uri']
-          @file_name = metadata['softwares'][@software[:name]]['file']
+          @url = metadata['softwares'][@software[:name]]['url']
+          @download_file = metadata['softwares'][@software[:name]]['download_file']
         end
 
         def create
-          @uri.gsub!(/{{ version }}/, @software[:version].to_s)
-          @file_name.gsub!(/{{ version }}/, @software[:version].to_s)
+          @url.gsub!(/{{ version }}/, @software[:version].to_s)
+          @url.gsub!(
+            /{{ core_version }}/,
+            "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+          )
+
+          @download_file.gsub!(/{{ version }}/, @software[:version].to_s)
+          @download_file.gsub!(
+            /{{ core_version }}/,
+            "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+          )
 
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.download")
 
@@ -50,9 +61,11 @@ module Ansible
 
           ::File.open("#{@role_dir}/#{@software[:name]}.download/vars/main.yml", 'a') do |f|
             f.puts("src_dir: #{@software[:src_dir]}")
-            f.puts("uri: #{@uri}")
-            f.puts("file_name: #{@file_name}")
+            f.puts("url: #{@url}")
+            f.puts("download_file: #{@download_file}")
           end
+
+          @path = "#{@software[:name]}.download"
         end
       end
     end

@@ -11,13 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'erb'
 require 'fileutils'
 
 module Ansible
   module Roles
-    module File
-      class Add
+    module Database
+      class User
         attr_reader :path
 
         def initialize(args)
@@ -27,28 +26,29 @@ module Ansible
         end
 
         def create
-          FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.add")
+          FileUtils.mkdir_p("#{@role_dir}/#{@name}.database.user")
 
           FileUtils.cp_r(
-            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/tasks",
-            "#{@role_dir}/#{@name}.file.add"
+            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/database/user/tasks",
+            "#{@role_dir}/#{@name}.database.user"
           )
-
-          insertafter = @config.fetch('insertafter', nil)
-          erb = ERB.new(::File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/tasks/main.yml.erb"), trim_mode: 2)
-          ::File.open("#{@role_dir}/#{@name}.file.add/tasks/main.yml", 'w') { |f| f.puts(erb.result(binding)) }
 
           FileUtils.cp_r(
-            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/vars",
-            "#{@role_dir}/#{@name}.file.add"
+            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/database/user/vars",
+            "#{@role_dir}/#{@name}.database.user"
           )
 
-          ::File.open("#{@role_dir}/#{@name}.file.add/vars/main.yml", 'a') do |f|
-            f.puts("dest: #{@config['path']}")
-            f.puts("content: \"#{@config['content']}\"")
+          ::File.open("#{@role_dir}/#{@name}.database.user/vars/main.yml", 'a') do |f|
+            f.puts("user: #{@config['user']}")
+            f.puts("password: #{@config['password']}")
+            f.puts("host: #{@config['host']}")
+            f.puts("priv: \"#{@config['priv']}\"")
+            f.puts("login_user: #{@config['login_user']}")
+            f.puts("login_password: #{@config['login_password']}")
+            f.puts("config_file: #{@config['config_file']}")
           end
 
-          @path = "#{@name}.file.add"
+          @path = "#{@name}.database.user"
         end
       end
     end

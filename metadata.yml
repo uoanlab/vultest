@@ -1,27 +1,44 @@
 softwares:
   bash:
-    uri: http://ftp.gnu.org/gnu/bash
-    file: bash-{{ version }}.tar.gz
+    url: http://ftp.gnu.org/gnu/bash/bash-{{ core_version }}.tar.gz
+    download_file: bash-{{ core_version }}.tar.gz
+    unzip_file: bash-{{ core_version }}
     patch:
-      uri: http://ftp.gnu.org/gnu/bash/bash-{{ version }}-patches
-      file: "bash{{ version }}-{{ patch_version }}"
+      url: http://ftp.gnu.org/gnu/bash/bash-{{ core_version }}-patches/bash{{ core_version }}-{{ patch_version }}
+      download_file: bash{{ core_version }}-{{ patch_version }}
+      unzip_file: bash{{ core_version }}-{{ patch_version }}
 
   httpd:
-    uri: https://archive.apache.org/dist/httpd
-    file: httpd-{{ version }}.tar.gz
+    url: https://archive.apache.org/dist/httpd/httpd-{{ version }}.tar.gz
+    download_file: httpd-{{ version }}.tar.gz
+    unzip_file: httpd-{{ version }}
 
   apr:
-    uri: https://downloads.apache.org//apr
-    file: apr-{{ version }}.tar.gz
+    url: https://downloads.apache.org//apr/apr-{{ version }}.tar.gz
+    download_file: apr-{{ version }}.tar.gz
+    unzip_file: apr-{{ version }}
 
   apr-util:
-    uri: https://downloads.apache.org//apr
-    file: apr-util-{{ version }}.tar.gz
+    url: https://downloads.apache.org//apr/apr-util-{{ version }}.tar.gz
+    download_file: apr-util-{{ version }}.tar.gz
+    unzip_file: apr-util-{{ version }}
 
   pcre:
-    uri: https://sourceforge.net/projects/pcre/files/pcre/{{ version }}
-    file: pcre-{{ version }}.tar.gz
+    url: https://sourceforge.net/projects/pcre/files/pcre/{{ version }}/pcre-{{ version }}.tar.gz
+    download_file: pcre-{{ version }}.tar.gz
+    unzip_file: pcre-{{ version }}
+
+  php:
+    url: https://www.php.net/distributions/php-{{ version }}.tar.gz
+    download_file: php-{{ version }}.tar.gz
+    unzip_file: php-{{ version }}
 
   wordpress:
-    uri: https://wordpress.org
-    file: wordpress-{{ version }}.tar.gz
+    url: https://wordpress.org/wordpress-{{ version }}.tar.gz
+    download_file: wordpress-{{ version }}.tar.gz
+    unzip_file: wordpress
+
+  wp-cli:
+    url: https://github.com/wp-cli/wp-cli/releases/download/v{{ version }}/wp-cli-{{ version }}.phar
+    download_file: wp-cli-{{ version }}.phar
+    unzip_file: wp-cli-{{ version }}.phar

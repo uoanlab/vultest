@@ -32,21 +32,26 @@ module Ansible
           @patch_version = args[:patch_version]
 
           metadata = YAML.load_file('./metadata.yml')
-          @uri = metadata['softwares'][@software[:name]]['patch']['uri']
-          @file_name = metadata['softwares'][@software[:name]]['patch']['file']
+          @url = metadata['softwares'][@software[:name]]['patch']['url']
+          @download_file = metadata['softwares'][@software[:name]]['patch']['download_file']
         end
 
         def create
-          @uri.gsub!(/{{ version }}/, @software[:version].to_s)
+          @patch_version = case @patch_version.to_s.length
+                           when 1 then "00#{@patch_version}"
+                           when 2 then "0#{@patch_version}"
+                           else @patch_version.to_s
+                           end
 
-          @patch_version =  case @patch_version.to_s.length
-                            when 1 then "00#{@patch_version}"
-                            when 2 then "0#{@patch_version}"
-                            else @patch_version.to_s
-                            end
-
-          @file_name.gsub!(/{{ version }}/, "#{@software[:version].to_s.split('.')[0]}#{@software[:version].to_s.split('.')[1]}")
-          @file_name.gsub!(/{{ patch_version }}/, @patch_version.to_s)
+          @url.sub!(
+            /{{ core_version }}/,
+            "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+          )
+          @url.sub!(
+            /{{ core_version }}/,
+            "#{@software[:version].to_s.split('.')[0]}#{@software[:version].to_s.split('.')[1]}"
+          )
+          @url.gsub!(/{{ patch_version }}/, @patch_version.to_s)
 
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download")
 
@@ -62,8 +67,7 @@ module Ansible
 
           ::File.open("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download/vars/main.yml", 'a') do |f|
             f.puts("src_dir: #{@software[:src_dir]}")
-            f.puts("uri: #{@uri}")
-            f.puts("file_name: #{@file_name}")
+            f.puts("url: #{@url}")
           end
 
           @path = "#{@software[:name]}.patch.#{@patch_version}.download"

@@ -67,7 +67,10 @@ module Vulenv
       def create_related_software_list(softwares)
         res = []
         softwares.each do |software|
-          next if software.key?('vulnerability') && software['vulnerability']
+          if software.key?('vulnerability') && software['vulnerability']
+            res += create_related_software_list(software['softwares']) if software.key?('softwares')
+            next
+          end
 
           res.push(
             {
@@ -75,9 +78,8 @@ module Vulenv
               version: software.fetch('version', 'The latest version of the repository')
             }
           )
-          if software.key?('softwares')
-            res.push(create_related_software_list(software['softwares']))
-          end
+
+          res += create_related_software_list(software['softwares']) if software.key?('softwares')
         end
         res
       end

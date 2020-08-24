@@ -21,29 +21,30 @@ module Ansible
 
         def initialize(args)
           @role_dir = args[:role_dir]
+          @name = args[:name]
           @config = args[:config]
         end
 
         def create
-          FileUtils.mkdir_p("#{@role_dir}/#{@config['name']}file.replace")
+          FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.replace")
 
           FileUtils.cp_r(
-            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file.replace/tasks",
-            "#{@role_dir}/#{@config['name']}.file.replace"
+            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/replace/tasks",
+            "#{@role_dir}/#{@name}.file.replace"
           )
 
           FileUtils.cp_r(
-            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file.replace/vars",
-            "#{@role_dir}/#{@config['name']}.file.replace"
+            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/replace/vars",
+            "#{@role_dir}/#{@name}.file.replace"
           )
 
-          ::File.open("#{@role_dir}/#{@config['name']}.file.replace/vars/main.yml", 'a') do |f|
+          ::File.open("#{@role_dir}/#{@name}.file.replace/vars/main.yml", 'a') do |f|
             f.puts("path: #{@config['path']}")
-            f.puts("regexp: #{@config['regexp']}")
-            f.puts("replace: #{@config['replace']}")
+            f.puts("regexp: \"#{@config['regexp']}\"")
+            f.puts("replace: \"#{@config['replace']}\"")
           end
 
-          @path = "#{@config['name']}.file.replace"
+          @path = "#{@name}.file.replace"
         end
       end
     end

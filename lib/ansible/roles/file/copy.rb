@@ -15,31 +15,38 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    module Software
-      class Service
+    module File
+      class Copy
+        attr_reader :path
+
         def initialize(args)
           @role_dir = args[:role_dir]
-          @software_name = args[:software_name]
-          @service = args[:service]
+          @name = args[:name]
+          @config = args[:config]
         end
 
         def create
-          FileUtils.mkdir_p("#{@role_dir}/#{@software_name}.service")
+          FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.copy")
 
           FileUtils.cp_r(
-            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/service/tasks",
-            "#{@role_dir}/#{@software_name}.service"
+            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/copy/tasks",
+            "#{@role_dir}/#{@name}.file.copy"
           )
 
           FileUtils.cp_r(
-            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/service/vars",
-            "#{@role_dir}/#{@software_name}.service"
+            "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/copy/vars",
+            "#{@role_dir}/#{@name}.file.copy"
           )
 
-          ::File.open("#{@role_dir}/#{@software_name}.service/vars/main.yml", 'a') do |f|
-            f.puts("command: #{@service['command']}") if @service.key?('command')
-            f.puts("service_name: #{@service['linux_daemon']}") if @service.key?('linux_daemon')
+          ::File.open("#{@role_dir}/#{@name}.file.copy/vars/main.yml", 'a') do |f|
+            f.puts("src: #{@config['src']}")
+            f.puts("dest: #{@config['dest']}")
+            f.puts("owner: #{@config['owner']}")
+            f.puts("group: #{@config['group']}")
+            f.puts("mode: #{@config['mode']}")
           end
+
+          @path = "#{@name}.file.copy"
         end
       end
     end

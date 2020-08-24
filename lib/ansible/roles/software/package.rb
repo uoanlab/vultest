@@ -17,6 +17,8 @@ module Ansible
   module Roles
     module Software
       class Package
+        attr_reader :path
+
         def initialize(args)
           @role_dir = args[:role_dir]
 
@@ -43,6 +45,8 @@ module Ansible
             f.puts("name: #{@software[:name]}")
             f.puts("version: #{@software[:version]}") unless @software[:version].nil?
           end
+
+          @path = "#{@software[:name]}.package"
         end
       end
     end

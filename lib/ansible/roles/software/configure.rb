@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'fileutils'
+require 'yaml'
 
 module Ansible
   module Roles
     module Software
       class Configure
+        attr_reader :path
+
         def initialize(args)
           @role_dir = args[:role_dir]
 
@@ -26,10 +29,21 @@ module Ansible
             src_dir: args[:software_src_dir],
             configure: args[:software_configure]
           }
+
+          metadata = YAML.load_file('./metadata.yml')
+          @unzip_file = metadata['softwares'][@software[:name]]['unzip_file']
         end
 
         def create
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.configure")
+
+          @unzip_file.gsub!(/{{ version }}/, @software[:version].to_s)
+          @unzip_file.gsub!(
+            /{{ core_version }}/,
+            "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+          )
+
+          src_dir = "#{@software[:src_dir]}/#{@unzip_file}"
 
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/configure/tasks",
@@ -42,9 +56,11 @@ module Ansible
           )
 
           ::File.open("#{@role_dir}/#{@software[:name]}.configure/vars/main.yml", 'a') do |f|
-            f.puts("src_dir: #{@software[:src_dir]}/#{@software[:name]}-#{@software[:version]}")
+            f.puts("src_dir: #{src_dir}")
             f.puts("configure: #{@software[:configure]}")
           end
+
+          @path = "#{@software[:name]}.configure"
         end
       end
     end

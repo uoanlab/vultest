@@ -21,23 +21,24 @@ module Ansible
 
         def initialize(args)
           @role_dir = args[:role_dir]
+          @name = args[:name]
           @config = args[:config]
         end
 
         def create
-          FileUtils.mkdir_p("#{@role_dir}/#{@config['name']}.file.create/files")
+          FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.create/files")
 
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create/tasks",
-            "#{@role_dir}/#{@config['name']}.file.create"
+            "#{@role_dir}/#{@name}.file.create"
           )
 
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create/vars",
-            "#{@role_dir}/#{@config['name']}.file.create"
+            "#{@role_dir}/#{@name}.file.create"
           )
 
-          ::File.open("#{@role_dir}/#{@config['name']}.file.create/vars/main.yml", 'a') do |f|
+          ::File.open("#{@role_dir}/#{@name}.file.create/vars/main.yml", 'a') do |f|
             f.puts('src: ../files/file')
             f.puts("dest: #{@config['path']}")
             f.puts("group: #{@config['group']}")
@@ -45,11 +46,11 @@ module Ansible
             f.puts("mode: #{@config['mode']}")
           end
 
-          ::File.open("#{@role_dir}/#{@config['name']}.file.create/files/file", 'w+') do |f|
+          ::File.open("#{@role_dir}/#{@name}.file.create/files/file", 'w+') do |f|
             f.puts(@config['content'])
           end
 
-          @path = "#{@config['name']}.file.create"
+          @path = "#{@name}.file.create"
         end
       end
     end

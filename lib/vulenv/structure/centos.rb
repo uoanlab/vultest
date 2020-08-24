@@ -76,7 +76,10 @@ module Vulenv
       def create_related_software_list(softwares)
         res = []
         softwares.each do |software|
-          next if software.key?('vulnerability') && software['vulnerability']
+          if software.key?('vulnerability') && software['vulnerability']
+            res += create_related_software_list(software['softwares']) if software.key?('softwares')
+            next
+          end
 
           res.push(
             {

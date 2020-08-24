@@ -12,19 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'fileutils'
+require 'yaml'
 
 module Ansible
   module Roles
     module Software
       class Build
+        attr_reader :path
+
         def initialize(args)
           @role_dir = args[:role_dir]
           @software = { name: args[:software_name], version: args[:software_version] }
           @src_dir = args[:software_src_dir]
+
+          metadata = YAML.load_file('./metadata.yml')
+          @unzip_file = metadata['softwares'][@software[:name]]['unzip_file']
         end
 
         def create
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.make")
+
+          @unzip_file.gsub!(/{{ version }}/, @software[:version].to_s)
+          @unzip_file.gsub!(
+            /{{ core_version }}/,
+            "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+          )
+          path = "#{@src_dir}/#{@unzip_file}"
 
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/make/tasks",
@@ -37,8 +50,10 @@ module Ansible
           )
 
           ::File.open("#{@role_dir}/#{@software[:name]}.make/vars/main.yml", 'a') do |f|
-            f.puts("path: #{@src_dir}/#{@software[:name]}-#{@software[:version]}")
+            f.puts("path: #{path}")
           end
+
+          @path = "#{@software[:name]}.make"
         end
       end
     end

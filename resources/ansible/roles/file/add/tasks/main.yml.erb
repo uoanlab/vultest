@@ -1,4 +1,7 @@
 - name: Add "{{ content }}" in "{{ dest }}"
   lineinfile:
     dest: "{{ dest }}"
+<% unless insertafter.nil? %>
+    insertafter: '<%= insertafter %>'
+<% end %>
     line: "{{ content }}"
