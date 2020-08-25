@@ -15,9 +15,11 @@ require 'fileutils'
 
 require 'lib/ansible/roles/attack_tool_msf'
 
+require 'lib/ansible/roles/database/db'
 require 'lib/ansible/roles/database/user'
 
 require 'lib/ansible/roles/file/add'
+require 'lib/ansible/roles/file/delete'
 require 'lib/ansible/roles/file/create'
 require 'lib/ansible/roles/file/copy'
 require 'lib/ansible/roles/file/replace'
@@ -126,6 +128,8 @@ module Ansible
                    Roles::File::Create.new(role_dir: @role_path, name: config['name'], config: config['file_create'])
                  elsif config.key?('file_add')
                    Roles::File::Add.new(role_dir: @role_path, name: config['name'], config: config['file_add'])
+                 elsif config.key?('file_delete')
+                   Roles::File::Delete.new(role_dir: @role_path, name: config['name'], config: config['file_delete'])
                  elsif config.key?('file_copy')
                    Roles::File::Copy.new(role_dir: @role_path, name: config['name'], config: config['file_copy'])
                  elsif config.key?('file_replace')
@@ -134,6 +138,8 @@ module Ansible
                    Roles::Command.new(role_dir: @role_path, name: config['name'], config: config)
                  elsif config.key?('service')
                    Roles::Service.new(role_dir: @role_path, name: config['name'], config: config)
+                 elsif config.key?('db')
+                   Roles::Database::DB.new(role_dir: @role_path, name: config['name'], config: config['db'])
                  elsif config.key?('db_user')
                    Roles::Database::User.new(role_dir: @role_path, name: config['name'], config: config['db_user'])
                   end
