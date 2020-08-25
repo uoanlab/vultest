@@ -43,7 +43,7 @@ module Attack
         http.use_ssl = url.start_with?('https') ? true : false
 
         req = create_req(url, uri)
-        res = create_res(req)
+        res = create_res(http, req)
 
         if res.msg == 'OK'
           Print.result('No Judement')
@@ -60,7 +60,7 @@ module Attack
 
       private
 
-      def create_res(req)
+      def create_res(http, req)
         res = http.request(req)
         res.each_header { |key, value| @response[:header][key] = value }
         @response[:body] = res.body
@@ -81,6 +81,8 @@ module Attack
 
         req.each_header { |key, value| @request[:header][key] = value }
         @request[:body] = req.body
+
+        req
       end
 
       def create_headers(url, uri)
@@ -97,7 +99,7 @@ module Attack
         additional_headers = {}
         additional_headers['Cookie'] = res['Set-Cookie'] if res.key?('Set-Cookie')
 
-        headers.marge!(additional_headers)
+        headers.merge!(additional_headers)
 
         headers
       end
