@@ -15,28 +15,24 @@ require 'fileutils'
 
 require 'lib/ansible/roles/attack_tool_msf'
 
+require 'lib/ansible/roles/user'
+
 require 'lib/ansible/roles/database/db'
 require 'lib/ansible/roles/database/user'
-
 require 'lib/ansible/roles/file/add'
 require 'lib/ansible/roles/file/delete'
 require 'lib/ansible/roles/file/create'
 require 'lib/ansible/roles/file/copy'
 require 'lib/ansible/roles/file/replace'
+require 'lib/ansible/roles/command'
+require 'lib/ansible/roles/service'
 
 require 'lib/ansible/roles/patch/download'
 require 'lib/ansible/roles/patch/install'
-
 require 'lib/ansible/roles/software/build'
 require 'lib/ansible/roles/software/configure'
 require 'lib/ansible/roles/software/download'
 require 'lib/ansible/roles/software/package'
-
-require 'lib/ansible/roles/command'
-
-require 'lib/ansible/roles/service'
-
-require 'lib/ansible/roles/user'
 
 module Ansible
   class Role
