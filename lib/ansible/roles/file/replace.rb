@@ -28,11 +28,22 @@ module Ansible
         def create
           FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.replace")
 
+          create_tasks
+          create_vars
+
+          @path = "#{@name}.file.replace"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/replace/tasks",
             "#{@role_dir}/#{@name}.file.replace"
           )
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/replace/vars",
             "#{@role_dir}/#{@name}.file.replace"
@@ -43,8 +54,6 @@ module Ansible
             f.puts("regexp: \"#{@config['regexp']}\"")
             f.puts("replace: \"#{@config['replace']}\"")
           end
-
-          @path = "#{@name}.file.replace"
         end
       end
     end

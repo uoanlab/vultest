@@ -49,11 +49,22 @@ module Ansible
 
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.download")
 
+          create_tasks
+          create_vars
+
+          @path = "#{@software[:name]}.download"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/download/tasks",
             "#{@role_dir}/#{@software[:name]}.download"
           )
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/download/vars",
             "#{@role_dir}/#{@software[:name]}.download"
@@ -64,8 +75,6 @@ module Ansible
             f.puts("url: #{@url}")
             f.puts("download_file: #{@download_file}")
           end
-
-          @path = "#{@software[:name]}.download"
         end
       end
     end

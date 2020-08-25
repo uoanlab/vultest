@@ -37,11 +37,12 @@ module Ansible
         end
 
         def create
-          @patch_version = case @patch_version.to_s.length
-                           when 1 then "00#{@patch_version}"
-                           when 2 then "0#{@patch_version}"
-                           else @patch_version.to_s
-                           end
+          @patch_version =
+            case @patch_version.to_s.length
+            when 1 then "00#{@patch_version}"
+            when 2 then "0#{@patch_version}"
+            else @patch_version.to_s
+            end
 
           @url.sub!(
             /{{ core_version }}/,
@@ -55,22 +56,34 @@ module Ansible
 
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download")
 
+          create_tasks
+          create_vars
+
+          @path = "#{@software[:name]}.patch.#{@patch_version}.download"
+        end
+
+        private
+
+        def create_tasks
+          FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download")
+
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/patch/download/tasks",
             "#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download"
           )
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/patch/download/vars",
             "#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download"
           )
 
-          ::File.open("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download/vars/main.yml", 'a') do |f|
+          path = "#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download/vars/main.yml"
+          ::File.open(path, 'a') do |f|
             f.puts("src_dir: #{@software[:src_dir]}")
             f.puts("url: #{@url}")
           end
-
-          @path = "#{@software[:name]}.patch.#{@patch_version}.download"
         end
       end
     end

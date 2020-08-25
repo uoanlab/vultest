@@ -44,9 +44,9 @@ module Print
 
     def result(status)
       case status
-      when 'success' then puts('Result: ' + Rainbow('Attack Succeed').cyan + '(See Report)')
-      when 'failure' then puts('Result: ' + Rainbow('Attack Faileld').red + '(See Report)')
-      else puts('Result: ' + Rainbow('Cannot Make a Decision').aliceblue + '(See Report)')
+      when 'success' then puts("Result: #{Rainbow('Attack Succeed').cyan}(See Report)")
+      when 'failure' then puts("Result: #{Rainbow('Attack Faileld').red}(See Report)")
+      else puts("Result: #{Rainbow('Cannot Make a Decision').aliceblue}(See Report)")
       end
     end
 

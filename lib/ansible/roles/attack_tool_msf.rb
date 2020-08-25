@@ -17,6 +17,7 @@ module Ansible
   module Roles
     class AttackToolMSF
       attr_reader :path
+
       def initialize(args)
         @role_dir = args[:role_dir]
         @host = args[:host]
@@ -25,26 +26,38 @@ module Ansible
       def create
         FileUtils.mkdir_p("#{@role_dir}/attack.tool.msf")
 
+        create_tasks
+        create_vars
+        create_files
+
+        @path = 'attack.tool.msf'
+      end
+
+      private
+
+      def create_tasks
         FileUtils.cp_r(
           "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/tasks",
           "#{@role_dir}/attack.tool.msf"
         )
+      end
 
+      def create_vars
         FileUtils.cp_r(
           "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/vars",
-          "#{@role_dir}/attack.tool.msf"
-        )
-
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
           "#{@role_dir}/attack.tool.msf"
         )
 
         ::File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
           f.puts("attack_host: #{@host}")
         end
+      end
 
-        @path = 'attack.tool.msf'
+      def create_files
+        FileUtils.cp_r(
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
+          "#{@role_dir}/attack.tool.msf"
+        )
       end
     end
   end

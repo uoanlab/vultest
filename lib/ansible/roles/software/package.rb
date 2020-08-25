@@ -31,11 +31,22 @@ module Ansible
         def create
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.package")
 
+          create_tasks
+          create_vars
+
+          @path = "#{@software[:name]}.package"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/package/tasks",
             "#{@role_dir}/#{@software[:name]}.package"
           )
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/package/vars",
             "#{@role_dir}/#{@software[:name]}.package"
@@ -45,8 +56,6 @@ module Ansible
             f.puts("name: #{@software[:name]}")
             f.puts("version: #{@software[:version]}") unless @software[:version].nil?
           end
-
-          @path = "#{@software[:name]}.package"
         end
       end
     end

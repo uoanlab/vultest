@@ -41,11 +41,12 @@ module Ansible
             "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
           )
 
-          @patch_version = case @patch_version.to_s.length
-                           when 1 then "00#{@patch_version}"
-                           when 2 then "0#{@patch_version}"
-                           else @patch_version.to_s
-                           end
+          @patch_version =
+            case @patch_version.to_s.length
+            when 1 then "00#{@patch_version}"
+            when 2 then "0#{@patch_version}"
+            else @patch_version.to_s
+            end
           @patch_name.gsub!(
             /{{ core_version }}/,
             "#{@software[:version].to_s.split('.')[0]}#{@software[:version].to_s.split('.')[1]}"
@@ -54,23 +55,33 @@ module Ansible
 
           FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install")
 
+          create_tasks
+          create_vars
+
+          @path = "#{@software[:name]}.patch.#{@patch_version}.install"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/patch/install/tasks",
             "#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install"
           )
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/patch/install/vars",
             "#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install"
           )
 
-          ::File.open("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install/vars/main.yml", 'a') do |f|
+          path = "#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.install/vars/main.yml"
+          ::File.open(path, 'a') do |f|
             f.puts("src_dir: #{@software[:src_dir]}")
             f.puts("software_dir: #{@software_dir}")
             f.puts("patch_name: #{@patch_name}")
           end
-
-          @path = "#{@software[:name]}.patch.#{@patch_version}.install"
         end
       end
     end

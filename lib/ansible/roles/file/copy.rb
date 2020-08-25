@@ -28,11 +28,22 @@ module Ansible
         def create
           FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.copy")
 
+          create_tasks
+          create_vars
+
+          @path = "#{@name}.file.copy"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/copy/tasks",
             "#{@role_dir}/#{@name}.file.copy"
           )
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/copy/vars",
             "#{@role_dir}/#{@name}.file.copy"
@@ -45,8 +56,6 @@ module Ansible
             f.puts("group: #{@config['group']}")
             f.puts("mode: #{@config['mode']}")
           end
-
-          @path = "#{@name}.file.copy"
         end
       end
     end

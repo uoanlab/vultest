@@ -27,11 +27,22 @@ module Ansible
       def create
         FileUtils.mkdir_p("#{@role_dir}/#{@name}.command")
 
+        create_tasks
+        create_vars
+
+        @path = "#{@name}.command"
+      end
+
+      private
+
+      def create_tasks
         FileUtils.cp_r(
           "#{ANSIBLE_ROLES_TEMPLATE_PATH}/command/tasks",
           "#{@role_dir}/#{@name}.command"
         )
+      end
 
+      def create_vars
         FileUtils.cp_r(
           "#{ANSIBLE_ROLES_TEMPLATE_PATH}/command/vars",
           "#{@role_dir}/#{@name}.command"
@@ -40,8 +51,6 @@ module Ansible
         ::File.open("#{@role_dir}/#{@name}.command/vars/main.yml", 'a') do |f|
           f.puts("command: #{@config['command']}")
         end
-
-        @path = "#{@name}.command"
       end
     end
   end

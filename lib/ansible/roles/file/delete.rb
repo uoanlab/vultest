@@ -28,11 +28,22 @@ module Ansible
         def create
           FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.delete")
 
+          create_tasks
+          create_vars
+
+          @path = "#{@name}.file.delete"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/delete/tasks",
             "#{@role_dir}/#{@name}.file.delete"
           )
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/delete/vars",
             "#{@role_dir}/#{@name}.file.delete"
@@ -41,8 +52,6 @@ module Ansible
           ::File.open("#{@role_dir}/#{@name}.file.delete/vars/main.yml", 'a') do |f|
             f.puts("path: #{@config['path']}")
           end
-
-          @path = "#{@name}.file.delete"
         end
       end
     end

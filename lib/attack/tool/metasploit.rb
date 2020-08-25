@@ -108,8 +108,8 @@ module Attack
             Print.spinner_begin(exploit_name)
           end
 
+          # When module is auxiliary/scanner/ssh/ssh_login, exploit_info['uuid'] != value['exploit_uuid']
           session = msf_api.module_sessions.select do |_key, value|
-            # When module is auxiliary/scanner/ssh/ssh_login, exploit_info['uuid'] != value['exploit_uuid']
             exploit_info['uuid'] == value['exploit_uuid'] ||
               (
                 exploit_name == 'auxiliary/scanner/ssh/ssh_login' &&

@@ -39,11 +39,22 @@ module Ansible
           )
           path = "#{@src_dir}/#{@unzip_file}"
 
+          create_tasks
+          create_vars(path)
+
+          @path = "#{@software[:name]}.make"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/make/tasks",
             "#{@role_dir}/#{@software[:name]}.make"
           )
+        end
 
+        def create_vars(path)
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/make/vars",
             "#{@role_dir}/#{@software[:name]}.make"
@@ -52,8 +63,6 @@ module Ansible
           ::File.open("#{@role_dir}/#{@software[:name]}.make/vars/main.yml", 'a') do |f|
             f.puts("path: #{path}")
           end
-
-          @path = "#{@software[:name]}.make"
         end
       end
     end

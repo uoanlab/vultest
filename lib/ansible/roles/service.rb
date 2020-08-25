@@ -27,11 +27,22 @@ module Ansible
       def create
         FileUtils.mkdir_p("#{@role_dir}/#{@name}.service")
 
+        create_tasks
+        create_vars
+
+        @path = "#{@name}.service"
+      end
+
+      private
+
+      def create_tasks
         FileUtils.cp_r(
           "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/tasks",
           "#{@role_dir}/#{@name}.service"
         )
+      end
 
+      def create_vars
         FileUtils.cp_r(
           "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/vars",
           "#{@role_dir}/#{@name}.service"
@@ -40,8 +51,6 @@ module Ansible
         ::File.open("#{@role_dir}/#{@name}.service/vars/main.yml", 'a') do |f|
           f.puts("name: #{@config['service']}")
         end
-
-        @path = "#{@name}.service"
       end
     end
   end

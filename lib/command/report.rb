@@ -26,8 +26,6 @@ module Command
         end
 
         core.create_report(report_dir: report_dir)
-
-        # Print.error('Execute exploit command')
       end
     end
   end

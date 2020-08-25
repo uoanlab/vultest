@@ -30,11 +30,22 @@ module Ansible
       def create
         FileUtils.mkdir_p("#{@role_dir}/#{@user[:name]}.user")
 
+        create_tasks
+        create_vars
+
+        @path = "#{@user[:name]}.user"
+      end
+
+      private
+
+      def create_tasks
         FileUtils.cp_r(
           "#{ANSIBLE_ROLES_TEMPLATE_PATH}/user/tasks",
           "#{@role_dir}/#{@user[:name]}.user"
         )
+      end
 
+      def create_vars
         FileUtils.cp_r(
           "#{ANSIBLE_ROLES_TEMPLATE_PATH}/user/vars",
           "#{@role_dir}/#{@user[:name]}.user"
@@ -44,8 +55,6 @@ module Ansible
           f.puts("name: #{@user[:name]}")
           f.puts("shell: #{@user[:shell]}")
         end
-
-        @path = "#{@user[:name]}.user"
       end
     end
   end

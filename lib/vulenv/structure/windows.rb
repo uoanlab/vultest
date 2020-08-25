@@ -61,7 +61,7 @@ module Vulenv
       def retrieve_related_softwares
         return [] unless @env_config['construction'].key?('softwares')
 
-        softwares = create_related_software_list(@env_config['construction']['softwares'])
+        create_related_software_list(@env_config['construction']['softwares'])
       end
 
       def create_related_software_list(softwares)

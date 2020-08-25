@@ -146,7 +146,7 @@ class Report
     cpe = DB.get_cpe(cve)
     cpe.each do |cpe_info|
       output_cpe_info = ''
-      cpe_info.each_char { |c| output_cpe_info += c == '*' ? '\\' + c : c }
+      cpe_info.each_char { |c| output_cpe_info += c == '*' ? "\\#{c}" : c }
       cpes.push(output_cpe_info)
     end
 

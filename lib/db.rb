@@ -35,7 +35,9 @@ module DB
       db = SQLite3::Database.new("#{BASE_CONFIG['vultest_db_path']}/db/data/cwe.sqlite3")
       db.results_as_hash = true
       cwe = nil
-      db.execute('select * from cwe where cve=?', cve) { |cwe_info| cwe = cwe.nil? ? cwe_info['cwe'] : "#{cwe}\n#{cwe_info['cwe']}" }
+      db.execute('select * from cwe where cve=?', cve) do |cwe_info|
+        cwe = cwe.nil? ? cwe_info['cwe'] : "#{cwe}\n#{cwe_info['cwe']}"
+      end
       db.close
 
       cwe
@@ -76,17 +78,19 @@ module DB
       cvss_v3 = {}
 
       db.execute('select * from cvss_v3 where cve=?', cve) do |cvss|
-        cvss_v3['vector'] = cvss['vector_string']
-        cvss_v3['attack_vector'] = cvss['attack_vector']
-        cvss_v3['attack_complexity'] = cvss['attack_complexity']
-        cvss_v3['privileges_required'] = cvss['privileges_required']
-        cvss_v3['user_interaction'] = cvss['user_interaction']
-        cvss_v3['scope'] = cvss['scope']
-        cvss_v3['confidentiality_impact'] = cvss['confidentiality_impact']
-        cvss_v3['integrity_impact'] = cvss['integrity_impact']
-        cvss_v3['availability_impact'] = cvss['availability_impact']
-        cvss_v3['base_score'] = cvss['base_score']
-        cvss_v3['base_severity'] = cvss['base_severity']
+        cvss_v3 = {
+          'vector' => cvss['vector_string'],
+          'attack_vector' => cvss['attack_vector'],
+          'attack_complexity' => cvss['attack_complexity'],
+          'privileges_required' => cvss['privileges_required'],
+          'user_interaction' => cvss['user_interaction'],
+          'scope' => cvss['scope'],
+          'confidentiality_impact' => cvss['confidentiality_impact'],
+          'integrity_impact' => cvss['integrity_impact'],
+          'availability_impact' => cvss['availability_impact'],
+          'base_score' => cvss['base_score'],
+          'base_severity' => cvss['base_severity']
+        }
       end
       db.close
 

@@ -28,11 +28,23 @@ module Ansible
         def create
           FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.create/files")
 
+          create_tasks
+          create_vars
+          create_files
+
+          @path = "#{@name}.file.create"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create/tasks",
             "#{@role_dir}/#{@name}.file.create"
           )
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create/vars",
             "#{@role_dir}/#{@name}.file.create"
@@ -45,12 +57,12 @@ module Ansible
             f.puts("owner: #{@config['owner']}")
             f.puts("mode: #{@config['mode']}")
           end
+        end
 
+        def create_files
           ::File.open("#{@role_dir}/#{@name}.file.create/files/file", 'w+') do |f|
             f.puts(@config['content'])
           end
-
-          @path = "#{@name}.file.create"
         end
       end
     end

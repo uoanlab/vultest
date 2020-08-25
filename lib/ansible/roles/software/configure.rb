@@ -45,11 +45,22 @@ module Ansible
 
           src_dir = "#{@software[:src_dir]}/#{@unzip_file}"
 
+          create_tasks
+          create_vars(src_dir)
+
+          @path = "#{@software[:name]}.configure"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/configure/tasks",
             "#{@role_dir}/#{@software[:name]}.configure"
           )
+        end
 
+        def create_vars(src_dir)
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/configure/vars",
             "#{@role_dir}/#{@software[:name]}.configure"
@@ -59,8 +70,6 @@ module Ansible
             f.puts("src_dir: #{src_dir}")
             f.puts("configure: #{@software[:configure]}")
           end
-
-          @path = "#{@software[:name]}.configure"
         end
       end
     end

@@ -42,25 +42,8 @@ module Attack
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = url.start_with?('https') ? true : false
 
-        req =
-          case attack_request_setting[:method]
-          when 'get' then Net::HTTP::Get.new(uri.request_uri)
-          when 'post' then Net::HTTP::Post.new(uri.request_uri)
-          end
-
-        headers = attack_request_setting[:header]
-        headers.merge!(prepare)
-        headers.each { |key, value| req.add_field(key, value) }
-
-        req.set_form_data(attack_request_setting[:body]) unless attack_request_setting[:body].nil?
-
-        res = http.request(req)
-
-        req.each_header { |key, value| @request[:header][key] = value }
-        @request[:body] = req.body
-
-        res.each_header { |key, value| @response[:header][key] = value }
-        @response[:body] = res.body
+        req = create_req(url, uri)
+        res = create_res(req)
 
         if res.msg == 'OK'
           Print.result('No Judement')
@@ -77,9 +60,31 @@ module Attack
 
       private
 
-      def prepare
-        url = attack_request_setting[:url]
-        uri = URI.parse(attack_request_setting[:url])
+      def create_res(req)
+        res = http.request(req)
+        res.each_header { |key, value| @response[:header][key] = value }
+        @response[:body] = res.body
+        res
+      end
+
+      def create_req(url, uri)
+        req =
+          case attack_request_setting[:method]
+          when 'get' then Net::HTTP::Get.new(uri.request_uri)
+          when 'post' then Net::HTTP::Post.new(uri.request_uri)
+          end
+
+        headers = create_headers(url, uri)
+        headers.each { |key, value| req.add_field(key, value) }
+
+        req.set_form_data(attack_request_setting[:body]) unless attack_request_setting[:body].nil?
+
+        req.each_header { |key, value| @request[:header][key] = value }
+        @request[:body] = req.body
+      end
+
+      def create_headers(url, uri)
+        headers = attack_request_setting[:header]
 
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = url.start_with?('https') ? true : false
@@ -92,7 +97,9 @@ module Attack
         additional_headers = {}
         additional_headers['Cookie'] = res['Set-Cookie'] if res.key?('Set-Cookie')
 
-        additional_headers
+        headers.marge!(additional_headers)
+
+        headers
       end
     end
   end

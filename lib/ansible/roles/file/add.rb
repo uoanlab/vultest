@@ -29,15 +29,31 @@ module Ansible
         def create
           FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.add")
 
+          create_tasks
+          create_vars
+
+          @path = "#{@name}.file.add"
+        end
+
+        private
+
+        def create_tasks
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/tasks",
             "#{@role_dir}/#{@name}.file.add"
           )
 
           insertafter = @config.fetch('insertafter', nil)
-          erb = ERB.new(::File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/tasks/main.yml.erb"), trim_mode: 2)
-          ::File.open("#{@role_dir}/#{@name}.file.add/tasks/main.yml", 'w') { |f| f.puts(erb.result(binding)) }
+          erb = ERB.new(
+            ::File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/tasks/main.yml.erb"),
+            trim_mode: 2
+          )
+          ::File.open("#{@role_dir}/#{@name}.file.add/tasks/main.yml", 'w') do |f|
+            f.puts(erb.result(binding))
+          end
+        end
 
+        def create_vars
           FileUtils.cp_r(
             "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/vars",
             "#{@role_dir}/#{@name}.file.add"
@@ -47,8 +63,6 @@ module Ansible
             f.puts("dest: #{@config['path']}")
             f.puts("content: \"#{@config['content']}\"")
           end
-
-          @path = "#{@name}.file.add"
         end
       end
     end
