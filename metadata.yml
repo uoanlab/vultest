@@ -24,7 +24,7 @@ softwares:
     unzip_file: apr-util-{{ version }}
 
   pcre:
-    url: https://sourceforge.net/projects/pcre/files/pcre/{{ version }}/pcre-{{ version }}.tar.gz
+    url: https://ftp.pcre.org/pub/pcre/pcre-{{ version }}.tar.gz
     download_file: pcre-{{ version }}.tar.gz
     unzip_file: pcre-{{ version }}
 
