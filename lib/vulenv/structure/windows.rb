@@ -65,8 +65,8 @@ module Vulenv
             next
           end
 
-          def_version = 'The latest version of the repository'
-          res.push({ name: software['name'], version: software.fetch('version', def_version) })
+          no_version = 'The latest version of the repository'
+          res.push({ name: software['name'], version: software.fetch('version', no_version) })
 
           res += create_related_software_list(software['softwares']) if software.key?('softwares')
         end
