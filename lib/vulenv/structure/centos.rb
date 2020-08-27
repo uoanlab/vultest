@@ -24,9 +24,10 @@ module Vulenv
       end
 
       def retrieve_os
-        major_version = Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
-          ssh.exec!('uname -r')
-        end
+        major_version =
+          Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
+            ssh.exec!('uname -r')
+          end
 
         {
           name: @env_config['construction']['os']['name'],
@@ -37,20 +38,13 @@ module Vulenv
       end
 
       def retrieve_vul_software
-        vul_software = {
-          name: nil,
-          version: nil
-        }
+        return { name: nil, version: nil } unless @env_config['construction'].key?('softwares')
 
-        return vul_software unless @env_config['construction'].key?('softwares')
-
-        @env_config['construction']['softwares'].each do |s|
-          if s.key?('vulnerability') && s['vulnerability']
-            vul_software = { name: s['name'], version: s['version'] }
-          end
+        v = @env_config['construction']['softwares'].find do |s|
+          s.key?('vulnerability') && s['vulnerability']
         end
 
-        vul_software
+        { name: v['name'], version: v['version'] }
       end
 
       def retrieve_related_softwares
@@ -81,12 +75,9 @@ module Vulenv
             next
           end
 
-          res.push(
-            {
-              name: software['name'],
-              version: software.fetch('version', 'The latest version of the repository')
-            }
-          )
+          def_version = 'The latest version of the repository'
+          res.push({ name: software['name'], version: software.fetch('version', def_version) })
+
           res += create_related_software_list(software['softwares']) if software.key?('softwares')
         end
         res
