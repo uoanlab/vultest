@@ -20,7 +20,7 @@ module Ansible
 
       def initialize(args)
         @role_dir = args[:role_dir]
-        @name = args[:name]
+        @name = args[:config]['name']
         @config = args[:config]
       end
 
@@ -48,7 +48,7 @@ module Ansible
           "#{@role_dir}/#{@name}.command"
         )
 
-        ::File.open("#{@role_dir}/#{@name}.command/vars/main.yml", 'a') do |f|
+        File.open("#{@role_dir}/#{@name}.command/vars/main.yml", 'a') do |f|
           f.puts("command: #{@config['command']}")
         end
       end

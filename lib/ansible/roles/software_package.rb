@@ -15,49 +15,46 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    class AttackToolMSF
+    class SoftwarePackage
       attr_reader :path
 
       def initialize(args)
         @role_dir = args[:role_dir]
-        @host = args[:host]
+
+        @software = {
+          name: args[:software]['name'],
+          version: args[:software]['version']
+        }
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/attack.tool.msf")
+        FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.package")
 
         create_tasks
         create_vars
-        create_files
 
-        @path = 'attack.tool.msf'
+        @path = "#{@software[:name]}.package"
       end
 
       private
 
       def create_tasks
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/tasks",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/package/tasks",
+          "#{@role_dir}/#{@software[:name]}.package"
         )
       end
 
       def create_vars
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/vars",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/package/vars",
+          "#{@role_dir}/#{@software[:name]}.package"
         )
 
-        File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
-          f.puts("attack_host: #{@host}")
+        File.open("#{@role_dir}/#{@software[:name]}.package/vars/main.yml", 'a') do |f|
+          f.puts("name: #{@software[:name]}")
+          f.puts("version: #{@software[:version]}") unless @software[:version].nil?
         end
-      end
-
-      def create_files
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
-          "#{@role_dir}/attack.tool.msf"
-        )
       end
     end
   end

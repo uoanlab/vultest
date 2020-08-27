@@ -15,49 +15,44 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    class AttackToolMSF
+    class FileReplace
       attr_reader :path
 
       def initialize(args)
         @role_dir = args[:role_dir]
-        @host = args[:host]
+        @name = args[:config]['name']
+        @config = args[:config]['file_replace']
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/attack.tool.msf")
+        FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.replace")
 
         create_tasks
         create_vars
-        create_files
 
-        @path = 'attack.tool.msf'
+        @path = "#{@name}.file.replace"
       end
 
       private
 
       def create_tasks
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/tasks",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/replace/tasks",
+          "#{@role_dir}/#{@name}.file.replace"
         )
       end
 
       def create_vars
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/vars",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/replace/vars",
+          "#{@role_dir}/#{@name}.file.replace"
         )
 
-        File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
-          f.puts("attack_host: #{@host}")
+        File.open("#{@role_dir}/#{@name}.file.replace/vars/main.yml", 'a') do |f|
+          f.puts("path: #{@config['path']}")
+          f.puts("regexp: \"#{@config['regexp']}\"")
+          f.puts("replace: \"#{@config['replace']}\"")
         end
-      end
-
-      def create_files
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
-          "#{@role_dir}/attack.tool.msf"
-        )
       end
     end
   end

@@ -15,42 +15,39 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    class Service
+    class MysqlUser
       attr_reader :path
 
       def initialize(args)
         @role_dir = args[:role_dir]
         @name = args[:config]['name']
-        @config = args[:config]
+        @config = args[:config]['mysql_user']
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/#{@name}.service")
+        FileUtils.mkdir_p("#{@role_dir}/#{@name}.database.user")
 
-        create_tasks
-        create_vars
-
-        @path = "#{@name}.service"
-      end
-
-      private
-
-      def create_tasks
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/tasks",
-          "#{@role_dir}/#{@name}.service"
-        )
-      end
-
-      def create_vars
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/vars",
-          "#{@role_dir}/#{@name}.service"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/database/user/tasks",
+          "#{@role_dir}/#{@name}.database.user"
         )
 
-        File.open("#{@role_dir}/#{@name}.service/vars/main.yml", 'a') do |f|
-          f.puts("name: #{@config['service']}")
+        FileUtils.cp_r(
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/database/user/vars",
+          "#{@role_dir}/#{@name}.database.user"
+        )
+
+        File.open("#{@role_dir}/#{@name}.database.user/vars/main.yml", 'a') do |f|
+          f.puts("user: #{@config['user']}")
+          f.puts("password: #{@config['password']}")
+          f.puts("host: #{@config['host']}")
+          f.puts("priv: \"#{@config['priv']}\"")
+          f.puts("login_user: #{@config['login_user']}")
+          f.puts("login_password: #{@config['login_password']}")
+          f.puts("config_file: #{@config['config_file']}")
         end
+
+        @path = "#{@name}.database.user"
       end
     end
   end

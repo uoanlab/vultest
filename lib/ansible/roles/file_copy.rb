@@ -15,49 +15,46 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    class AttackToolMSF
+    class FileCopy
       attr_reader :path
 
       def initialize(args)
         @role_dir = args[:role_dir]
-        @host = args[:host]
+        @name = args[:config]['name']
+        @config = args[:config]['file_copy']
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/attack.tool.msf")
+        FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.copy")
 
         create_tasks
         create_vars
-        create_files
 
-        @path = 'attack.tool.msf'
+        @path = "#{@name}.file.copy"
       end
 
       private
 
       def create_tasks
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/tasks",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/copy/tasks",
+          "#{@role_dir}/#{@name}.file.copy"
         )
       end
 
       def create_vars
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/vars",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/copy/vars",
+          "#{@role_dir}/#{@name}.file.copy"
         )
 
-        File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
-          f.puts("attack_host: #{@host}")
+        File.open("#{@role_dir}/#{@name}.file.copy/vars/main.yml", 'a') do |f|
+          f.puts("src: #{@config['src']}")
+          f.puts("dest: #{@config['dest']}")
+          f.puts("owner: #{@config['owner']}")
+          f.puts("group: #{@config['group']}")
+          f.puts("mode: #{@config['mode']}")
         end
-      end
-
-      def create_files
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
-          "#{@role_dir}/attack.tool.msf"
-        )
       end
     end
   end

@@ -11,53 +11,57 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+require 'erb'
 require 'fileutils'
 
 module Ansible
   module Roles
-    class AttackToolMSF
+    class FileAdd
       attr_reader :path
 
       def initialize(args)
         @role_dir = args[:role_dir]
-        @host = args[:host]
+        @name = args[:config]['name']
+        @config = args[:config]['file_add']
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/attack.tool.msf")
+        FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.add")
 
         create_tasks
         create_vars
-        create_files
 
-        @path = 'attack.tool.msf'
+        @path = "#{@name}.file.add"
       end
 
       private
 
       def create_tasks
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/tasks",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/tasks",
+          "#{@role_dir}/#{@name}.file.add"
         )
+
+        insertafter = @config.fetch('insertafter', nil)
+        erb = ERB.new(
+          File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/tasks/main.yml.erb"),
+          trim_mode: 2
+        )
+        File.open("#{@role_dir}/#{@name}.file.add/tasks/main.yml", 'w') do |f|
+          f.puts(erb.result(binding))
+        end
       end
 
       def create_vars
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/vars",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add/vars",
+          "#{@role_dir}/#{@name}.file.add"
         )
 
-        File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
-          f.puts("attack_host: #{@host}")
+        File.open("#{@role_dir}/#{@name}.file.add/vars/main.yml", 'a') do |f|
+          f.puts("dest: #{@config['path']}")
+          f.puts("content: \"#{@config['content']}\"")
         end
-      end
-
-      def create_files
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
-          "#{@role_dir}/attack.tool.msf"
-        )
       end
     end
   end

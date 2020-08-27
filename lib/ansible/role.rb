@@ -17,22 +17,24 @@ require 'lib/ansible/roles/attack_tool_msf'
 
 require 'lib/ansible/roles/user'
 
-require 'lib/ansible/roles/database/db'
-require 'lib/ansible/roles/database/user'
-require 'lib/ansible/roles/file/add'
-require 'lib/ansible/roles/file/delete'
-require 'lib/ansible/roles/file/create'
-require 'lib/ansible/roles/file/copy'
-require 'lib/ansible/roles/file/replace'
+require 'lib/ansible/roles/mysql_database'
+require 'lib/ansible/roles/mysql_user'
+
+require 'lib/ansible/roles/file_add'
+require 'lib/ansible/roles/file_delete'
+require 'lib/ansible/roles/file_create'
+require 'lib/ansible/roles/file_copy'
+require 'lib/ansible/roles/file_replace'
+
 require 'lib/ansible/roles/command'
 require 'lib/ansible/roles/service'
 
-require 'lib/ansible/roles/patch/download'
-require 'lib/ansible/roles/patch/install'
-require 'lib/ansible/roles/software/build'
-require 'lib/ansible/roles/software/configure'
-require 'lib/ansible/roles/software/download'
-require 'lib/ansible/roles/software/package'
+require 'lib/ansible/roles/patch_download'
+require 'lib/ansible/roles/patch_install'
+require 'lib/ansible/roles/software_build'
+require 'lib/ansible/roles/software_configure'
+require 'lib/ansible/roles/software_download'
+require 'lib/ansible/roles/software_package'
 
 module Ansible
   class Role
@@ -75,122 +77,63 @@ module Ansible
     def create_softwares(softwares)
       softwares.each do |software|
         create_softwares(software['softwares']) if software.key?('softwares')
-
-        create_software_download(
-          {
-            method: software.fetch('method', nil),
-            software_name: software['name'],
-            software_version: software['version'],
-            src_dir: software.fetch('src_dir', nil)
-          }
-        )
-
-        if software.key?('patch')
-          create_patches(
-            {
-              software_name: software['name'],
-              software_version: software['version'],
-              src_dir: software['src_dir']
-            }
-          )
-        end
-
-        configs = software.fetch('config', {})
-        if configs.key?('pre_config')
-
-          if configs['pre_config'].key?('configure')
-            create_configure(
-              {
-                name: software['name'],
-                version: software['version'],
-                src_dir: software['src_dir'],
-                configure: configs['pre_config']['configure']
-              }
-            )
-          end
-          create_build(
-            {
-              name: software['name'],
-              version: software['version'],
-              src_dir: software['src_dir']
-            }
-          )
-        end
-
-        next unless configs.key?('post_config')
-
-        configs['post_config'].each do |config|
-          role =
-            if config.key?('file_create')
-              Roles::File::Create.new(role_dir: @role_path, name: config['name'], config: config['file_create'])
-            elsif config.key?('file_add')
-              Roles::File::Add.new(role_dir: @role_path, name: config['name'], config: config['file_add'])
-            elsif config.key?('file_delete')
-              Roles::File::Delete.new(role_dir: @role_path, name: config['name'], config: config['file_delete'])
-            elsif config.key?('file_copy')
-              Roles::File::Copy.new(role_dir: @role_path, name: config['name'], config: config['file_copy'])
-            elsif config.key?('file_replace')
-              Roles::File::Replace.new(role_dir: @role_path, name: config['name'], config: config['file_replace'])
-            elsif config.key?('command')
-              Roles::Command.new(role_dir: @role_path, name: config['name'], config: config)
-            elsif config.key?('service')
-              Roles::Service.new(role_dir: @role_path, name: config['name'], config: config)
-            elsif config.key?('db')
-              Roles::Database::DB.new(role_dir: @role_path, name: config['name'], config: config['db'])
-            elsif config.key?('db_user')
-              Roles::Database::User.new(role_dir: @role_path, name: config['name'], config: config['db_user'])
-            end
-          role.create
-          @playbook.add("    - #{role.path}")
-        end
+        create_software(software)
       end
     end
 
-    def create_software_download(args)
-      method = args[:method]
-      software = { name: args[:software_name], version: args[:software_version] }
-      src_dir = args.fetch(:src_dir, nil)
+    def create_software(software)
+      create_software_download(software)
+      create_patches(software)
 
+      configs = software.fetch('config', {})
+      if configs.key?('pre_config')
+        create_software_configure(software) if configs['pre_config'].key?('configure')
+        create_software_build(software)
+      end
+
+      return unless configs.key?('post_config')
+
+      configs['post_config'].each do |config|
+        type = config.keys.reject { |key| key == 'name' }[0]
+
+        class_name = type.split('_').map(&:capitalize).join
+
+        role = Object.const_get("Ansible::Roles::#{class_name}").new(
+          role_dir: @role_path,
+          config: config
+        )
+        role.create
+        @playbook.add("    - #{role.path}")
+      end
+    end
+
+    def create_software_download(software)
       role =
-        case method
+        case software.fetch('method', nil)
         when 'source'
-          Roles::Software::Download.new(
-            role_dir: @role_path,
-            software_name: software[:name],
-            software_version: software[:version],
-            software_src_dir: src_dir
-          )
+          Roles::SoftwareDownload.new(role_dir: @role_path, software: software)
         else
-          Roles::Software::Package.new(
-            role_dir: @role_path,
-            software_name: software[:name],
-            software_version: software[:version]
-          )
+          Roles::SoftwarePackage.new(role_dir: @role_path, software: software)
         end
       role.create
       @playbook.add("    - #{role.path}")
     end
 
-    def create_patches(args)
-      software = { name: args[:software_name], version: args[:software_version] }
-      src_dir = args[:src_dir]
+    def create_patches(software)
+      return unless software.key?('patch')
 
-      1.upto(software[:version].split('.')[2].to_i) do |version|
-        role = Roles::Patch::Download.new(
+      1.upto(software['version'].split('.')[2].to_i) do |version|
+        role = Roles::PatchDownload.new(
           role_dir: @role_path,
-          software_name: software[:name],
-          software_version: software[:version],
-          software_src_dir: src_dir,
+          software: software,
           patch_version: version
         )
         role.create
         @playbook.add("    - #{role.path}")
 
-        role = Roles::Patch::Install.new(
+        role = Roles::PatchInstall.new(
           role_dir: @role_path,
-          software_name: software[:name],
-          software_version: software[:version],
-          software_src_dir: src_dir,
+          software: software,
           patch_version: version
         )
         role.create
@@ -198,33 +141,14 @@ module Ansible
       end
     end
 
-    def create_configure(args)
-      name = args[:name]
-      version = args[:version]
-      src_dir = args[:src_dir]
-      configure = args[:configure]
-      role = Roles::Software::Configure.new(
-        role_dir: @role_path,
-        software_name: name,
-        software_version: version,
-        software_src_dir: src_dir,
-        software_configure: configure
-      )
+    def create_software_configure(software)
+      role = Roles::SoftwareConfigure.new(role_dir: @role_path, software: software)
       role.create
       @playbook.add("    - #{role.path}")
     end
 
-    def create_build(args)
-      name = args[:name]
-      version = args[:version]
-      src_dir = args[:src_dir]
-
-      role = Roles::Software::Build.new(
-        role_dir: @role_path,
-        software_name: name,
-        software_version: version,
-        software_src_dir: src_dir
-      )
+    def create_software_build(software)
+      role = Roles::SoftwareBuild.new(role_dir: @role_path, software: software)
       role.create
       @playbook.add("    - #{role.path}")
     end

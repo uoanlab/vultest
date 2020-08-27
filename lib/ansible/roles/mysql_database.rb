@@ -15,49 +15,36 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    class AttackToolMSF
+    class MysqlDatabase
       attr_reader :path
 
       def initialize(args)
         @role_dir = args[:role_dir]
-        @host = args[:host]
+        @name = args[:config]['name']
+        @config = args[:config]['mysql_database']
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/attack.tool.msf")
+        FileUtils.mkdir_p("#{@role_dir}/#{@name}.db")
 
-        create_tasks
-        create_vars
-        create_files
-
-        @path = 'attack.tool.msf'
-      end
-
-      private
-
-      def create_tasks
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/tasks",
-          "#{@role_dir}/attack.tool.msf"
-        )
-      end
-
-      def create_vars
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/vars",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/database/db/tasks",
+          "#{@role_dir}/#{@name}.db"
         )
 
-        File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
-          f.puts("attack_host: #{@host}")
+        FileUtils.cp_r(
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/database/db/vars",
+          "#{@role_dir}/#{@name}.db"
+        )
+
+        File.open("#{@role_dir}/#{@name}.db/vars/main.yml", 'a') do |f|
+          f.puts("database: #{@config['database']}")
+          f.puts("login_user: #{@config['login_user']}")
+          f.puts("login_password: #{@config['login_password']}")
+          f.puts("config_file: #{@config['config_file']}")
         end
-      end
 
-      def create_files
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
-          "#{@role_dir}/attack.tool.msf"
-        )
+        @path = "#{@name}.db"
       end
     end
   end

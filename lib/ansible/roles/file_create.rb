@@ -15,49 +15,53 @@ require 'fileutils'
 
 module Ansible
   module Roles
-    class AttackToolMSF
+    class FileCreate
       attr_reader :path
 
       def initialize(args)
         @role_dir = args[:role_dir]
-        @host = args[:host]
+        @name = args[:config]['name']
+        @config = args[:config]['file_create']
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/attack.tool.msf")
+        FileUtils.mkdir_p("#{@role_dir}/#{@name}.file.create/files")
 
         create_tasks
         create_vars
         create_files
 
-        @path = 'attack.tool.msf'
+        @path = "#{@name}.file.create"
       end
 
       private
 
       def create_tasks
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/tasks",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create/tasks",
+          "#{@role_dir}/#{@name}.file.create"
         )
       end
 
       def create_vars
         FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/vars",
-          "#{@role_dir}/attack.tool.msf"
+          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create/vars",
+          "#{@role_dir}/#{@name}.file.create"
         )
 
-        File.open("#{@role_dir}/attack.tool.msf/vars/main.yml", 'a') do |f|
-          f.puts("attack_host: #{@host}")
+        File.open("#{@role_dir}/#{@name}.file.create/vars/main.yml", 'a') do |f|
+          f.puts('src: ../files/file')
+          f.puts("dest: #{@config['path']}")
+          f.puts("group: #{@config['group']}")
+          f.puts("owner: #{@config['owner']}")
+          f.puts("mode: #{@config['mode']}")
         end
       end
 
       def create_files
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.tool.msf/files",
-          "#{@role_dir}/attack.tool.msf"
-        )
+        File.open("#{@role_dir}/#{@name}.file.create/files/file", 'w+') do |f|
+          f.puts(@config['content'])
+        end
       end
     end
   end
