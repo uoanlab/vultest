@@ -1,9 +1,8 @@
 - name: make
-  shell: make
-  args:
+  make:
     chdir: "{{ path }}"
 
 - name: make install
-  shell: make install
-  args:
+  make:
     chdir: "{{ path }}"
+    target: install
