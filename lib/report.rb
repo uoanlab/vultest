@@ -105,10 +105,10 @@ class Report
     attack_tool = nil
     attack_methods = []
 
-    if @attack.attack_tool.instance_of?(::Attack::Tool::Metasploit)
+    if @attack.attack_tool.instance_of?(::Attack::Method::Metasploit)
       attack_tool = 'Metasploit'
       attack_methods = @attack.attack_config['metasploit']
-    elsif @attack.attack_tool.instance_of?(::Attack::Tool::HTTP)
+    elsif @attack.attack_tool.instance_of?(::Attack::Method::HTTP)
       attack_tool = 'HTTP'
       target_url = @attack.attack_tool.target_url
       attack_url = @attack.attack_tool.attack_request_setting[:url]

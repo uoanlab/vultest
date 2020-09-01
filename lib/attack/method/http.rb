@@ -17,7 +17,7 @@ require 'net/http'
 require 'lib/print'
 
 module Attack
-  module Tool
+  module Method
     class HTTP
       attr_reader :target_url, :attack_request_setting, :request, :response, :error
 

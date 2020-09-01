@@ -16,7 +16,7 @@ require 'lib/api/metasploit'
 require 'lib/print'
 
 module Attack
-  module Tool
+  module Method
     class Metasploit
       attr_reader :host, :msf_api, :error, :exploits, :sessions
 
