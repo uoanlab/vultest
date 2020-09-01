@@ -46,14 +46,14 @@ module Ansible
     def create(host, env_config)
       FileUtils.mkdir_p(@role_path)
 
-      create_attack_tool(host) if env_config[:attack_tool] == 'msf'
+      create_attack_method(host) if env_config[:attack_method] == 'msf'
       create_users(env_config[:users]) unless env_config[:users].empty?
       create_softwares(env_config[:softwares]) unless env_config[:softwares].empty?
     end
 
     private
 
-    def create_attack_tool(host)
+    def create_attack_method(host)
       role = Roles::AttackToolMSF.new(
         role_dir: @role_path,
         host: host

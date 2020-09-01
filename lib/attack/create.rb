@@ -50,7 +50,7 @@ module Attack
         env_dir: @env_dir,
         os_name: 'ubuntu',
         host: '192.168.77.77',
-        attack_tool: 'msf'
+        attack_method: 'msf'
       )
     end
   end

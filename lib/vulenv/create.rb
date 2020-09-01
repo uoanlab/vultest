@@ -55,9 +55,10 @@ module Vulenv
     def prepare_ansible
       @softwares = @softwares.map { |software| software }
 
-      attack_tool = case @env_config['attack_vector']
-                    when 'local' then 'msf'
-                    end
+      attack_method =
+        case @env_config['attack_vector']
+        when 'local' then 'msf'
+        end
 
       Ansible::Core.new(
         env_dir: @env_dir,
@@ -65,7 +66,7 @@ module Vulenv
         os_name: @os[:name],
         users: @users,
         softwares: @softwares,
-        attack_tool: attack_tool
+        attack_method: attack_method
       )
     end
   end

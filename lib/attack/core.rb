@@ -18,7 +18,7 @@ require 'lib/print'
 
 module Attack
   class Core
-    attr_reader :env_dir, :attack_config, :attack_tool, :vagrant
+    attr_reader :env_dir, :attack_config, :attack_method, :vagrant
 
     def initialize(args)
       @host = args[:host]
@@ -37,18 +37,18 @@ module Attack
     end
 
     def exec
-      @attack_tool =
+      @attack_method =
         if attack_config.key?('metasploit')
           Method::Metasploit.new(host: @host, exploits: attack_config['metasploit'])
         elsif attack_config.key?('http')
           Method::HTTP.new(exploits: attack_config['http'])
         end
 
-      attack_tool.exec
+      attack_method.exec
     end
 
     def exec_error?
-      return false if attack_tool.error.nil?
+      return false if attack_method.error.nil?
 
       true
     end
