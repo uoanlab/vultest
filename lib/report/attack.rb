@@ -22,7 +22,7 @@ module Report
     end
 
     def create
-      if @attack.attack_method.instance_of?(::Attack::Method::Metasploit)
+      if @attack.attack_method.instance_of?(::Attack::Method::Metasploit::Core)
         create_metasploit
       elsif @attack.attack_method.instance_of?(::Attack::Method::HTTP)
         create_http

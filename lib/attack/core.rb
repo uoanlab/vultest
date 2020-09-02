@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'lib/attack/method/http'
-require 'lib/attack/method/metasploit'
+require 'lib/attack/method/metasploit/core'
 require 'lib/attack/create'
 require 'lib/print'
 
@@ -39,7 +39,7 @@ module Attack
     def exec
       @attack_method =
         if attack_config.key?('metasploit')
-          Method::Metasploit.new(host: @host, exploits: attack_config['metasploit'])
+          Method::Metasploit::Core.new(host: @host, exploits: attack_config['metasploit'])
         elsif attack_config.key?('http')
           Method::HTTP.new(exploits: attack_config['http'])
         end

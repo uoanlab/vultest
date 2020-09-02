@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'erb'
 require 'fileutils'
 require 'tty-markdown'
 
@@ -19,8 +18,8 @@ require 'lib/report/title'
 require 'lib/report/vulenv'
 require 'lib/report/attack'
 require 'lib/report/vulnerability'
+require 'lib/report/error'
 
-require 'lib/db'
 require 'lib/print'
 
 module Report
@@ -64,38 +63,24 @@ module Report
     end
 
     def create_error_part(error_type)
-      erb = ERB.new(File.read(REPORT_ERROR_TEMPLATE_PATH), trim_mode: 2)
-
-      case error_type
-      when 'vulenv'
-        error_ansible_role = nil
-        error_command = nil
-        @vulenv.vagrant.error_msg.split("\n").each do |e|
-          error_info = e.match(/^TASK \[(?<error_ansible_role>.*)\s:\s(?<error_command>.*)\].*/)
-          if error_info
-            error_ansible_role = error_info[:error_ansible_role]
-            error_command = error_info[:error_command]
-          end
-        end
-
-      when 'attack'
-        error_method = @attack.attack_method.error[:name]
-        error_method_settings = @attack.attack_method.error[:option]
-      end
-
-      File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
+      Error.new(
+        report_dir: @report_dir,
+        error: error_type,
+        vulenv: @vulenv,
+        attack: @attack
+      ).create
     end
 
     def create_vulenv_part
-      Vulenv.new({ report_dir: @report_dir, vulenv_structure: @vulenv.structure }).create
+      Vulenv.new(report_dir: @report_dir, vulenv_structure: @vulenv.structure).create
     end
 
     def create_attack_part
-      Attack.new({ report_dir: @report_dir, attack: @attack }).create
+      Attack.new(report_dir: @report_dir, attack: @attack).create
     end
 
     def create_vulenrability_part
-      Vulnerability.new({ report_dir: @report_dir, cve: @vulenv.env_config['cve'] }).create
+      Vulnerability.new(report_dir: @report_dir, cve: @vulenv.env_config['cve']).create
     end
   end
 end
