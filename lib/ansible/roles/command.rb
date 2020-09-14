@@ -16,39 +16,35 @@ require 'fileutils'
 module Ansible
   module Roles
     class Command
-      attr_reader :path
+      attr_reader :dir
 
       def initialize(args)
-        @role_dir = args[:role_dir]
         @name = args[:config]['name']
         @config = args[:config]
+
+        @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/command"
+        @role_path = "#{args[:role_dir]}/#{@name}.command"
+
+        @dir = "#{@name}.command"
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/#{@name}.command")
+        FileUtils.mkdir_p(@role_path)
 
         create_tasks
         create_vars
-
-        @path = "#{@name}.command"
       end
 
       private
 
       def create_tasks
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/command/tasks",
-          "#{@role_dir}/#{@name}.command"
-        )
+        FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
       end
 
       def create_vars
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/command/vars",
-          "#{@role_dir}/#{@name}.command"
-        )
+        FileUtils.cp_r("#{@resource_path}/vars", @role_path)
 
-        File.open("#{@role_dir}/#{@name}.command/vars/main.yml", 'a') do |f|
+        ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
           f.puts("command: #{@config['command']}")
         end
       end

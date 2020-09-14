@@ -16,39 +16,36 @@ require 'fileutils'
 module Ansible
   module Roles
     class Service
-      attr_reader :path
+      attr_reader :dir
 
       def initialize(args)
         @role_dir = args[:role_dir]
         @name = args[:config]['name']
         @config = args[:config]
+
+        @resource_dir = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service"
+        @role_path = "#{args[:role_dir]}/#{@name}.service"
+
+        @dir = "#{@name}.service"
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/#{@name}.service")
+        FileUtils.mkdir_p(@role_path)
 
         create_tasks
         create_vars
-
-        @path = "#{@name}.service"
       end
 
       private
 
       def create_tasks
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/tasks",
-          "#{@role_dir}/#{@name}.service"
-        )
+        FileUtils.cp_r("#{@resource_dir}/tasks", @role_path)
       end
 
       def create_vars
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/vars",
-          "#{@role_dir}/#{@name}.service"
-        )
+        FileUtils.cp_r("#{@resource_dir}/vars", @role_path)
 
-        File.open("#{@role_dir}/#{@name}.service/vars/main.yml", 'a') do |f|
+        ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
           f.puts("name: #{@config['service']}")
         end
       end

@@ -16,42 +16,37 @@ require 'fileutils'
 module Ansible
   module Roles
     class User
-      attr_reader :path
+      attr_reader :dir
 
       def initialize(args)
-        @role_dir = args[:role_dir]
-
         @user = {
           name: args[:user_name],
           shell: args[:user_shell]
         }
+
+        @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/user"
+        @role_path = "#{args[:role_dir]}/#{@user[:name]}.user"
+
+        @dir = "#{@user[:name]}.user"
       end
 
       def create
-        FileUtils.mkdir_p("#{@role_dir}/#{@user[:name]}.user")
+        FileUtils.mkdir_p(@role_path)
 
         create_tasks
         create_vars
-
-        @path = "#{@user[:name]}.user"
       end
 
       private
 
       def create_tasks
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/user/tasks",
-          "#{@role_dir}/#{@user[:name]}.user"
-        )
+        FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
       end
 
       def create_vars
-        FileUtils.cp_r(
-          "#{ANSIBLE_ROLES_TEMPLATE_PATH}/user/vars",
-          "#{@role_dir}/#{@user[:name]}.user"
-        )
+        FileUtils.cp_r("#{@resource_path}/vars", @role_path)
 
-        File.open("#{@role_dir}/#{@user[:name]}.user/vars/main.yml", 'a') do |f|
+        ::File.open("#{@role_path}//vars/main.yml", 'a') do |f|
           f.puts("name: #{@user[:name]}")
           f.puts("shell: #{@user[:shell]}")
         end

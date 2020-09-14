@@ -13,28 +13,29 @@
 # limitations under the License.
 require 'fileutils'
 
-require 'lib/ansible/roles/attack_tool_msf'
+require 'lib/ansible/roles/attack_msf'
 
 require 'lib/ansible/roles/user'
 
-require 'lib/ansible/roles/mysql_database'
-require 'lib/ansible/roles/mysql_user'
+require 'lib/ansible/roles/mysql/database'
+require 'lib/ansible/roles/mysql/user'
 
-require 'lib/ansible/roles/file_add'
-require 'lib/ansible/roles/file_delete'
-require 'lib/ansible/roles/file_create'
-require 'lib/ansible/roles/file_copy'
-require 'lib/ansible/roles/file_replace'
+require 'lib/ansible/roles/file/add'
+require 'lib/ansible/roles/file/delete'
+require 'lib/ansible/roles/file/create'
+require 'lib/ansible/roles/file/copy'
+require 'lib/ansible/roles/file/replace'
 
 require 'lib/ansible/roles/command'
 require 'lib/ansible/roles/service'
 
-require 'lib/ansible/roles/patch_download'
-require 'lib/ansible/roles/patch_install'
-require 'lib/ansible/roles/software_build'
-require 'lib/ansible/roles/software_configure'
-require 'lib/ansible/roles/software_download'
-require 'lib/ansible/roles/software_package'
+require 'lib/ansible/roles/patch/download'
+require 'lib/ansible/roles/patch/install'
+
+require 'lib/ansible/roles/software/source/build'
+require 'lib/ansible/roles/software/source/configure'
+require 'lib/ansible/roles/software/source/download'
+require 'lib/ansible/roles/software/package/install'
 
 module Ansible
   class Role
@@ -54,12 +55,12 @@ module Ansible
     private
 
     def create_attack_method(host)
-      role = Roles::AttackToolMSF.new(
+      role = Roles::AttackMSF.new(
         role_dir: @role_path,
         host: host
       )
       role.create
-      @playbook.add("    - #{role.path}")
+      @playbook.add("    - #{role.dir}")
     end
 
     def create_users(users)
@@ -70,7 +71,7 @@ module Ansible
           user_shell: user['shell']
         )
         role.create
-        @playbook.add("    - #{role.path}")
+        @playbook.add("    - #{role.dir}")
       end
     end
 
@@ -96,14 +97,14 @@ module Ansible
       configs['post_config'].each do |config|
         type = config.keys.reject { |key| key == 'name' }[0]
 
-        class_name = type.split('_').map(&:capitalize).join
+        class_name = type.split('_').map(&:capitalize).join('::')
 
         role = Object.const_get("Ansible::Roles::#{class_name}").new(
           role_dir: @role_path,
           config: config
         )
         role.create
-        @playbook.add("    - #{role.path}")
+        @playbook.add("    - #{role.dir}")
       end
     end
 
@@ -111,46 +112,46 @@ module Ansible
       role =
         case software.fetch('method', nil)
         when 'source'
-          Roles::SoftwareDownload.new(role_dir: @role_path, software: software)
+          Roles::Software::Source::Download.new(role_dir: @role_path, software: software)
         else
-          Roles::SoftwarePackage.new(role_dir: @role_path, software: software)
+          Roles::Software::Package::Install.new(role_dir: @role_path, software: software)
         end
       role.create
-      @playbook.add("    - #{role.path}")
+      @playbook.add("    - #{role.dir}")
     end
 
     def create_patches(software)
       return unless software.key?('patch')
 
       1.upto(software['version'].split('.')[2].to_i) do |version|
-        role = Roles::PatchDownload.new(
+        role = Roles::Patch::Download.new(
           role_dir: @role_path,
           software: software,
           patch_version: version
         )
         role.create
-        @playbook.add("    - #{role.path}")
+        @playbook.add("    - #{role.dir}")
 
-        role = Roles::PatchInstall.new(
+        role = Roles::Patch::Install.new(
           role_dir: @role_path,
           software: software,
           patch_version: version
         )
         role.create
-        @playbook.add("    - #{role.path}")
+        @playbook.add("    - #{role.dir}")
       end
     end
 
     def create_software_configure(software)
-      role = Roles::SoftwareConfigure.new(role_dir: @role_path, software: software)
+      role = Roles::Software::Source::Configure.new(role_dir: @role_path, software: software)
       role.create
-      @playbook.add("    - #{role.path}")
+      @playbook.add("    - #{role.dir}")
     end
 
     def create_software_build(software)
-      role = Roles::SoftwareBuild.new(role_dir: @role_path, software: software)
+      role = Roles::Software::Source::Build.new(role_dir: @role_path, software: software)
       role.create
-      @playbook.add("    - #{role.path}")
+      @playbook.add("    - #{role.dir}")
     end
   end
 end

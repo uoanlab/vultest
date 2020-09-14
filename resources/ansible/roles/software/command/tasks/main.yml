@@ -1,0 +1,6 @@
+---
+- name: "{{ command }}"
+  shell: "{{ command }}"
+  become_user: "{{ user }}"
+  ignore_errors: true
+
