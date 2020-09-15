@@ -6,7 +6,7 @@
     update_cache: no
   when:
     - ansible_distribution == "Ubuntu"
-    - version is undefined
+    - version == ""
 
 - name: "apt install {{ name }}={{ version }}"
   apt:
@@ -15,7 +15,7 @@
     update_cache: no
   when:
     - ansible_distribution == "Ubuntu"
-    - version is defined
+    - version != ""
 
 - name: "yum install {{ name }}"
   yum:
@@ -24,7 +24,7 @@
     update_cache: no
   when:
     - ansible_distribution == "CentOS"
-    - version is undefined
+    - version != ""
 
 - name: "yum install {{ name }}-{{ version }}"
   yum:
@@ -33,4 +33,4 @@
     update_cache: no
   when:
     - ansible_distribution == "CentOS"
-    - version is defined
+    - version != ""

@@ -19,7 +19,6 @@ module Ansible
       attr_reader :dir
 
       def initialize(args)
-        @role_dir = args[:role_dir]
         @name = args[:config]['name']
         @config = args[:config]
 

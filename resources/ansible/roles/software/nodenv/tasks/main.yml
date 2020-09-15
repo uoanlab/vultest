@@ -1,0 +1,57 @@
+---
+- name: which bash
+  shell: which bash
+  register: bash_path
+
+- name: git clone --depth 1 https://github.com/nodenv/nodenv.git
+  git:
+    repo: "https://github.com/nodenv/nodenv.git"
+    dest: "{{ user_dir }}/.nodenv"
+    depth: "1"
+  become_user: "{{ user }}"
+
+- name: git clone --depth 1 https://github.com/nodenv/node-build.git
+  git:
+    repo: "https://github.com/nodenv/node-build.git"
+    dest: "{{ user_dir }}/.nodenv/plugins/node-build"
+    depth: "1"
+  become_user: "{{ user }}"
+
+- name: git clone --depth 1 https://github.com/pine/nodenv-yarn-install.git
+  git:
+    repo: "https://github.com/pine/nodenv-yarn-install.git"
+    dest: "{{ user_dir }}/.nodenv/plugins/nodenv-yarn-install"
+    depth: "1"
+  become_user: "{{ user }}"
+
+- name: Set the environment of ruby in .bashrc
+  lineinfile:
+    dest: "{{ user_dir }}/.bashrc"
+    line: "{{ item }}"
+  with_items:
+    - 'export PATH="~/.nodenv/bin:$PATH"'
+    - 'eval "$(nodenv init -)"'
+  become_user: "{{ user }}"
+
+- name: source .bashrc
+  shell: "source {{ user_dir }}/.bashrc"
+  become_user: "{{ user }}"
+  args:
+    executable: "{{ bash_path.stdout }}"
+
+- name: nodenv install "{{ version }}"
+  shell: bash -lc "nodenv install {{ version }}"
+  ignore_errors: True
+  environment:
+    PATH: "{{ user_dir }}/.nodenv/bin:{{ ansible_env.PATH }}"
+  args:
+    executable: "{{ bash_path.stdout }}"
+  become_user: "{{ user }}"
+
+- name: nodenv global "{{ version }}"
+  shell: bash -lc "nodenv global {{ version }}"
+  environment:
+    PATH: "{{ user_dir }}/.nodenv/bin:{{ ansible_env.PATH }}"
+  args:
+    executable: "{{ bash_path.stdout }}"
+  become_user: "{{ user }}"

@@ -21,15 +21,13 @@ module Ansible
           attr_reader :dir
 
           def initialize(args)
-            @role_dir = args[:role_dir]
-
             @software = {
               name: args[:software]['name'],
               version: args[:software]['version']
             }
 
             @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/package"
-            @role_path = "#{@role_dir}/#{@software[:name]}.install"
+            @role_path = "#{args[:role_dir]}/#{@software[:name]}.install"
 
             @dir = "#{@software[:name]}.install"
           end
@@ -52,7 +50,9 @@ module Ansible
 
             ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
               f.puts("name: #{@software[:name]}")
-              f.puts("version: #{@software[:version]}") unless @software[:version].nil?
+              if @software[:version].nil? then f.puts('version: ""')
+              else f.puts("version: #{@software[:version]}")
+              end
             end
           end
         end

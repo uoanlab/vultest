@@ -1,0 +1,50 @@
+---
+- name: which bash
+  shell: which bash
+  register: bash_path
+
+- name: git clone --depth 1 https://github.com/sstephenson/rbenv.git
+  git:
+    repo: "https://github.com/sstephenson/rbenv.git"
+    dest: "{{ user_dir }}/.rbenv"
+    depth: "1"
+  become_user: "{{ user }}"
+
+- name: git clone --depth 1 https://github.com/sstephenson/ruby-build.git
+  git:
+    repo: "https://github.com/sstephenson/ruby-build.git"
+    dest: "{{ user_dir }}/.rbenv/plugins/ruby-build"
+    depth: "1"
+  become_user: "{{ user }}"
+
+- name: Set the environment of ruby in .bashrc
+  lineinfile:
+    dest: "{{ user_dir }}/.bashrc"
+    line: "{{ item }}"
+  with_items:
+    - 'export PATH="~/.rbenv/bin:$PATH"'
+    - 'eval "$(rbenv init -)"'
+  become_user: "{{ user }}"
+
+- name: source .bashrc
+  shell: "source {{ user_dir }}/.bashrc"
+  become_user: "{{ user }}"
+  args:
+    executable: "{{ bash_path.stdout }}"
+
+- name: rbenv install "{{ version }}"
+  shell: bash -lc "rbenv install {{ version }}"
+  ignore_errors: True
+  environment:
+    PATH: "{{ user_dir }}/.rbenv/bin:{{ ansible_env.PATH }}"
+  args:
+    executable: "{{ bash_path.stdout }}"
+  become_user: "{{ user }}"
+
+- name: rbenv global "{{ version }}"
+  shell: bash -lc "rbenv global {{ version }}"
+  environment:
+    PATH: "{{ user_dir }}/.rbenv/bin:{{ ansible_env.PATH }}"
+  args:
+    executable: "{{ bash_path.stdout }}"
+  become_user: "{{ user }}"

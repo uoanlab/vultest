@@ -1,3 +1,6 @@
 ---
 - name: Execute command
   shell: "{{ command }}"
+  args:
+    chdir: "{{ dir }}"
+  become_user: "{{ user }}"

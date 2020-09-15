@@ -46,6 +46,8 @@ module Ansible
 
         ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
           f.puts("command: #{@config['command']}")
+          f.puts("user: #{@config.fetch('user', 'vagrant')}")
+          f.puts("dir: #{@config.fetch('dir', '/home/vagrant')}")
         end
       end
     end

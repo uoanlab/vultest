@@ -12,43 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'fileutils'
-require 'yaml'
 
 module Ansible
   module Roles
     module Software
-      module Source
-        class Build
+      module Gem
+        class Install
           attr_reader :dir
 
           def initialize(args)
             @software = {
               name: args[:software]['name'],
-              version: args[:software] ['version']
+              version: args[:software]['version'],
+              executable: args[:software]['executable']
             }
-            @src_dir = args[:software].fetch('src_dir', '/usr/local/src')
 
-            metadata = YAML.load_file('./metadata.yml')
-            @unzip_file = metadata['softwares'][@software[:name]]['unzip_file']
+            @user = { name: args[:software]['user'] }
 
-            @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/make"
-            @role_path = "#{args[:role_dir]}/#{@software[:name]}.make"
+            @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/gem"
+            @role_path = "#{args[:role_dir]}/#{@software[:name]}.gem.install"
 
-            @dir = "#{@software[:name]}.make"
+            @dir = "#{@software[:name]}.gem.install"
           end
 
           def create
             FileUtils.mkdir_p(@role_path)
 
-            @unzip_file.gsub!(/{{ version }}/, @software[:version].to_s)
-            @unzip_file.gsub!(
-              /{{ core_version }}/,
-              "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
-            )
-            path = "#{@src_dir}/#{@unzip_file}"
-
             create_tasks
-            create_vars(path)
+            create_vars
           end
 
           private
@@ -57,10 +48,15 @@ module Ansible
             FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
           end
 
-          def create_vars(path)
+          def create_vars
             FileUtils.cp_r("#{@resource_path}/vars", @role_path)
 
-            ::File.open("#{@role_path}//vars/main.yml", 'a') { |f| f.puts("path: #{path}") }
+            ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
+              f.puts("name: #{@software[:name]}")
+              f.puts("version: #{@software[:version]}")
+              f.puts("user: #{@user[:name]}")
+              f.puts("executable: #{@software[:executable]}")
+            end
           end
         end
       end

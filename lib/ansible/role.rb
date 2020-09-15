@@ -35,7 +35,14 @@ require 'lib/ansible/roles/patch/install'
 require 'lib/ansible/roles/software/source/build'
 require 'lib/ansible/roles/software/source/configure'
 require 'lib/ansible/roles/software/source/download'
+
 require 'lib/ansible/roles/software/package/install'
+
+require 'lib/ansible/roles/software/nodenv/install'
+require 'lib/ansible/roles/software/npm/install'
+
+require 'lib/ansible/roles/software/rbenv/install'
+require 'lib/ansible/roles/software/gem/install'
 
 module Ansible
   class Role
@@ -109,12 +116,16 @@ module Ansible
     end
 
     def create_software_download(software)
+      args = { role_dir: @role_path, software: software }
+
       role =
         case software.fetch('method', nil)
-        when 'source'
-          Roles::Software::Source::Download.new(role_dir: @role_path, software: software)
-        else
-          Roles::Software::Package::Install.new(role_dir: @role_path, software: software)
+        when 'source' then Roles::Software::Source::Download.new(args)
+        when 'rbenv' then Roles::Software::Rbenv::Install.new(args)
+        when 'gem' then Roles::Software::Gem::Install.new(args)
+        when 'nodenv' then Roles::Software::Nodenv::Install.new(args)
+        when 'npm' then Roles::Software::Npm::Install.new(args)
+        else Roles::Software::Package::Install.new(args)
         end
       role.create
       @playbook.add("    - #{role.dir}")

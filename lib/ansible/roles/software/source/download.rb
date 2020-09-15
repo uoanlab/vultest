@@ -22,8 +22,6 @@ module Ansible
           attr_reader :dir
 
           def initialize(args)
-            @role_dir = args[:role_dir]
-
             @software = {
               name: args[:software]['name'],
               version: args[:software]['version'],
@@ -35,7 +33,7 @@ module Ansible
             @download_file = metadata['softwares'][@software[:name]]['download_file']
 
             @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/download"
-            @role_path = "#{@role_dir}/#{@software[:name]}.download"
+            @role_path = "#{args[:role_dir]}/#{@software[:name]}.download"
 
             @dir = "#{@software[:name]}.download"
           end
