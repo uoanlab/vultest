@@ -24,36 +24,33 @@ module Vulenv
       end
 
       def retrieve_os
-        base = Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
-          ssh.exec!('uname -r')
-        end
+        major_version =
+          Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
+            ssh.exec!('uname -r')
+          end
 
         {
           name: @env_config['construction']['os']['name'],
           version: @env_config['construction']['os']['version'],
-          base_version: base,
+          major_version: major_version,
           vulnerability: @env_config['construction']['os']['vulnerability']
         }
       end
 
       def retrieve_vul_software
-        return { name: nil, version: nil } unless @env_config['construction'].key?('vul_software')
+        return { name: nil, version: nil } unless @env_config['construction'].key?('softwares')
 
-        {
-          name: @env_config['construction']['vul_software']['name'],
-          version: @env_config['construction']['vul_software']['version']
-        }
+        v = @env_config['construction']['softwares'].find do |s|
+          s.key?('vulnerability') && s['vulnerability']
+        end
+
+        { name: v['name'], version: v['version'] }
       end
 
       def retrieve_related_softwares
-        return [] unless @env_config['construction'].key?('related_software')
+        return [] unless @env_config['construction'].key?('softwares')
 
-        softwares = @env_config['construction']['related_software'].map do |s|
-          {
-            name: s['name'],
-            version: s.fetch('version', 'The latest version of the repository')
-          }
-        end
+        softwares = create_related_software_list(@env_config['construction']['softwares'])
 
         related_softwares = {}
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
@@ -68,6 +65,22 @@ module Vulenv
         end
 
         related_softwares
+      end
+
+      def create_related_software_list(softwares)
+        res = []
+        softwares.each do |software|
+          if software.key?('vulnerability') && software['vulnerability']
+            res += create_related_software_list(software['softwares']) if software.key?('softwares')
+            next
+          end
+
+          no_version = 'The latest version of the repository'
+          res.push({ name: software['name'], version: software.fetch('version', no_version) })
+
+          res += create_related_software_list(software['softwares']) if software.key?('softwares')
+        end
+        res
       end
 
       def retrieve_ipaddrs

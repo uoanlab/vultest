@@ -24,15 +24,10 @@ module Vulenv
 
       @os = {
         name: @env_config['construction']['os']['name'],
-        version: @env_config['construction']['os']['version'],
-        install_method: @env_config['construction']['os']['default_method']
+        version: @env_config['construction']['os']['version']
       }
-      @users_param = @env_config['construction'].fetch('user', [])
-      @msf_param = @env_config['attack_vector'] == 'local'
-      @services_param = @env_config['construction'].fetch('services', [])
-      @content_param = @env_config['construction'].fetch('content', nil)
-      @related_softwares = @env_config['construction'].fetch('related_software', [])
-      @vul_software = @env_config['construction'].fetch('vul_software', [])
+      @users = @env_config['construction'].fetch('user', [])
+      @softwares = @env_config['construction'].fetch('softwares', [])
 
       @vagrant = nil
       @ansible = nil
@@ -58,20 +53,20 @@ module Vulenv
     end
 
     def prepare_ansible
-      softwares = @related_softwares.map { |software| software }
-      softwares.push(@vul_software) unless @vul_software.empty?
+      @softwares = @softwares.map { |software| software }
+
+      attack_method =
+        case @env_config['attack_vector']
+        when 'local' then 'msf'
+        end
 
       Ansible::Core.new(
-        hosts: '192.168.177.177',
-        os_name: @os[:name],
-        install_method: @os[:install_method],
-        host: '192.168.177.177',
         env_dir: @env_dir,
-        users: @users_param,
-        msf: @msf_param,
-        services: @services_param,
-        content: @content_param,
-        softwares: softwares
+        host: '192.168.177.177',
+        os_name: @os[:name],
+        users: @users,
+        softwares: @softwares,
+        attack_method: attack_method
       )
     end
   end

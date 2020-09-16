@@ -1,0 +1,13 @@
+---
+- name: Download software
+  get_url:
+    url: "{{ url }}"
+    dest: "{{ src_dir }}"
+    validate_certs: no
+
+- name: Unarchive source code of software
+  unarchive:
+    src: "{{ src_dir }}/{{ download_file }}"
+    dest: "{{ src_dir }}"
+    copy: no
+  when: download_file is match(".*\.tar.gz")

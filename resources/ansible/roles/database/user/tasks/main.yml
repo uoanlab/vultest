@@ -1,0 +1,52 @@
+---
+- name: Download python-pip in Ubuntu
+  apt:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - python-dev
+      - python-pip
+      - libmysqlclient-dev
+  when: ansible_distribution == "Ubuntu"
+
+- name: pip install MySQL-python (Ubuntu)
+  pip:
+    name: MySQL-python
+  when: ansible_distribution == "Ubuntu"
+
+- name: Download python-pip in CentOS
+  yum:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - python-devel
+      - python-pip
+      - MySQL-python
+  when: ansible_distribution == "CentOS"
+
+- name: Check user
+  mysql_user:
+    name: "{{ user }}"
+    password: "{{ password }}"
+    host: "{{ host }}"
+    priv: "{{ priv }}"
+    state: present
+    login_user: "{{ login_user }}"
+    login_password: "{{ password }}"
+    config_file: "{{ config_file }}"
+  register: result
+  ignore_errors: true
+
+- name: Create user
+  mysql_user:
+    name: "{{ user }}"
+    password: "{{ password }}"
+    host: "{{ host }}"
+    priv: "{{ priv }}"
+    state: present
+    login_user: "{{ login_user }}"
+    login_password: "{{ login_password }}"
+    config_file: "{{ config_file }}"
+  when: result is failed

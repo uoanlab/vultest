@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'lib/attack/tool/http'
-require 'lib/attack/tool/metasploit'
+require 'lib/attack/method/http'
+require 'lib/attack/method/metasploit/core'
 require 'lib/attack/create'
 require 'lib/print'
 
 module Attack
   class Core
-    attr_reader :env_dir, :attack_config, :attack_tool, :vagrant
+    attr_reader :env_dir, :attack_config, :attack_method, :vagrant
 
     def initialize(args)
       @host = args[:host]
@@ -37,18 +37,18 @@ module Attack
     end
 
     def exec
-      @attack_tool =
+      @attack_method =
         if attack_config.key?('metasploit')
-          Tool::Metasploit.new(host: @host, exploits: attack_config['metasploit'])
+          Method::Metasploit::Core.new(host: @host, exploits: attack_config['metasploit'])
         elsif attack_config.key?('http')
-          Tool::HTTP.new(exploits: attack_config['http'])
+          Method::HTTP.new(exploits: attack_config['http'])
         end
 
-      attack_tool.exec
+      attack_method.exec
     end
 
     def exec_error?
-      return false if attack_tool.error.nil?
+      return false if attack_method.error.nil?
 
       true
     end

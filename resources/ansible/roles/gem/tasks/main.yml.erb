@@ -1,9 +1,0 @@
----
-- name: "gem install {{ name }} -v {{ version }}"
-  gem:
-    name: "{{ name }}"
-    version: "{{ version }}"
-    executable: "{{ user_dir }}/.rbenv/shims/gem"
-    user_install: no
-    state: present
-  become_user: "{{ user }}"

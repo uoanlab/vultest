@@ -1,0 +1,7 @@
+---
+- hosts: vagrant
+<% unless os_name == 'windows' %>
+  connection: local
+  become: yes
+<% end %>
+  roles:

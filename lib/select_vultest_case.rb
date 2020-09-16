@@ -16,6 +16,8 @@ require 'lib/db'
 require 'lib/print'
 
 class SelectVultestCase
+  CONFIGVERSION = 1.0
+
   def initialize(args)
     @cve = args[:cve]
     @test_cases = []
@@ -46,6 +48,8 @@ class SelectVultestCase
       "#{BASE_CONFIG['vultest_db_path']}/#{@test_cases[id.to_i]['module_path']}"
     )
 
+    return {} unless check_config_version?(vulenv_config)
+
     {
       vulenv_config: vulenv_config,
       attack_config: attack_config
@@ -73,5 +77,15 @@ class SelectVultestCase
     end
 
     { name_list: name_list, index_info: idx_info }
+  end
+
+  def check_config_version?(vulenv_config)
+    version = vulenv_config.fetch('version', '1.0')
+    if version.to_i > CONFIGVERSION || version.to_i < CONFIGVERSION
+      Print.error("Configfile is #{version}(support: #{CONFIGVERSION})")
+      return false
+    end
+
+    true
   end
 end

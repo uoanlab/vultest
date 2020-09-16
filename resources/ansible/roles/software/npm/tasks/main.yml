@@ -1,0 +1,20 @@
+---
+- name: "npm install -g {{ name }}@{{ version }}"
+  npm:
+    name: "{{ name }}"
+    version: "{{ version }}"
+    global: yes
+    executable: "{{ executable }}"
+    state: present
+  become_user: "{{ user }}"
+  when: global == 'yes'
+
+- name: "npm install {{ name }}@{{ version }}"
+  npm:
+    name: "{{ name }}"
+    version: "{{ version }}"
+    path: "{{ path }}"
+    executable: "{{ executable }}"
+    state: present
+  become_user: "{{ user }}"
+  when: global == 'no'

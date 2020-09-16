@@ -11,44 +11,44 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'erb'
 require 'fileutils'
 
 module Ansible
   module Roles
-    module User
-      class << self
-        def create(args)
-          role_dir = args[:role_dir]
-          user = args[:user]
-          create_tasks(role_dir, user)
-          create_vars(role_dir, user)
-        end
+    class User
+      attr_reader :dir
 
-        private
+      def initialize(args)
+        @user = {
+          name: args[:user_name],
+          shell: args[:user_shell]
+        }
 
-        def create_tasks(role_dir, user)
-          FileUtils.mkdir_p("#{role_dir}/#{user}-user/tasks")
-          erb = ERB.new(
-            File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/user/tasks/main.yml.erb"),
-            trim_mode: 2
-          )
+        @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/user"
+        @role_path = "#{args[:role_dir]}/#{@user[:name]}.user"
 
-          File.open("#{role_dir}/#{user}-user/tasks/main.yml", 'w') do |f|
-            f.puts(erb.result(binding))
-          end
-        end
+        @dir = "#{@user[:name]}.user"
+      end
 
-        def create_vars(role_dir, user)
-          FileUtils.mkdir_p("#{role_dir}/#{user}-user/vars")
-          erb = ERB.new(
-            File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/user/vars/main.yml.erb"),
-            trim_mode: 2
-          )
+      def create
+        FileUtils.mkdir_p(@role_path)
 
-          File.open("#{role_dir}/#{user}-user/vars/main.yml", 'w') do |f|
-            f.puts(erb.result(binding))
-          end
+        create_tasks
+        create_vars
+      end
+
+      private
+
+      def create_tasks
+        FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
+      end
+
+      def create_vars
+        FileUtils.cp_r("#{@resource_path}/vars", @role_path)
+
+        ::File.open("#{@role_path}//vars/main.yml", 'a') do |f|
+          f.puts("name: #{@user[:name]}")
+          f.puts("shell: #{@user[:shell]}")
         end
       end
     end

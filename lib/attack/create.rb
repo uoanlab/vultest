@@ -39,20 +39,18 @@ module Attack
       @vagrant = Vagrant::Core.new(
         os_name: 'ubuntu',
         os_version: '18.04',
+        vagrant_img_box: 'ubuntu/bionic64',
         host: '192.168.77.77',
-        env_dir: @env_dir,
-        vagrant_img_box: 'ubuntu/bionic64'
+        env_dir: @env_dir
       )
     end
 
     def prepare_ansible
       Ansible::Core.new(
         env_dir: @env_dir,
-        hosts: '192.168.77.77',
         os_name: 'ubuntu',
-        install_method: 'apt',
         host: '192.168.77.77',
-        msf: true
+        attack_method: 'msf'
       )
     end
   end

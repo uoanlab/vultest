@@ -11,45 +11,41 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'erb'
 require 'fileutils'
 
 module Ansible
   module Roles
-    module Service
-      class << self
-        def create(args)
-          role_dir = args[:role_dir]
-          service = args[:service]
-          create_tasks(role_dir, service)
-          create_vars(role_dir, service)
-        end
+    class Service
+      attr_reader :dir
 
-        private
+      def initialize(args)
+        @name = args[:config]['name']
+        @config = args[:config]
 
-        def create_tasks(role_dir, service)
-          FileUtils.mkdir_p("#{role_dir}/service-#{service}/tasks")
-          erb = ERB.new(
-            File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/tasks/main.yml.erb"),
-            trim_mode: 2
-          )
+        @resource_dir = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service"
+        @role_path = "#{args[:role_dir]}/#{@name}.service"
 
-          File.open("#{role_dir}/service-#{service}/tasks/main.yml", 'w') do |f|
-            f.puts(erb.result(binding))
-          end
-        end
+        @dir = "#{@name}.service"
+      end
 
-        def create_vars(role_dir, service)
-          FileUtils.mkdir_p("#{role_dir}/service-#{service}/vars")
-          erb = ERB.new(
-            File.read("#{ANSIBLE_ROLES_TEMPLATE_PATH}/service/vars/main.yml.erb"),
-            trim_mode: 2
-          )
+      def create
+        FileUtils.mkdir_p(@role_path)
 
-          name = service
-          File.open("#{role_dir}/service-#{service}/vars/main.yml", 'w') do |f|
-            f.puts(erb.result(binding))
-          end
+        create_tasks
+        create_vars
+      end
+
+      private
+
+      def create_tasks
+        FileUtils.cp_r("#{@resource_dir}/tasks", @role_path)
+      end
+
+      def create_vars
+        FileUtils.cp_r("#{@resource_dir}/vars", @role_path)
+
+        ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
+          f.puts("name: #{@config['service']}")
         end
       end
     end

@@ -79,11 +79,12 @@ module Vulenv
         env_config: env_config
       }
 
-      s = case env_config['construction']['os']['name']
-          when 'ubuntu' then Structure::Ubuntu.new(env_info)
-          when 'centos' then Structure::CentOS.new(env_info)
-          when 'windows' then Structure::Windows.new(env_info)
-          end
+      s =
+        case env_config['construction']['os']['name']
+        when 'ubuntu' then Structure::Ubuntu.new(env_info)
+        when 'centos' then Structure::CentOS.new(env_info)
+        when 'windows' then Structure::Windows.new(env_info)
+        end
 
       @structure = {
         os: s.retrieve_os,

@@ -1,0 +1,8 @@
+---
+- name: Create new databases
+  mysql_db:
+    name: "{{ database }}"
+    state: present
+    login_user: "{{ login_user }}"
+    login_password: "{{ login_password }}"
+    config_file: "{{ config_file }}"
