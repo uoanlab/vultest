@@ -15,11 +15,13 @@ University of Aizu, 2019
 - CVE-2014-6271
 - CVE-2015-1318
 - CVE-2015-1328
+- CVE-2015-3224
 - CVE-2017-5487
 - CVE-2019-0708
 
 # Releases
 
+- [20200916, v1.0.0](https://github.com/uoanlab/vultest/releases/tag/v1.0.0)
 - [20200807, v0.6.0](https://github.com/uoanlab/vultest/releases/tag/v0.6.0)
 - [20200401, v0.5.0](https://github.com/uoanlab/vultest/releases/tag/v0.5.0)
 - [20200222, v0.4.0](https://github.com/uoanlab/vultest/releases/tag/v0.4.0)
@@ -30,7 +32,9 @@ University of Aizu, 2019
 
 # Related product
 
+## vultest-db
 - [vultest-db](https://github.com/uoanlab/vultest-db): Configuration database for automatic vulnerability tests
+- Support version: [v1.0.0](https://github.com/uoanlab/vultest-db/releases/tag/v1.0.0)
 
 # Authors & Contributors
 
