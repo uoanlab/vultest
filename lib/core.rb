@@ -37,6 +37,8 @@ class Core
     return false if select_vultest_case.test_case_empty?
 
     vultest_case_config = select_vultest_case.exec
+    return false if vultest_case_config.empty?
+
     @vulenv_config = vultest_case_config[:vulenv_config]
     @attack_config = vultest_case_config[:attack_config]
     true
