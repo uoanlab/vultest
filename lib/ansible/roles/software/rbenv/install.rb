@@ -32,9 +32,9 @@ module Ansible
             }
 
             @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/rbenv"
-            @role_path = "#{args[:role_dir]}/ruby.install"
+            @role_path = "#{args[:role_dir]}/ruby_#{@software[:version]}.install"
 
-            @dir = 'ruby.install'
+            @dir = "ruby_#{@software[:version]}.install"
           end
 
           def create

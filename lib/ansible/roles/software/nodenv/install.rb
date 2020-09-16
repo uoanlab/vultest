@@ -32,9 +32,9 @@ module Ansible
             }
 
             @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/nodenv"
-            @role_path = "#{args[:role_dir]}/nodejs.install"
+            @role_path = "#{args[:role_dir]}/nodejs_#{@software[:version]}.install"
 
-            @dir = 'nodejs.install'
+            @dir = "nodejs_#{@software[:version]}.install"
           end
 
           def create
