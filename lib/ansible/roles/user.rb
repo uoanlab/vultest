@@ -21,6 +21,7 @@ module Ansible
       def initialize(args)
         @user = {
           name: args[:user_name],
+          password: args[:user_password],
           shell: args[:user_shell]
         }
 
@@ -48,6 +49,7 @@ module Ansible
 
         ::File.open("#{@role_path}//vars/main.yml", 'a') do |f|
           f.puts("name: #{@user[:name]}")
+          f.puts("password: #{@user[:password]}")
           f.puts("shell: #{@user[:shell]}")
         end
       end

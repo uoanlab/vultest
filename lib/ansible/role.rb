@@ -75,6 +75,7 @@ module Ansible
         role = Roles::User.new(
           role_dir: @role_path,
           user_name: user['name'],
+          user_password: user['password'],
           user_shell: user['shell']
         )
         role.create
