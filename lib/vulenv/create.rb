@@ -23,11 +23,11 @@ module Vulenv
       @env_config = args[:env_config]
 
       @os = {
-        name: @env_config['construction']['os']['name'],
-        version: @env_config['construction']['os']['version']
+        name: @env_config['host']['os']['name'],
+        version: @env_config['host']['os']['version']
       }
-      @users = @env_config['construction'].fetch('user', [])
-      @softwares = @env_config['construction'].fetch('softwares', [])
+      @users = @env_config['host'].fetch('user', [])
+      @softwares = @env_config['host'].fetch('softwares', [])
 
       @vagrant = nil
       @ansible = nil

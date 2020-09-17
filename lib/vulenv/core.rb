@@ -80,7 +80,7 @@ module Vulenv
       }
 
       s =
-        case env_config['construction']['os']['name']
+        case env_config['host']['os']['name']
         when 'ubuntu' then Structure::Ubuntu.new(env_info)
         when 'centos' then Structure::CentOS.new(env_info)
         when 'windows' then Structure::Windows.new(env_info)

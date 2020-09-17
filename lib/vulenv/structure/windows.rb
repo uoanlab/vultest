@@ -34,17 +34,17 @@ module Vulenv
         end
 
         {
-          name: @env_config['construction']['os']['name'],
-          version: @env_config['construction']['os']['version'],
+          name: @env_config['host']['os']['name'],
+          version: @env_config['host']['os']['version'],
           major_version: major_version,
-          vulnerability: @env_config['construction']['os']['vulnerability']
+          vulnerability: @env_config['host']['os']['vulnerability']
         }
       end
 
       def retrieve_vul_software
-        return { name: nil, version: nil } unless @env_config['construction'].key?('softwares')
+        return { name: nil, version: nil } unless @env_config['host'].key?('softwares')
 
-        v = @env_config['construction']['softwares'].find do |s|
+        v = @env_config['host']['softwares'].find do |s|
           s.key?('vulnerability') && s['vulnerability']
         end
 
@@ -52,9 +52,9 @@ module Vulenv
       end
 
       def retrieve_related_softwares
-        return [] unless @env_config['construction'].key?('softwares')
+        return [] unless @env_config['host'].key?('softwares')
 
-        create_related_software_list(@env_config['construction']['softwares'])
+        create_related_software_list(@env_config['host']['softwares'])
       end
 
       def create_related_software_list(softwares)
