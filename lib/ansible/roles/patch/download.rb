@@ -32,8 +32,8 @@ module Ansible
           @patch_version = args[:patch_version]
 
           metadata = YAML.load_file('./metadata.yml')
-          @url = metadata['softwares'][@software[:name]]['patch']['url']
-          @download_file = metadata['softwares'][@software[:name]]['patch']['download_file']
+          @url = metadata['software'][@software[:name]]['patch']['url']
+          @download_file = metadata['software'][@software[:name]]['patch']['download_file']
 
           @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/patch/download"
         end

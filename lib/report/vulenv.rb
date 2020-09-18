@@ -25,7 +25,7 @@ module Report
 
       os = @vulenv_structure[:os]
       vul_software = @vulenv_structure[:vul_software]
-      related_softwares = @vulenv_structure[:related_softwares]
+      related_software = @vulenv_structure[:related_software]
       ipadders = @vulenv_structure[:ipadders]
       port_list = @vulenv_structure[:port_list]
       services = @vulenv_structure[:services]

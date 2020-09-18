@@ -27,7 +27,7 @@ module Vulenv
         version: @env_config['host']['os']['version']
       }
       @users = @env_config['host'].fetch('user', [])
-      @softwares = @env_config['host'].fetch('softwares', [])
+      @software = @env_config['host'].fetch('software', [])
 
       @vagrant = nil
       @ansible = nil
@@ -53,7 +53,7 @@ module Vulenv
     end
 
     def prepare_ansible
-      @softwares = @softwares.map { |software| software }
+      @software = @software.map { |software| software }
 
       attack_method =
         case @env_config['attack_vector']
@@ -65,7 +65,7 @@ module Vulenv
         host: '192.168.177.177',
         os_name: @os[:name],
         users: @users,
-        softwares: @softwares,
+        software: @software,
         attack_method: attack_method
       )
     end

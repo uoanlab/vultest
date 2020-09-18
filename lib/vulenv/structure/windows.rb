@@ -42,33 +42,33 @@ module Vulenv
       end
 
       def retrieve_vul_software
-        return { name: nil, version: nil } unless @env_config['host'].key?('softwares')
+        return { name: nil, version: nil } unless @env_config['host'].key?('software')
 
-        v = @env_config['host']['softwares'].find do |s|
+        v = @env_config['host']['software'].find do |s|
           s.key?('vulnerability') && s['vulnerability']
         end
 
         { name: v['name'], version: v['version'] }
       end
 
-      def retrieve_related_softwares
-        return [] unless @env_config['host'].key?('softwares')
+      def retrieve_related_software
+        return [] unless @env_config['host'].key?('software')
 
-        create_related_software_list(@env_config['host']['softwares'])
+        create_related_software_list(@env_config['host']['software'])
       end
 
-      def create_related_software_list(softwares)
+      def create_related_software_list(software)
         res = []
-        softwares.each do |software|
-          if software.key?('vulnerability') && software['vulnerability']
-            res += create_related_software_list(software['softwares']) if software.key?('softwares')
+        software.each do |s|
+          if s.key?('vulnerability') && s['vulnerability']
+            res += create_related_software_list(software['software']) if s.key?('software')
             next
           end
 
           no_version = 'The latest version of the repository'
-          res.push({ name: software['name'], version: software.fetch('version', no_version) })
+          res.push({ name: s['name'], version: s.fetch('version', no_version) })
 
-          res += create_related_software_list(software['softwares']) if software.key?('softwares')
+          res += create_related_software_list(s['software']) if s.key?('software')
         end
         res
       end

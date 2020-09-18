@@ -30,8 +30,8 @@ module Ansible
           }
 
           metadata = YAML.load_file('./metadata.yml')
-          @software_dir = metadata['softwares'][@software[:name]]['unzip_file']
-          @patch_name = metadata['softwares'][@software[:name]]['patch']['unzip_file']
+          @software_dir = metadata['software'][@software[:name]]['unzip_file']
+          @patch_name = metadata['software'][@software[:name]]['patch']['unzip_file']
           @patch_version = args[:patch_version]
 
           @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/patch/install"

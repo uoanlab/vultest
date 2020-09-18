@@ -54,14 +54,14 @@ module Ansible
     def create(host, env_config)
       FileUtils.mkdir_p(@role_path)
 
-      create_attack_method(host) if env_config[:attack_method] == 'msf'
-      create_users(env_config[:users]) unless env_config[:users].empty?
-      create_softwares(env_config[:softwares]) unless env_config[:softwares].empty?
+      create_attack_method_role(host) if env_config[:attack_method] == 'msf'
+      create_users_role(env_config[:users]) unless env_config[:users].empty?
+      create_software_role(env_config[:software]) unless env_config[:software].empty?
     end
 
     private
 
-    def create_attack_method(host)
+    def create_attack_method_role(host)
       role = Roles::AttackMSF.new(
         role_dir: @role_path,
         host: host
@@ -70,7 +70,7 @@ module Ansible
       @playbook.add("    - #{role.dir}")
     end
 
-    def create_users(users)
+    def create_users_role(users)
       users.each do |user|
         role = Roles::User.new(
           role_dir: @role_path,
@@ -83,21 +83,21 @@ module Ansible
       end
     end
 
-    def create_softwares(softwares)
-      softwares.each do |software|
-        create_softwares(software['softwares']) if software.key?('softwares')
-        create_software(software)
+    def create_software_role(software)
+      software.each do |s|
+        create_software_role(s['software']) if s.key?('software')
+        software_role_detail(s)
       end
     end
 
-    def create_software(software)
-      create_software_download(software)
-      create_patches(software)
+    def software_role_detail(software)
+      create_software_download_role(software)
+      create_patches_role(software)
 
       configs = software.fetch('config', {})
       if configs.key?('pre_config')
-        create_software_configure(software) if configs['pre_config'].key?('configure')
-        create_software_build(software)
+        create_software_configure_role(software) if configs['pre_config'].key?('configure')
+        create_software_build_role(software)
       end
 
       return unless configs.key?('post_config')
@@ -116,7 +116,7 @@ module Ansible
       end
     end
 
-    def create_software_download(software)
+    def create_software_download_role(software)
       args = { role_dir: @role_path, software: software }
 
       role =
@@ -132,7 +132,7 @@ module Ansible
       @playbook.add("    - #{role.dir}")
     end
 
-    def create_patches(software)
+    def create_patches_role(software)
       return unless software.key?('patch')
 
       1.upto(software['version'].split('.')[2].to_i) do |version|
@@ -154,13 +154,13 @@ module Ansible
       end
     end
 
-    def create_software_configure(software)
+    def create_software_configure_role(software)
       role = Roles::Software::Source::Configure.new(role_dir: @role_path, software: software)
       role.create
       @playbook.add("    - #{role.dir}")
     end
 
-    def create_software_build(software)
+    def create_software_build_role(software)
       role = Roles::Software::Source::Build.new(role_dir: @role_path, software: software)
       role.create
       @playbook.add("    - #{role.dir}")

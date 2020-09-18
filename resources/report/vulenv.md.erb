@@ -26,9 +26,9 @@
 <% end %>
 <% end %>
 
-<% unless related_softwares.empty?%>
+<% unless related_software.empty?%>
 ### Related Software
-<% related_softwares.each do |software| %>
+<% related_software.each do |software| %>
 - <%= software[:name] %> : <%= software[:version] %>
 <% end %>
 <% end %>
