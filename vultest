@@ -94,7 +94,7 @@ unless ARGV.size.zero?
     setting[:attack_passwd] = nil
 
     flag[:startup_msf_server] = false
-  elsif core.vulenv_config['attack_vector'] == 'local'
+  elsif core.vulenv_config['vulnerability']['attack_vector'] == 'local'
     setting[:attack_host] = '192.168.177.177'
   elsif !setting[:attack_dir].nil?
     setting[:attack_host] = '192.168.77.77'

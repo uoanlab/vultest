@@ -20,14 +20,15 @@ module Vulenv
 
     def initialize(args)
       @env_dir = args[:env_dir]
-      @env_config = args[:env_config]
+      env_config = args[:env_config]
 
+      @attack_vector = env_config['vulnerability']['attack_vector']
       @os = {
-        name: @env_config['host']['os']['name'],
-        version: @env_config['host']['os']['version']
+        name: env_config['host']['os']['name'],
+        version: env_config['host']['os']['version']
       }
-      @users = @env_config['host'].fetch('user', [])
-      @software = @env_config['host'].fetch('software', [])
+      @users = env_config['host'].fetch('user', [])
+      @software = env_config['host'].fetch('software', [])
 
       @vagrant = nil
       @ansible = nil
@@ -56,7 +57,7 @@ module Vulenv
       @software = @software.map { |software| software }
 
       attack_method =
-        case @env_config['attack_vector']
+        case @attack_vector
         when 'local' then 'msf'
         end
 
