@@ -40,7 +40,7 @@ module Attack
           prepare_metasploit_api
           exploits.each do |exploit|
             exploit_option = exploit['options'].map do |option|
-              { option['name'] => option['var'] }
+              { option['name'] => option['value'] }
             end.inject(:merge)
             exploit_option['LHOST'] = host
 
