@@ -22,7 +22,7 @@ require 'lib/ansible/role'
 
 module Ansible
   ANSIBLE_CONFIG_TEMPLATE_PATH = './resources/ansible/ansible.cfg'.freeze
-  ANSIBLE_HOSTS_TEMPLATE_PATH = './resources/ansible/hosts/hosts.yml.erb'.freeze
+  ANSIBLE_HOSTS_TEMPLATE_PATH = './resources/ansible/inventory/hosts.yml.erb'.freeze
   ANSIBLE_PLAYBOOK_TEMPLATE_PATH = './resources/ansible/playbook.yml.erb'.freeze
   ANSIBLE_ROLES_TEMPLATE_PATH = './resources/ansible/roles'.freeze
 
@@ -30,7 +30,7 @@ module Ansible
     def initialize(args)
       @ansible_dir = {
         base: "#{args[:env_dir]}/ansible",
-        hosts: "#{args[:env_dir]}/ansible/hosts",
+        hosts: "#{args[:env_dir]}/ansible/inventory",
         role: "#{args[:env_dir]}/ansible/roles"
       }
 
