@@ -23,15 +23,15 @@ module Vulenv
 
         return false unless vagrant.startup?
 
-        if env_config['host'].key?('reload') && env_config['host']['reload']
+        if env_config.key?('reload') && env_config['reload']
           return false unless vagrant.reload?
         end
 
-        if env_config['host'].key('hard_setup')
+        if env_config.key('hard_setup')
           return false unless hard_setup(vagrant, env_config)
         end
 
-        manual_setting(env_dir, env_config) if env_config['host'].key?('prepare')
+        manual_setting(env_dir, env_config) if env_config.key?('prepare')
 
         true
       end
@@ -39,7 +39,7 @@ module Vulenv
       private
 
       def hard_setup(vagrant, env_config)
-        env_config['host']['hard_setup']['msg'].each do |msg|
+        env_config['hard_setup']['msg'].each do |msg|
           Print.command(msg.to_s)
         end
         vagrant.halt
@@ -54,7 +54,7 @@ module Vulenv
         Print.warring('Following execute command')
         Print.command("1. cd #{env_dir}")
         Print.command('2. vagrant ssh')
-        env_config['host']['prepare']['msg'].each.with_index(3) do |msg, i|
+        env_config['prepare']['msg'].each.with_index(3) do |msg, i|
           Print.command("#{i}. #{msg}")
         end
       end

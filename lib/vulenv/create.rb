@@ -20,15 +20,15 @@ module Vulenv
 
     def initialize(args)
       @env_dir = args[:env_dir]
-      env_config = args[:env_config]
+      @attack_vector = args[:vulnerability]['attack_vector']
 
-      @attack_vector = env_config['vulnerability']['attack_vector']
+      env_config = args[:env_config]
       @os = {
-        name: env_config['host']['os']['name'],
-        version: env_config['host']['os']['version']
+        name: env_config['os']['name'],
+        version: env_config['os']['version']
       }
-      @users = env_config['host'].fetch('user', [])
-      @software = env_config['host'].fetch('software', [])
+      @users = env_config.fetch('user', [])
+      @software = env_config.fetch('software', [])
 
       @vagrant = nil
       @ansible = nil

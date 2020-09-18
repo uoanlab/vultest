@@ -30,17 +30,17 @@ module Vulenv
           end
 
         {
-          name: @env_config['host']['os']['name'],
-          version: @env_config['host']['os']['version'],
+          name: @env_config['os']['name'],
+          version: @env_config['os']['version'],
           major_version: major_version,
-          vulnerability: @env_config['host']['os']['vulnerability']
+          vulnerability: @env_config['os']['vulnerability']
         }
       end
 
       def retrieve_vul_software
-        return { name: nil, version: nil } unless @env_config['host'].key?('software')
+        return { name: nil, version: nil } unless @env_config.key?('software')
 
-        v = @env_config['host']['software'].find do |s|
+        v = @env_config['software'].find do |s|
           s.key?('vulnerability') && s['vulnerability']
         end
 
@@ -48,9 +48,9 @@ module Vulenv
       end
 
       def retrieve_related_software
-        return [] unless @env_config['host'].key?('software')
+        return [] unless @env_config.key?('software')
 
-        software = create_related_software_list(@env_config['host']['software'])
+        software = create_related_software_list(@env_config['software'])
 
         related_software = {}
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|

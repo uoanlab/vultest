@@ -22,10 +22,11 @@ require 'lib/print'
 
 module Vulenv
   class Core
-    attr_reader :env_dir, :env_config, :vagrant, :structure
+    attr_reader :env_dir, :vulnerability, :env_config, :vagrant, :structure
 
     def initialize(args)
       @env_dir = args[:vulenv_dir]
+      @vulnerability = args[:vulnerability]
       @env_config = args[:vulenv_config]
 
       @vagrant = nil
@@ -36,6 +37,7 @@ module Vulenv
 
       create = Create.new(
         env_dir: env_dir,
+        vulnerability: vulnerability,
         env_config: env_config
       )
       create.exec
@@ -80,7 +82,7 @@ module Vulenv
       }
 
       s =
-        case env_config['host']['os']['name']
+        case env_config['os']['name']
         when 'ubuntu' then Structure::Ubuntu.new(env_info)
         when 'centos' then Structure::CentOS.new(env_info)
         when 'windows' then Structure::Windows.new(env_info)

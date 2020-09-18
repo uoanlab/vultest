@@ -16,7 +16,7 @@ require 'lib/db'
 require 'lib/print'
 
 class SelectVultestCase
-  CONFIGVERSION = 1.0
+  CONFIG_VERSION = 1.0
 
   def initialize(args)
     @cve = args[:cve]
@@ -41,19 +41,19 @@ class SelectVultestCase
 
     id = table[:index_info][select_test_case] - 1
 
+    vulnerability = YAML.load_file(
+      "#{BASE_CONFIG['vultest_db_path']}/#{@test_cases[id.to_i]['config_path']}"
+    )['vulnerability']
     vulenv_config = YAML.load_file(
       "#{BASE_CONFIG['vultest_db_path']}/#{@test_cases[id.to_i]['config_path']}"
-    )
+    )['host']
     attack_config = YAML.load_file(
       "#{BASE_CONFIG['vultest_db_path']}/#{@test_cases[id.to_i]['module_path']}"
-    )
+    )['attack']
 
     return {} unless check_config_version?(vulenv_config)
 
-    {
-      vulenv_config: vulenv_config,
-      attack_config: attack_config
-    }
+    { vulnerability: vulnerability, vulenv_config: vulenv_config, attack_config: attack_config }
   end
 
   private
@@ -81,8 +81,8 @@ class SelectVultestCase
 
   def check_config_version?(vulenv_config)
     version = vulenv_config.fetch('version', '1.0')
-    if version.to_i > CONFIGVERSION || version.to_i < CONFIGVERSION
-      Print.error("Configfile is #{version}(support: #{CONFIGVERSION})")
+    if version.to_i > CONFIG_VERSION || version.to_i < CONFIG_VERSION
+      Print.error("Configfile is #{version}(support: #{CONFIG_VERSION})")
       return false
     end
 

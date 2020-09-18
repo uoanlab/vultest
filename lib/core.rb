@@ -20,12 +20,13 @@ require 'lib/report/core'
 require 'lib/print'
 
 class Core
-  attr_reader :vulenv, :attack, :vulenv_config, :attack_config
+  attr_reader :vulenv, :attack, :vulnerability, :vulenv_config, :attack_config
 
   def initialize
     @vulenv = nil
     @attack = nil
 
+    @vulnerability = nil
     @vulenv_config = nil
     @attack_config = nil
   end
@@ -39,6 +40,7 @@ class Core
     vultest_case_config = select_vultest_case.exec
     return false if vultest_case_config.empty?
 
+    @vulnerability = vultest_case_config[:vulnerability]
     @vulenv_config = vultest_case_config[:vulenv_config]
     @attack_config = vultest_case_config[:attack_config]
     true
@@ -47,6 +49,7 @@ class Core
   def create_vulenv?(args)
     @vulenv = Vulenv::Core.new(
       vulenv_dir: args[:vulenv_dir],
+      vulnerability: vulnerability,
       vulenv_config: vulenv_config
     )
 
