@@ -1,4 +1,4 @@
-softwares:
+software:
   bash:
     url: http://ftp.gnu.org/gnu/bash/bash-{{ core_version }}.tar.gz
     download_file: bash-{{ core_version }}.tar.gz

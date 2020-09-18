@@ -30,7 +30,7 @@ module Ansible
             }
 
             metadata = YAML.load_file('./metadata.yml')
-            @unzip_file = metadata['softwares'][@software[:name]]['unzip_file']
+            @unzip_file = metadata['software'][@software[:name]]['unzip_file']
 
             @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/configure"
             @role_path = "#{args[:role_dir]}/#{@software[:name]}.configure"

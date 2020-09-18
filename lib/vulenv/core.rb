@@ -80,7 +80,7 @@ module Vulenv
       }
 
       s =
-        case env_config['construction']['os']['name']
+        case env_config['host']['os']['name']
         when 'ubuntu' then Structure::Ubuntu.new(env_info)
         when 'centos' then Structure::CentOS.new(env_info)
         when 'windows' then Structure::Windows.new(env_info)
@@ -89,7 +89,7 @@ module Vulenv
       @structure = {
         os: s.retrieve_os,
         vul_software: s.retrieve_vul_software,
-        related_softwares: s.retrieve_related_softwares,
+        related_software: s.retrieve_related_software,
         ipadders: s.retrieve_ipaddrs,
         port_list: s.retrieve_port_list,
         services: s.retrieve_services

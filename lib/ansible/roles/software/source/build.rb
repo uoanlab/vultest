@@ -29,7 +29,7 @@ module Ansible
             @src_dir = args[:software].fetch('src_dir', '/usr/local/src')
 
             metadata = YAML.load_file('./metadata.yml')
-            @unzip_file = metadata['softwares'][@software[:name]]['unzip_file']
+            @unzip_file = metadata['software'][@software[:name]]['unzip_file']
 
             @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/make"
             @role_path = "#{args[:role_dir]}/#{@software[:name]}.make"

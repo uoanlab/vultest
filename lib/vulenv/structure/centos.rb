@@ -30,55 +30,55 @@ module Vulenv
           end
 
         {
-          name: @env_config['construction']['os']['name'],
-          version: @env_config['construction']['os']['version'],
+          name: @env_config['host']['os']['name'],
+          version: @env_config['host']['os']['version'],
           major_version: major_version,
-          vulnerability: @env_config['construction']['os']['vulnerability']
+          vulnerability: @env_config['host']['os']['vulnerability']
         }
       end
 
       def retrieve_vul_software
-        return { name: nil, version: nil } unless @env_config['construction'].key?('softwares')
+        return { name: nil, version: nil } unless @env_config['host'].key?('software')
 
-        v = @env_config['construction']['softwares'].find do |s|
+        v = @env_config['host']['software'].find do |s|
           s.key?('vulnerability') && s['vulnerability']
         end
 
         { name: v['name'], version: v['version'] }
       end
 
-      def retrieve_related_softwares
-        return [] unless @env_config['construction'].key?('softwares')
+      def retrieve_related_software
+        return [] unless @env_config['host'].key?('software')
 
-        softwares = create_related_software_list(@env_config['construction']['softwares'])
+        software = create_related_software_list(@env_config['host']['software'])
 
-        related_softwares = {}
+        related_software = {}
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
-          related_softwares = softwares.map do |software|
-            if software[:version] == 'The latest version of the repository'
-              cmd = "sudo yum list installed | grep \"^#{software[:name]}.\""
+          related_software = software.map do |s|
+            if s[:version] == 'The latest version of the repository'
+              cmd = "sudo yum list installed | grep \"^#{s[:name]}.\""
               v = ssh.exec!(cmd).split(' ')[1]
-              software[:version] = v unless v.nil?
+              s[:version] = v unless v.nil?
             end
-            { name: software[:name], version: software[:version] }
+            { name: s[:name], version: s[:version] }
           end
         end
 
-        related_softwares
+        related_software
       end
 
-      def create_related_software_list(softwares)
+      def create_related_software_list(software)
         res = []
-        softwares.each do |software|
-          if software.key?('vulnerability') && software['vulnerability']
-            res += create_related_software_list(software['softwares']) if software.key?('softwares')
+        software.each do |s|
+          if s.key?('vulnerability') && s['vulnerability']
+            res += create_related_software_list(s['software']) if s.key?('software')
             next
           end
 
           no_version = 'The latest version of the repository'
-          res.push({ name: software['name'], version: software.fetch('version', no_version) })
+          res.push({ name: s['name'], version: s.fetch('version', no_version) })
 
-          res += create_related_software_list(software['softwares']) if software.key?('softwares')
+          res += create_related_software_list(s['software']) if s.key?('software')
         end
         res
       end

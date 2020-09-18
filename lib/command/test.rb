@@ -34,7 +34,7 @@ module Command
 
         unless core.create_vulenv?(vulenv_dir: vulenv_dir)
           Print.warring(
-            'Can look at a report about error in construction of vulnerable environment'
+            'Can look at a report about error in host of vulnerable environment'
           )
         end
 

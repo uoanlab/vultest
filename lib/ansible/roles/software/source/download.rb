@@ -29,8 +29,8 @@ module Ansible
             }
 
             metadata = YAML.load_file('./metadata.yml')
-            @url = metadata['softwares'][@software[:name]]['url']
-            @download_file = metadata['softwares'][@software[:name]]['download_file']
+            @url = metadata['software'][@software[:name]]['url']
+            @download_file = metadata['software'][@software[:name]]['download_file']
 
             @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/download"
             @role_path = "#{args[:role_dir]}/#{@software[:name]}.download"

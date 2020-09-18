@@ -3,4 +3,5 @@
   user:
     name: "{{ name }}"
     state: present
+    password: "{{ password }}"
     shell: "{{ shell }}"

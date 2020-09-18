@@ -42,7 +42,7 @@ module Ansible
 
       @env_config = {
         users: args.fetch(:users, []),
-        softwares: args.fetch(:softwares, []),
+        software: args.fetch(:software, []),
         attack_method: args.fetch(:attack_method, nil)
       }
 

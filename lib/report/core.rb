@@ -80,7 +80,10 @@ module Report
     end
 
     def create_vulenrability_part
-      Vulnerability.new(report_dir: @report_dir, cve: @vulenv.env_config['cve']).create
+      Vulnerability.new(
+        report_dir: @report_dir,
+        cve: @vulenv.env_config['vulnerability']['cve']
+      ).create
     end
   end
 end
