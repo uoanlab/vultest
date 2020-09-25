@@ -89,12 +89,12 @@ module Vulenv
         end
 
       @structure = {
-        os: s.retrieve_os,
-        vul_software: s.retrieve_vul_software,
-        related_software: s.retrieve_related_software,
-        ipadders: s.retrieve_ipaddrs,
-        port_list: s.retrieve_port_list,
-        services: s.retrieve_services
+        os: s.os,
+        vul_software: s.vul_software,
+        related_software: s.related_software,
+        ipadders: s.ipaddrs,
+        port_list: s.port_list,
+        services: s.services
       }
     end
   end

@@ -23,7 +23,7 @@ module Vulenv
         @env_config = args[:env_config]
       end
 
-      def retrieve_os
+      def os
         major_version =
           Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
             ssh.exec!('uname -r')
@@ -37,7 +37,7 @@ module Vulenv
         }
       end
 
-      def retrieve_vul_software
+      def vul_software
         return { name: nil, version: nil } unless @env_config.key?('software')
 
         v = @env_config['software'].find do |s|
@@ -47,10 +47,10 @@ module Vulenv
         { name: v['name'], version: v['version'] }
       end
 
-      def retrieve_related_software
+      def related_software
         return [] unless @env_config.key?('software')
 
-        software = create_related_software_list(@env_config['software'])
+        software = related_software_list(@env_config['software'])
 
         related_software = {}
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
@@ -67,23 +67,23 @@ module Vulenv
         related_software
       end
 
-      def create_related_software_list(software)
+      def related_software_list(software)
         res = []
         software.each do |s|
           if s.key?('vulnerability') && s['vulnerability']
-            res += create_related_software_list(s['software']) if s.key?('software')
+            res += related_software_list(s['software']) if s.key?('software')
             next
           end
 
           no_version = 'The latest version of the repository'
           res.push({ name: s['name'], version: s.fetch('version', no_version) })
 
-          res += create_related_software_list(s['software']) if s.key?('software')
+          res += related_software_list(s['software']) if s.key?('software')
         end
         res
       end
 
-      def retrieve_ipaddrs
+      def ipaddrs
         ipaddrs = []
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
           cmd = ssh.exec!('sudo find / -name ip 2> /dev/null | grep bin/').split("\n")[0]
@@ -102,7 +102,7 @@ module Vulenv
         ipaddrs
       end
 
-      def retrieve_services
+      def services
         services = []
         Net::SSH.start(@host, @user, password: 'vagrant', verify_host_key: :never) do |ssh|
           cmd = ssh.exec!('sudo find / -name service 2> /dev/null | grep bin/').split("\n")[0]
@@ -113,7 +113,7 @@ module Vulenv
         services
       end
 
-      def retrieve_port_list
+      def port_list
         port_list = []
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
           cmd = ssh.exec!('sudo find / -name ss 2> /dev/null | grep bin/').split("\n")[0]
