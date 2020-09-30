@@ -114,7 +114,8 @@ module Ansible
       role =
         case software.fetch('method', nil)
         when 'source' then Roles::Software::Source::Download.new(args)
-        when 'rbenv' then Roles::Software::Rbenv::Install.new(args)
+        when 'rbenv'
+          Roles::Software::Rbenv::Install.new({ role_dir: @role_path, data: software })
         when 'gem' then Roles::Software::Gem::Install.new(args)
         when 'nodenv' then Roles::Software::Nodenv::Install.new(args)
         when 'npm' then Roles::Software::Npm::Install.new(args)
