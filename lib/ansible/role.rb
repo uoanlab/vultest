@@ -118,7 +118,7 @@ module Ansible
         when 'gem' then Roles::Software::Gem::Install.new(args)
         when 'nodenv' then Roles::Software::Nodenv::Install.new(args)
         when 'npm' then Roles::Software::Npm::Install.new(args)
-        else Roles::Software::Package::Install.new(args)
+        else Roles::Software::Package::Install.new({ role_dir: @role_path, data: software })
         end
       role.create
       @playbook.add("    - #{role.dir}")
