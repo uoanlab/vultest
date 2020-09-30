@@ -101,7 +101,7 @@ module Ansible
 
         role = Object.const_get("Ansible::Roles::#{class_name}").new(
           role_dir: @role_path,
-          config: config
+          data: config
         )
         role.create
         @playbook.add("    - #{role.dir}")

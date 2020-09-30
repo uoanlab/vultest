@@ -11,45 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module File
-      class Replace
-        attr_reader :dir
-
+      class Replace < Base
         def initialize(args)
-          @name = args[:config]['name']
-          @config = args[:config]['file_replace']
-
-          @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/replace"
-          @role_path = "#{args[:role_dir]}/#{@name}.file.replace"
-
-          @dir = "#{@name}.file.replace"
-        end
-
-        def create
-          FileUtils.mkdir_p(@role_path)
-
-          create_tasks
-          create_vars
-        end
-
-        private
-
-        def create_tasks
-          FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-        end
-
-        def create_vars
-          FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-          ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-            f.puts("path: #{@config['path']}")
-            f.puts("regexp: \"#{@config['regexp']}\"")
-            f.puts("replace: \"#{@config['replace']}\"")
-          end
+          super(
+            resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/replace",
+            role_path: "#{args[:role_dir]}/#{args[:data]['name']}.file.replace",
+            dir: "#{args[:data]['name']}.file.replace",
+            data: args[:data]['file_replace']
+          )
         end
       end
     end

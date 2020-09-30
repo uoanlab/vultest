@@ -11,43 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module File
-      class Delete
-        attr_reader :dir
-
+      class Delete < Base
         def initialize(args)
-          @name = args[:config]['name']
-          @config = args[:config]['file_delete']
-
-          @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/delete"
-          @role_path = "#{args[:role_dir]}/#{@name}.file.delete"
-
-          @dir = "#{@name}.file.delete"
-        end
-
-        def create
-          FileUtils.mkdir_p(@role_path)
-
-          create_tasks
-          create_vars
-        end
-
-        private
-
-        def create_tasks
-          FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-        end
-
-        def create_vars
-          FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-          ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-            f.puts("path: #{@config['path']}")
-          end
+          super(
+            resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/delete",
+            role_path: "#{args[:role_dir]}/#{args[:data]['name']}.file.delete",
+            dir: "#{args[:data]['name']}.file.delete",
+            data: args[:data]['file_delete']
+          )
         end
       end
     end

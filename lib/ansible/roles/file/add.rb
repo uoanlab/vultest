@@ -11,54 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'erb'
-require 'fileutils'
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module File
-      class Add
-        attr_reader :dir
-
+      class Add < Base
         def initialize(args)
-          @name = args[:config]['name']
-          @config = args[:config]['file_add']
-
-          @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add"
-          @role_path = "#{args[:role_dir]}/#{@name}.file.add"
-
-          @dir = "#{@name}.file.add"
-        end
-
-        def create
-          FileUtils.mkdir_p(@role_path)
-
-          create_tasks
-          create_vars
-        end
-
-        private
-
-        def create_tasks
-          FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-
-          insertafter = @config.fetch('insertafter', nil)
-          erb = ERB.new(
-            ::File.read("#{@resource_path}/tasks/main.yml.erb"),
-            trim_mode: 2
+          super(
+            resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/add",
+            role_path: "#{args[:role_dir]}/#{args[:data]['name']}.file.add",
+            dir: "#{args[:data]['name']}.file.add",
+            data: args[:data]['file_add']
           )
-          ::File.open("#{@role_path}/tasks/main.yml", 'w') do |f|
-            f.puts(erb.result(binding))
-          end
-        end
-
-        def create_vars
-          FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-          ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-            f.puts("dest: #{@config['path']}")
-            f.puts("content: \"#{@config['content']}\"")
-          end
         end
       end
     end

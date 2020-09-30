@@ -11,37 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module Mysql
-      class Database
-        attr_reader :dir
-
+      class Database < Base
         def initialize(args)
-          @name = args[:config]['name']
-          @config = args[:config]['mysql_database']
-
-          @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/database/db"
-          @role_path = "#{args[:role_dir]}/#{@name}.db"
-
-          @dir = "#{@name}.db"
-        end
-
-        def create
-          FileUtils.mkdir_p(@role_path)
-
-          FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-
-          FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-          ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-            f.puts("database: #{@config['database']}")
-            f.puts("login_user: #{@config['login_user']}")
-            f.puts("login_password: #{@config['login_password']}")
-            f.puts("config_file: #{@config['config_file']}")
-          end
+          super(
+            resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/database/db",
+            role_path: "#{args[:role_dir]}/#{args[:data]['name']}.db",
+            dir: "#{args[:data]['name']}.db",
+            data: args[:data]['mysql_database']
+          )
         end
       end
     end

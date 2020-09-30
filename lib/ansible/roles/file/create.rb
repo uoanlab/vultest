@@ -11,57 +11,35 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module File
-      class Create
-        attr_reader :dir
-
+      class Create < Base
         def initialize(args)
-          @name = args[:config]['name']
-          @config = args[:config]['file_create']
-
-          @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create"
-          @role_path = "#{args[:role_dir]}/#{@name}.file.create"
-
-          @dir = "#{@name}.file.create"
+          super(
+            resource_path:"#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create",
+            role_path: "#{args[:role_dir]}/#{args[:data]['name']}.file.create",
+            dir: "#{args[:data]['name']}.file.create",
+            data: args[:data]['file_create']
+          )
         end
 
         def create
-          FileUtils.mkdir_p(@role_path)
-
-          create_tasks
-          create_vars
+          super
           create_files
         end
 
         private
 
-        def create_tasks
-          FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-        end
-
-        def create_vars
-          FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-          ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-            f.puts('src: ../files/file')
-            f.puts("dest: #{@config['path']}")
-            f.puts("group: #{@config['group']}")
-            f.puts("owner: #{@config['owner']}")
-            f.puts("mode: #{@config['mode']}")
-          end
-        end
-
         def create_files
           FileUtils.mkdir_p("#{@role_path}/files")
           ::File.open("#{@role_path}/files/file", 'w+') do |f|
-            f.puts(@config['content'])
+            f.puts(@data['content'])
           end
         end
       end
     end
   end
-end
+end 

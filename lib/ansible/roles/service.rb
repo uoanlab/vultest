@@ -11,42 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
-    class Service
-      attr_reader :dir
-
+    class Service < Base
       def initialize(args)
-        @name = args[:config]['name']
-        @config = args[:config]
-
-        @resource_dir = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service"
-        @role_path = "#{args[:role_dir]}/#{@name}.service"
-
-        @dir = "#{@name}.service"
-      end
-
-      def create
-        FileUtils.mkdir_p(@role_path)
-
-        create_tasks
-        create_vars
-      end
-
-      private
-
-      def create_tasks
-        FileUtils.cp_r("#{@resource_dir}/tasks", @role_path)
-      end
-
-      def create_vars
-        FileUtils.cp_r("#{@resource_dir}/vars", @role_path)
-
-        ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-          f.puts("name: #{@config['service']}")
-        end
+        super(
+          resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/service",
+          role_path: "#{args[:role_dir]}/#{args[:data]['name']}.service",
+          dir: "#{args[:data]['name']}.service",
+          data: args[:data]
+        )
       end
     end
   end

@@ -37,7 +37,7 @@ module Ansible
       private
 
       def create_tasks
-        FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
+        FileUtils.mkdir_p("#{@role_path}/tasks")
         data = @data
 
         erb = ERB.new(
@@ -51,7 +51,7 @@ module Ansible
       end
 
       def create_vars
-        FileUtils.cp_r("#{@resource_path}/vars", @role_path)
+        FileUtils.mkdir_p("#{@role_path}/vars")
 
         data = @data
         erb = ERB.new(

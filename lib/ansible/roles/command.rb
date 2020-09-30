@@ -11,44 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
-    class Command
-      attr_reader :dir
-
+    class Command < Base
       def initialize(args)
-        @name = args[:config]['name']
-        @config = args[:config]
-
-        @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/command"
-        @role_path = "#{args[:role_dir]}/#{@name}.command"
-
-        @dir = "#{@name}.command"
-      end
-
-      def create
-        FileUtils.mkdir_p(@role_path)
-
-        create_tasks
-        create_vars
-      end
-
-      private
-
-      def create_tasks
-        FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-      end
-
-      def create_vars
-        FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-        ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-          f.puts("command: #{@config['command']}")
-          f.puts("user: #{@config.fetch('user', 'root')}")
-          f.puts("dir: #{@config.fetch('dir', '/root')}")
-        end
+        super(
+          resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/command",
+          role_path: "#{args[:role_dir]}/#{args[:data]['name']}.command",
+          dir: "#{args[:data]['name']}.command",
+          data: args[:data]
+        )
       end
     end
   end
