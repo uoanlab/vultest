@@ -72,12 +72,7 @@ module Ansible
 
     def create_users_role(users)
       users.each do |user|
-        role = Roles::User.new(
-          role_dir: @role_path,
-          user_name: user['name'],
-          user_password: user['password'],
-          user_shell: user['shell']
-        )
+        role = Roles::User.new({ role_dir: @role_path, data: user })
         role.create
         @playbook.add("    - #{role.dir}")
       end

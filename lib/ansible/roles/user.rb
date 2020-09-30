@@ -13,45 +13,18 @@
 # limitations under the License.
 require 'fileutils'
 
+require 'lib/ansible/roles/base'
+
 module Ansible
   module Roles
-    class User
-      attr_reader :dir
-
+    class User < Base
       def initialize(args)
-        @user = {
-          name: args[:user_name],
-          password: args[:user_password],
-          shell: args[:user_shell]
-        }
-
-        @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/user"
-        @role_path = "#{args[:role_dir]}/#{@user[:name]}.user"
-
-        @dir = "#{@user[:name]}.user"
-      end
-
-      def create
-        FileUtils.mkdir_p(@role_path)
-
-        create_tasks
-        create_vars
-      end
-
-      private
-
-      def create_tasks
-        FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-      end
-
-      def create_vars
-        FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-        ::File.open("#{@role_path}//vars/main.yml", 'a') do |f|
-          f.puts("name: #{@user[:name]}")
-          f.puts("password: #{@user[:password]}")
-          f.puts("shell: #{@user[:shell]}")
-        end
+        super(
+          resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/user",
+          role_path: "#{args[:role_dir]}/#{args[:data]['password']}.user",
+          dir: "#{args[:data]['name']}.user",
+          data: args[:data]
+        )
       end
     end
   end
