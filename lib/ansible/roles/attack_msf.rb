@@ -13,41 +13,28 @@
 # limitations under the License.
 require 'fileutils'
 
+require 'lib/ansible/roles/base'
+
 module Ansible
   module Roles
-    class AttackMSF
+    class AttackMSF < Base
       attr_reader :dir
 
       def initialize(args)
-        @host = args[:host]
-
-        @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.msf"
-        @role_path = "#{args[:role_dir]}/attack.msf"
-
-        @dir = 'attack.msf'
+        super(
+          resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/attack.msf",
+          role_path: "#{args[:role_dir]}/attack.msf",
+          dir: 'attack.msf',
+          data: args[:data]
+        )
       end
 
       def create
-        FileUtils.mkdir_p(@role_path)
-
-        create_tasks
-        create_vars
+        super
         create_files
       end
 
       private
-
-      def create_tasks
-        FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-      end
-
-      def create_vars
-        FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-        ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-          f.puts("attack_host: #{@host}")
-        end
-      end
 
       def create_files
         FileUtils.cp_r("#{@resource_path}/files", @role_path)

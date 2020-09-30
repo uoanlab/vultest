@@ -62,10 +62,7 @@ module Ansible
     private
 
     def create_attack_method_role(host)
-      role = Roles::AttackMSF.new(
-        role_dir: @role_path,
-        host: host
-      )
+      role = Roles::AttackMSF.new({ role_dir: @role_path, data: host })
       role.create
       @playbook.add("    - #{role.dir}")
     end
