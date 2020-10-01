@@ -11,52 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module Software
       module Gem
-        class Install
-          attr_reader :dir
-
+        class Install < Base
           def initialize(args)
-            @software = {
-              name: args[:software]['name'],
-              version: args[:software]['version'],
-              executable: args[:software]['executable']
-            }
-
-            @user = { name: args[:software]['user'] }
-
-            @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/gem"
-            @role_path = "#{args[:role_dir]}/#{@software[:name]}.gem.install"
-
-            @dir = "#{@software[:name]}.gem.install"
-          end
-
-          def create
-            FileUtils.mkdir_p(@role_path)
-
-            create_tasks
-            create_vars
-          end
-
-          private
-
-          def create_tasks
-            FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-          end
-
-          def create_vars
-            FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-            ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-              f.puts("name: #{@software[:name]}")
-              f.puts("version: #{@software[:version]}")
-              f.puts("user: #{@user[:name]}")
-              f.puts("executable: #{@software[:executable]}")
-            end
+            super(
+              resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/gem",
+              role_path: "#{args[:role_dir]}/#{args[:data]['name']}.gem.install",
+              dir: "#{args[:data]['name']}.gem.install",
+              data: args[:data]
+            )
           end
         end
       end
