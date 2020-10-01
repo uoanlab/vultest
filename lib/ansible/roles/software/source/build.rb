@@ -11,56 +11,37 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
 require 'yaml'
+
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module Software
       module Source
-        class Build
-          attr_reader :dir
-
+        class Build < Base
           def initialize(args)
-            @software = {
-              name: args[:software]['name'],
-              version: args[:software] ['version']
-            }
-            @src_dir = args[:software].fetch('src_dir', '/usr/local/src')
-
-            metadata = YAML.load_file('./metadata.yml')
-            @unzip_file = metadata['software'][@software[:name]]['unzip_file']
-
-            @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/make"
-            @role_path = "#{args[:role_dir]}/#{@software[:name]}.make"
-
-            @dir = "#{@software[:name]}.make"
-          end
-
-          def create
-            FileUtils.mkdir_p(@role_path)
-
-            @unzip_file.gsub!(/{{ version }}/, @software[:version].to_s)
-            @unzip_file.gsub!(
-              /{{ core_version }}/,
-              "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+            super(
+              resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/make",
+              role_path: "#{args[:role_dir]}/#{args[:data]['name']}.make",
+              dir: "#{args[:data]['name']}.make",
+              data: args[:data]
             )
-            path = "#{@src_dir}/#{@unzip_file}"
 
-            create_tasks
-            create_vars(path)
-          end
+            software = {
+              name: args[:data]['name'],
+              version: args[:data] ['version']
+            }
+            metadata = YAML.load_file('./metadata.yml')
+            unzip_file = metadata['software'][software[:name]]['unzip_file']
 
-          private
+            unzip_file.gsub!(/{{ version }}/, software[:version].to_s)
+            unzip_file.gsub!(
+              /{{ core_version }}/,
+              "#{software[:version].to_s.split('.')[0]}.#{software[:version].to_s.split('.')[1]}"
+            )
 
-          def create_tasks
-            FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
-          end
-
-          def create_vars(path)
-            FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-            ::File.open("#{@role_path}//vars/main.yml", 'a') { |f| f.puts("path: #{path}") }
+            @data['path'] = "#{args[:data].fetch('src_dir', '/usr/local/src')}/#{unzip_file}"
           end
         end
       end
