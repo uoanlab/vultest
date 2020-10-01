@@ -139,7 +139,7 @@ module Ansible
 
         role = Roles::Patch::Install.new(
           role_dir: @role_path,
-          software: software,
+          data: software,
           patch_version: version
         )
         role.create
