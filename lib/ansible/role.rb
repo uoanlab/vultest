@@ -150,7 +150,7 @@ module Ansible
     end
 
     def create_software_configure_role(software)
-      role = Roles::Software::Source::Configure.new(role_dir: @role_path, software: software)
+      role = Roles::Software::Source::Configure.new(role_dir: @role_path, data: software)
       role.create
       @playbook.add("    - #{role.dir}")
     end
