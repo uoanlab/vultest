@@ -1,0 +1,7 @@
+---
+name: <%= data['name'] %>
+version: <%= data['version'] %>
+user: <%= data['user'] %>
+executable: <%= data['executable'] %>
+global: <%= data.fetch('global', 'no') %>
+path: <%= data.fetch('path', '') %>
