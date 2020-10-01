@@ -28,20 +28,25 @@ module Ansible
               data: args[:data]
             )
 
-            software = {
-              name: args[:data]['name'],
-              version: args[:data] ['version']
-            }
-            metadata = YAML.load_file('./metadata.yml')
-            unzip_file = metadata['software'][software[:name]]['unzip_file']
+            @data['path'] = "#{args[:data].fetch('src_dir', '/usr/local/src')}/#{create_unzip_file}"
+          end
 
-            unzip_file.gsub!(/{{ version }}/, software[:version].to_s)
+          private
+
+          def create_unzip_file
+            unzip_file = metadata['software'][@data['name']]['unzip_file']
+
+            unzip_file.gsub!(/{{ version }}/, @data['version'].to_s)
             unzip_file.gsub!(
               /{{ core_version }}/,
-              "#{software[:version].to_s.split('.')[0]}.#{software[:version].to_s.split('.')[1]}"
+              "#{@data['version'].to_s.split('.')[0]}.#{@data['version'].to_s.split('.')[1]}"
             )
 
-            @data['path'] = "#{args[:data].fetch('src_dir', '/usr/local/src')}/#{unzip_file}"
+            unzip_file
+          end
+
+          def metadata
+            YAML.load_file('./metadata.yml')
           end
         end
       end
