@@ -11,66 +11,53 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
 require 'yaml'
+
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module Software
       module Source
-        class Download
-          attr_reader :dir
-
+        class Download < Base
           def initialize(args)
-            @software = {
-              name: args[:software]['name'],
-              version: args[:software]['version'],
-              src_dir: args[:software].fetch('src_dir', '/usr/local/src')
-            }
-
-            metadata = YAML.load_file('./metadata.yml')
-            @url = metadata['software'][@software[:name]]['url']
-            @download_file = metadata['software'][@software[:name]]['download_file']
-
-            @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/download"
-            @role_path = "#{args[:role_dir]}/#{@software[:name]}.download"
-
-            @dir = "#{@software[:name]}.download"
-          end
-
-          def create
-            @url.gsub!(/{{ version }}/, @software[:version].to_s)
-            @url.gsub!(
-              /{{ core_version }}/,
-              "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+            super(
+              resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/software/source/download",
+              role_path: "#{args[:role_dir]}/#{args[:data]['name']}.download",
+              dir: "#{args[:data]['name']}.download",
+              data: args[:data]
             )
 
-            @download_file.gsub!(/{{ version }}/, @software[:version].to_s)
-            @download_file.gsub!(
-              /{{ core_version }}/,
-              "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
-            )
-
-            FileUtils.mkdir_p(@role_path)
-
-            create_tasks
-            create_vars
+            @data['url'] = create_url
+            @data['download_file'] = create_download_file
           end
 
           private
 
-          def create_tasks
-            FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
+          def create_url
+            url = metadata['software'][@data['name']]['url']
+            url.gsub!(/{{ version }}/, @data['version'].to_s)
+            url.gsub!(
+              /{{ core_version }}/,
+              "#{@data['version'].to_s.split('.')[0]}.#{@data['version'].to_s.split('.')[1]}"
+            )
+
+            url
           end
 
-          def create_vars
-            FileUtils.cp_r("#{@resource_path}/vars", @role_path)
+          def create_download_file
+            download_file = metadata['software'][@data['name']]['download_file']
+            download_file.gsub!(/{{ version }}/, @data['version'].to_s)
+            download_file.gsub!(
+              /{{ core_version }}/,
+              "#{@data['version'].to_s.split('.')[0]}.#{@data['version'].to_s.split('.')[1]}"
+            )
 
-            ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-              f.puts("src_dir: #{@software[:src_dir]}")
-              f.puts("url: #{@url}")
-              f.puts("download_file: #{@download_file}")
-            end
+            download_file
+          end
+
+          def metadata
+            YAML.load_file('./metadata.yml')
           end
         end
       end
