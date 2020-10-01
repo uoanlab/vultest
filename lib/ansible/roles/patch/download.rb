@@ -11,72 +11,50 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
 require 'yaml'
+
+require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module Patch
-      class Download
-        attr_reader :dir
-
+      class Download < Base
         def initialize(args)
-          @role_dir = args[:role_dir]
-
-          @software = {
-            name: args[:software]['name'],
-            version: args[:software]['version'],
-            src_dir: args[:software]['src_dir']
-          }
-
-          @patch_version = args[:patch_version]
-
-          metadata = YAML.load_file('./metadata.yml')
-          @url = metadata['software'][@software[:name]]['patch']['url']
-          @download_file = metadata['software'][@software[:name]]['patch']['download_file']
-
-          @resource_path = "#{ANSIBLE_ROLES_TEMPLATE_PATH}/patch/download"
-        end
-
-        def create
-          @patch_version =
-            case @patch_version.to_s.length
-            when 1 then "00#{@patch_version}"
-            when 2 then "0#{@patch_version}"
-            else @patch_version.to_s
+          @patch_version = 
+            case args[:patch_version].to_s.length
+            when 1 then "00#{args[:patch_version]}"
+            when 2 then "0#{args[:patch_version]}"
+            else args[:patch_version].to_s
             end
 
-          @url.sub!(
-            /{{ core_version }}/,
-            "#{@software[:version].to_s.split('.')[0]}.#{@software[:version].to_s.split('.')[1]}"
+          super(
+            resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/patch/download",
+            role_path: "#{args[:role_dir]}/#{args[:data]['name']}.patch.#{@patch_version}.download",
+            dir: "#{args[:data]['name']}.patch.#{@patch_version}.download",
+            data: args[:data]
           )
-          @url.sub!(
-            /{{ core_version }}/,
-            "#{@software[:version].to_s.split('.')[0]}#{@software[:version].to_s.split('.')[1]}"
-          )
-          @url.gsub!(/{{ patch_version }}/, @patch_version.to_s)
 
-          @dir = "#{@software[:name]}.patch.#{@patch_version}.download"
-          @role_path = "#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download"
-
-          FileUtils.mkdir_p("#{@role_dir}/#{@software[:name]}.patch.#{@patch_version}.download")
-          create_tasks
-          create_vars
+            @data['url'] = create_url
         end
 
         private
+        def create_url
+          url = metadata['software'][@data['name']]['patch']['url']
+          url.sub!(
+            /{{ core_version }}/,
+            "#{@data['version'].to_s.split('.')[0]}.#{@data['version'].to_s.split('.')[1]}"
+          )
+          url.sub!(
+            /{{ core_version }}/,
+            "#{@data['version'].to_s.split('.')[0]}#{@data['version'].to_s.split('.')[1]}"
+          )
+          url.gsub!(/{{ patch_version }}/, @patch_version.to_s)
 
-        def create_tasks
-          FileUtils.cp_r("#{@resource_path}/tasks", @role_path)
+          url
         end
 
-        def create_vars
-          FileUtils.cp_r("#{@resource_path}/vars", @role_path)
-
-          ::File.open("#{@role_path}/vars/main.yml", 'a') do |f|
-            f.puts("src_dir: #{@software[:src_dir]}")
-            f.puts("url: #{@url}")
-          end
+        def metadata
+          YAML.load_file('./metadata.yml')
         end
       end
     end

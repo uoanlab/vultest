@@ -109,8 +109,6 @@ module Ansible
     end
 
     def create_software_download_role(software)
-      args = { role_dir: @role_path, software: software }
-
       role =
         case software.fetch('method', nil)
         when 'source'
@@ -133,7 +131,7 @@ module Ansible
       1.upto(software['version'].split('.')[2].to_i) do |version|
         role = Roles::Patch::Download.new(
           role_dir: @role_path,
-          software: software,
+          data: software,
           patch_version: version
         )
         role.create
