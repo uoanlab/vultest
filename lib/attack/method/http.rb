@@ -19,11 +19,9 @@ require 'lib/print'
 module Attack
   module Method
     class HTTP
-      attr_reader :target_url, :attack_request_setting, :request, :response, :error
+      attr_reader :attack_request_setting, :request, :response, :error
 
       def initialize(args)
-        @target_url = args[:exploits]['url']
-
         @attack_request_setting = {
           url: args[:exploits]['request']['url'],
           method: args[:exploits]['request']['method'],

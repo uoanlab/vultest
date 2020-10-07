@@ -44,7 +44,6 @@ module Report
       erb = ERB.new(File.read(REPORT_ATTACK_TEMPLATE_PATH), trim_mode: 2)
 
       attack_tool = 'HTTP'
-      target_url = @attack.attack_method.target_url
       attack_url = @attack.attack_method.attack_request_setting[:url]
       attack_http_method = @attack.attack_method.attack_request_setting[:method]
       request_header = @attack.attack_method.request[:header]
