@@ -18,14 +18,14 @@ require 'lib/print'
 
 module Attack
   class Core
-    attr_reader :env_dir, :attack_config, :attack_method, :vagrant
+    attr_reader :env_dir, :test_case, :attack_method, :vagrant
 
     def initialize(args)
       @host = args[:host]
       @user = args[:user]
       @passwd = args[:passwd]
       @env_dir = args[:env_dir]
-      @attack_config = args[:attack_config]
+      @test_case = args[:test_case]
     end
 
     def create
@@ -38,10 +38,10 @@ module Attack
 
     def exec
       @attack_method =
-        if attack_config.key?('metasploit')
-          Method::Metasploit::Core.new(host: @host, exploits: attack_config['metasploit'])
-        elsif attack_config.key?('http')
-          Method::HTTP.new(exploits: attack_config['http'])
+        if test_case.attack_config.key?('metasploit')
+          Method::Metasploit::Core.new(host: @host, exploits: test_case.attack_config['metasploit'])
+        elsif test_case.attack_config.key?('http')
+          Method::HTTP.new(exploits: test_case.attack_config['http'])
         end
 
       attack_method.exec

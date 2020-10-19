@@ -35,7 +35,7 @@ module Report
       erb = ERB.new(File.read(REPORT_ATTACK_TEMPLATE_PATH), trim_mode: 2)
 
       attack_tool = 'Metasploit'
-      attack_methods = @attack.attack_config['metasploit']
+      attack_methods = @attack.test_case.attack_config['metasploit']
 
       File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
     end

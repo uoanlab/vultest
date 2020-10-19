@@ -34,6 +34,7 @@ module Report
       @report_dir = args[:report_dir]
       @vulenv = args[:vulenv]
       @attack = args.fetch(:attack, nil)
+      @test_case = args[:test_case]
     end
 
     def create
@@ -82,7 +83,7 @@ module Report
     def create_vulenrability_part
       Vulnerability.new(
         report_dir: @report_dir,
-        cve: @vulenv.vulnerability['cve']
+        cve: @test_case.vulnerability['cve']
       ).create
     end
   end
