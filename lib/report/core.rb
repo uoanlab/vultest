@@ -15,6 +15,7 @@ require 'fileutils'
 require 'tty-markdown'
 
 require 'lib/report/title'
+require 'lib/report/metadata'
 require 'lib/report/vulenv'
 require 'lib/report/attack'
 require 'lib/report/vulnerability'
@@ -24,6 +25,7 @@ require 'lib/print'
 
 module Report
   REPORT_TITLE_TEMPLATE_PATH = './resources/report/title.md.erb'.freeze
+  REPORT_METADATA_TEMPLATE_PATH = './resources/report/metadata.md.erb'.freeze
   REPORT_VULENV_TEMPLATE_PATH = './resources/report/vulenv.md.erb'.freeze
   REPORT_ATTACK_TEMPLATE_PATH = './resources/report/attack.md.erb'.freeze
   REPORT_VULNERABILITY_TEMPLATE_PATH = './resources/report/vulnerability.md.erb'.freeze
@@ -39,6 +41,7 @@ module Report
 
     def create
       create_title_part
+      create_metadat_part
       create_vulenv_part
       create_attack_part unless @attack.nil?
       create_vulenrability_part
@@ -58,9 +61,13 @@ module Report
         elsif !@attack.nil? && @attack.exec_error? then 'attack'
         end
 
-      Title.new({ report_dir: @report_dir, error: error }).create
+      Title.new(report_dir: @report_dir, error: error).create
 
       create_error_part(error) unless error.nil?
+    end
+
+    def create_metadat_part
+      Metadata.new(report_dir: @report_dir, test_case: @test_case).create
     end
 
     def create_error_part(error_type)
