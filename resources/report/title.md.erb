@@ -1,11 +1,5 @@
-<% case error_type %>
-<% when 'vulenv' %>
-# Vultest Report: Error in Construction of Vulnerable Environment
+<%= data[:title] %>
 
-<% when 'attack' %>
-# Vultest Report: Error in Attack Execution
+- Data/Time : <%= data[:date] %>
+- Test Tool : vultest, <%= data[:version] %>
 
-<% else %>
-# Vultest Report
-
-<% end %>

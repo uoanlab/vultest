@@ -23,8 +23,25 @@ module Report
     def create
       erb = ERB.new(File.read(REPORT_TITLE_TEMPLATE_PATH), trim_mode: 2)
 
-      error_type = @error
+      data = create_data
       File.open("#{@report_dir}/report.md", 'w') { |f| f.puts(erb.result(binding)) }
+    end
+
+    private
+
+    def create_data
+      title = '# Vultest Report'
+      title = case @error
+              when 'vulenv' then "#{title} : Error in Construction of Vulnerable Environment"
+              when 'attack' then "#{title} : Error in Attack Execution"
+              else title
+              end
+
+      {
+        title: title,
+        date: Time.new,
+        version: VERSION
+      }
     end
   end
 end
