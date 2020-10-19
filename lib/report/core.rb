@@ -42,9 +42,9 @@ module Report
     def create
       create_title_part
       create_metadat_part
+      create_vulenrability_part
       create_vulenv_part
       create_attack_part unless @attack.nil?
-      create_vulenrability_part
     end
 
     def show
@@ -90,7 +90,7 @@ module Report
     def create_vulenrability_part
       Vulnerability.new(
         report_dir: @report_dir,
-        cve: @test_case.vulnerability['cve']
+        test_case: @test_case
       ).create
     end
   end
