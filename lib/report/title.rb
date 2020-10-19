@@ -30,7 +30,7 @@ module Report
     private
 
     def create_data
-      title = '# Vultest Report'
+      title = '# Vulnerability Test Report'
       title = case @error
               when 'vulenv' then "#{title} : Error in Construction of Vulnerable Environment"
               when 'attack' then "#{title} : Error in Attack Execution"
