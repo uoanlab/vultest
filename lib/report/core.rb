@@ -16,7 +16,7 @@ require 'tty-markdown'
 
 require 'lib/report/title'
 require 'lib/report/metadata'
-require 'lib/report/vulenv'
+require 'lib/report/host'
 require 'lib/report/attack'
 require 'lib/report/vulnerability'
 require 'lib/report/error'
@@ -26,7 +26,7 @@ require 'lib/print'
 module Report
   REPORT_TITLE_TEMPLATE_PATH = './resources/report/title.md.erb'.freeze
   REPORT_METADATA_TEMPLATE_PATH = './resources/report/metadata.md.erb'.freeze
-  REPORT_VULENV_TEMPLATE_PATH = './resources/report/vulenv.md.erb'.freeze
+  REPORT_HOST_TEMPLATE_PATH = './resources/report/host.md.erb'.freeze
   REPORT_ATTACK_TEMPLATE_PATH = './resources/report/attack.md.erb'.freeze
   REPORT_VULNERABILITY_TEMPLATE_PATH = './resources/report/vulnerability.md.erb'.freeze
   REPORT_ERROR_TEMPLATE_PATH = './resources/report/error.md.erb'.freeze
@@ -43,7 +43,7 @@ module Report
       create_title_part
       create_metadat_part
       create_vulenrability_part
-      # create_vulenv_part
+      create_vulenv_part
       # create_attack_part unless @attack.nil?
     end
 
@@ -88,7 +88,7 @@ module Report
     end
 
     def create_vulenv_part
-      Vulenv.new(report_dir: @report_dir, vulenv_structure: @vulenv.structure).create
+      Host.new(report_dir: @report_dir, host: @vulenv.data).create
     end
 
     def create_attack_part

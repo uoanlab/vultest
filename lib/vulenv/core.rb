@@ -89,7 +89,7 @@ module Vulenv
       {
         os: d.os,
         vulnerable_software: d.vulnerable_software,
-        related_software: d.related_software,
+        software: d.related_software,
         ipadders: d.ipaddrs,
         port_list: d.port_list,
         services: d.services
