@@ -15,7 +15,7 @@
 require 'lib/db'
 require 'lib/print'
 
-require './lib/data/test_case'
+require './lib/test_case'
 
 class SelectVultestCase
   CONFIG_VERSION = 1.0

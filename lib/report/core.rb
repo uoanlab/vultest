@@ -43,8 +43,8 @@ module Report
       create_title_part
       create_metadat_part
       create_vulenrability_part
-      create_vulenv_part
-      create_attack_part unless @attack.nil?
+      # create_vulenv_part
+      # create_attack_part unless @attack.nil?
     end
 
     def show
@@ -79,19 +79,20 @@ module Report
       ).create
     end
 
+    def create_vulenrability_part
+      Vulnerability.new(
+        report_dir: @report_dir,
+        test_case: @test_case,
+        vulenv: @vulenv
+      ).create
+    end
+
     def create_vulenv_part
       Vulenv.new(report_dir: @report_dir, vulenv_structure: @vulenv.structure).create
     end
 
     def create_attack_part
       Attack.new(report_dir: @report_dir, attack: @attack).create
-    end
-
-    def create_vulenrability_part
-      Vulnerability.new(
-        report_dir: @report_dir,
-        test_case: @test_case
-      ).create
     end
   end
 end

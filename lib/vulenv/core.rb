@@ -13,16 +13,16 @@
 # limitations under the License.
 require 'fileutils'
 
-require 'lib/vulenv/structure/ubuntu'
-require 'lib/vulenv/structure/centos'
-require 'lib/vulenv/structure/windows'
+require 'lib/vulenv/data/ubuntu'
+require 'lib/vulenv/data/centos'
+require 'lib/vulenv/data/windows'
 require 'lib/vulenv/create'
 require 'lib/vulenv/start'
 require 'lib/print'
 
 module Vulenv
   class Core
-    attr_reader :env_dir, :test_case, :vagrant, :structure
+    attr_reader :env_dir, :test_case, :vagrant, :data
 
     def initialize(args)
       @env_dir = args[:vulenv_dir]
@@ -31,7 +31,7 @@ module Vulenv
     end
 
     def create?
-      return unless @structure.nil?
+      return unless @data.nil?
 
       create = Create.new(
         env_dir: env_dir,
@@ -47,7 +47,7 @@ module Vulenv
         vagrant: vagrant
       )
 
-      @structure = set_structure
+      @data = create_data
       flag
     end
 
@@ -71,7 +71,7 @@ module Vulenv
 
     private
 
-    def set_structure
+    def create_data
       env_info = {
         host: '192.168.177.177',
         user: 'vagrant',
@@ -79,20 +79,20 @@ module Vulenv
         env_config: test_case.vulenv_config
       }
 
-      s =
+      d =
         case test_case.vulenv_config['os']['name']
-        when 'ubuntu' then Structure::Ubuntu.new(env_info)
-        when 'centos' then Structure::CentOS.new(env_info)
-        when 'windows' then Structure::Windows.new(env_info)
+        when 'ubuntu' then Data::Ubuntu.new(env_info)
+        when 'centos' then Data::CentOS.new(env_info)
+        when 'windows' then Data::Windows.new(env_info)
         end
 
-      @structure = {
-        os: s.os,
-        vul_software: s.vul_software,
-        related_software: s.related_software,
-        ipadders: s.ipaddrs,
-        port_list: s.port_list,
-        services: s.services
+      {
+        os: d.os,
+        vulnerable_software: d.vulnerable_software,
+        related_software: d.related_software,
+        ipadders: d.ipaddrs,
+        port_list: d.port_list,
+        services: d.services
       }
     end
   end

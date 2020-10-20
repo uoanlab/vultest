@@ -14,7 +14,7 @@
 require 'net/ssh'
 
 module Vulenv
-  module Structure
+  module Data
     class CentOS
       def initialize(args)
         @host = args[:host]
@@ -33,12 +33,13 @@ module Vulenv
           name: @env_config['os']['name'],
           version: @env_config['os']['version'],
           major_version: major_version,
-          vulnerability: @env_config['os']['vulnerability']
         }
       end
 
-      def vul_software
-        return { name: nil, version: nil } unless @env_config.key?('software')
+      def vulnerable_software
+        if @env_config['os'].key?('vulnerability') && @env_config['os']['vulnerability']
+          return { name: @env_config['os']['name'], version: @env_config['os']['version'] }
+        end
 
         v = @env_config['software'].find do |s|
           s.key?('vulnerability') && s['vulnerability']

@@ -24,7 +24,7 @@ module DataObject
         attack_config: args[:attack_config_file]
       }
     end
-  
+
     def vulenv_config
       YAML.load_file(
         "#{BASE_CONFIG['vultest_db_path']}/#{file[:vulenv_config]}"
@@ -36,7 +36,7 @@ module DataObject
         "#{BASE_CONFIG['vultest_db_path']}/#{file[:attack_config]}"
       )['attack']
     end
-  
+
     def vulnerability
       YAML.load_file(
         "#{BASE_CONFIG['vultest_db_path']}/#{file[:vulenv_config]}"
