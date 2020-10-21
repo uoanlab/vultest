@@ -13,17 +13,10 @@
 # limitations under the License.
 
 module Report
-  class Metadata
+  class Metadata < Base
     def initialize(args)
-      @report_dir = args[:report_dir]
+      super(report_dir: args[:report_dir], template_path: REPORT_METADATA_TEMPLATE_PATH)
       @test_case = args[:test_case]
-    end
-
-    def create
-      erb = ERB.new(File.read(REPORT_METADATA_TEMPLATE_PATH), trim_mode: 2)
-
-      data = create_data
-      File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
     end
 
     private

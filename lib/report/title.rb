@@ -22,6 +22,7 @@ module Report
       FileUtils.touch("#{@report_dir}/report.md")
       super()
     end
+
     private
 
     def create_data
