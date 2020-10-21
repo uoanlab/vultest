@@ -11,14 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
-
-require 'lib/vulenv/data/ubuntu'
-require 'lib/vulenv/data/centos'
-require 'lib/vulenv/data/windows'
-require 'lib/vulenv/create'
-require 'lib/vulenv/start'
-require 'lib/print'
 
 module Vulenv
   class Core

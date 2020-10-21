@@ -12,11 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'lib/db'
-require 'lib/print'
-
-require './lib/test_case'
-
 class SelectVultestCase
   CONFIG_VERSION = 1.0
 

@@ -11,14 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'lib/attack/method/http'
-require 'lib/attack/method/metasploit/core'
-require 'lib/attack/create'
-require 'lib/print'
 
 module Attack
   class Core
-    attr_reader :env_dir, :test_case, :host, :attack_method, :vagrant
+    attr_reader :env_dir, :vagrant
 
     def initialize(args)
       @host = args[:host]
@@ -26,6 +22,8 @@ module Attack
       @passwd = args[:passwd]
       @env_dir = args[:env_dir]
       @test_case = args[:test_case]
+
+      @attack = nil
     end
 
     def create
@@ -37,20 +35,27 @@ module Attack
     end
 
     def exec
-      @attack_method =
-        if test_case.attack_config.key?('metasploit')
-          Method::Metasploit::Core.new(host: host, exploits: test_case.attack_config['metasploit'])
-        elsif test_case.attack_config.key?('http')
-          Method::HTTP.new(exploits: test_case.attack_config['http'])
+      @attack =
+        if @test_case.attack_config.key?('metasploit')
+          Method::Metasploit::Core.new(
+            host: @host,
+            exploits: @test_case.attack_config['metasploit']
+          )
+        elsif @test_case.attack_config.key?('http')
+          Method::HTTP.new(exploits: @test_case.attack_config['http'])
         end
 
-      attack_method.exec
+      @attack.exec
     end
 
-    def exec_error?
-      return false if attack_method.error.nil?
+    def result
+      @attack.result
+    end
 
-      true
+    def attack_method
+      if @attack.instance_of?(::Attack::Method::Metasploit::Core) then 'metasploit'
+      elsif @attack.instance_of?(::Attack::Method::HTTP) then 'http'
+      end
     end
 
     def destroy!

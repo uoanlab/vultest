@@ -12,11 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'lib/api/metasploit'
-require 'lib/attack/method/metasploit/exploit'
-require 'lib/attack/method/metasploit/payload'
-require 'lib/print'
-
 module Attack
   module Method
     module Metasploit
@@ -24,7 +19,7 @@ module Attack
       LOGIN_TIME_LIMIT = 10
 
       class Core
-        attr_reader :host, :msf_api, :error, :exploits, :sessions
+        attr_reader :host, :msf_api, :result, :exploits, :sessions
 
         def initialize(args)
           @host = args[:host]
@@ -32,8 +27,10 @@ module Attack
           @exploits = args[:exploits]
           @sessions = {}
 
-          # @error = { name: nil, option: [] }
-          @error = nil
+          @result = {
+            status: 'unknown',
+            method: []
+          }
         end
 
         def exec
@@ -46,16 +43,14 @@ module Attack
 
             exec_exploit(exploit['module_type'], exploit['module_name'], exploit_option)
 
-            break unless error.nil?
+            break if result[:status] == 'failure'
           end
 
-          if !error.nil?
-            Print.result('failure')
-            Print.warring('Can look at a report about error in attack execution')
+          Print.result(result[:status])
+          if result[:status] == 'failure'
+            Print.warring('Can look at a report about result in attack execution')
           else
-            Print.result('success')
             print "\n"
-
             exec_payload
           end
         end
@@ -72,7 +67,7 @@ module Attack
             sleep(1)
             time += 1
             retry if time < LOGIN_TIME_LIMIT
-            Print.error(e)
+            Print.result(e)
           end
 
           msf_api.console_create
@@ -85,9 +80,10 @@ module Attack
             name: exploit_name,
             option: exploit_option
           )
-          @error = exploit.exec
+          @result[:status] = exploit.exec? ? 'success' : 'failure'
+          @result[:method].append({ name: exploit_name, option: exploit_option })
 
-          @sessions.merge!(exploit.session) if @error.nil?
+          @sessions.merge!(exploit.session) if @result[:status] == 'success'
         end
 
         def exec_payload

@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'net/ssh'
 
 module Vulenv
   module Data
@@ -32,7 +31,7 @@ module Vulenv
         {
           name: @env_config['os']['name'],
           version: @env_config['os']['version'],
-          major_version: major_version,
+          major_version: major_version
         }
       end
 

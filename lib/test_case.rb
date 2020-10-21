@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'yaml'
-
 module DataObject
   class TestCase
     attr_reader :file
-  
+
     def initialize(args)
       @file = {
         vulenv_config: args[:vulenv_config_file],
@@ -30,7 +28,7 @@ module DataObject
         "#{BASE_CONFIG['vultest_db_path']}/#{file[:vulenv_config]}"
       )['host']
     end
-  
+
     def attack_config
       YAML.load_file(
         "#{BASE_CONFIG['vultest_db_path']}/#{file[:attack_config]}"
@@ -42,7 +40,7 @@ module DataObject
         "#{BASE_CONFIG['vultest_db_path']}/#{file[:vulenv_config]}"
       )['vulnerability']
     end
-  
+
     def version
       YAML.load_file(
         "#{BASE_CONFIG['vultest_db_path']}/#{file[:vulenv_config]}"

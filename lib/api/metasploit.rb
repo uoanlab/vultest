@@ -13,8 +13,6 @@
 # limitations under the License.
 #
 # reference: https://www.mbsd.jp/blog/20180228.html
-require 'msgpack'
-require 'net/http'
 
 module API
   class Metasploit

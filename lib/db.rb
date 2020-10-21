@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'bundler/setup'
-require 'sqlite3'
-
 module DB
   class << self
     def get_cve_info(cve)

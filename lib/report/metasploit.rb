@@ -1,4 +1,4 @@
-# Copyright [2020] [University of Aizu]
+# Copyright [202] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,14 +13,17 @@
 # limitations under the License.
 
 module Report
-  class Metadata
+  class Metasploit
     def initialize(args)
       @report_dir = args[:report_dir]
-      @test_case = args[:test_case]
+      @attack = args[:attack]
     end
 
     def create
-      erb = ERB.new(File.read(REPORT_METADATA_TEMPLATE_PATH), trim_mode: 2)
+      erb = ERB.new(
+        File.read("#{REPORT_ATTACK_TEMPLATE_DIR_PATH}/metasploit.md.erb"),
+        trim_mode: 2
+      )
 
       data = create_data
       File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
@@ -30,8 +33,8 @@ module Report
 
     def create_data
       {
-        vulenv_config: @test_case.file[:vulenv_config],
-        attack_config: @test_case.file[:attack_config]
+        status: @attack.result[:status],
+        method: @attack.result[:method]
       }
     end
   end

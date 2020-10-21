@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'bundler/setup'
-require 'rainbow'
-require 'tty-spinner'
-
 module Print
   class << self
     def execute(msg)

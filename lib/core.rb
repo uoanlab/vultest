@@ -11,13 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'tty-prompt'
-
-require 'lib/select_vultest_case'
-require 'lib/attack/core'
-require 'lib/vulenv/core'
-require 'lib/report/core'
-require 'lib/print'
 
 class Core
   attr_reader :vulenv, :attack, :test_case
@@ -36,6 +29,7 @@ class Core
 
     @test_case = select_vultest_case.exec
     return false if test_case.nil?
+
     true
   end
 

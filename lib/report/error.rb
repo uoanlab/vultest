@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'erb'
 
 module Report
   class Error
@@ -27,7 +26,6 @@ module Report
 
       case error_type
       when 'vulenv' then create_vulenv(error_type)
-      when 'attack' then create_attack(error_type)
       end
     end
 
@@ -45,15 +43,6 @@ module Report
           error_command = error_info[:error_command]
         end
       end
-
-      File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
-    end
-
-    def create_attack(error_type)
-      erb = ERB.new(File.read(REPORT_ERROR_TEMPLATE_PATH), trim_mode: 2)
-
-      error_method = @attack.attack_method.error[:name]
-      error_method_settings = @attack.attack_method.error[:option]
 
       File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
     end

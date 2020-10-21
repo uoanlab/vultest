@@ -11,17 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
-require 'tty-markdown'
-
-require 'lib/report/title'
-require 'lib/report/metadata'
-require 'lib/report/host'
-require 'lib/report/attack/metasploit.rb'
-require 'lib/report/vulnerability'
-require 'lib/report/error'
-
-require 'lib/print'
 
 module Report
   REPORT_TITLE_TEMPLATE_PATH = './resources/report/title.md.erb'.freeze
@@ -56,27 +45,11 @@ module Report
     private
 
     def create_title_part
-      error =
-        if @vulenv.error? then 'vulenv'
-        elsif !@attack.nil? && @attack.exec_error? then 'attack'
-        end
-
-      Title.new(report_dir: @report_dir, error: error).create
-
-      create_error_part(error) unless error.nil?
+      Title.new(report_dir: @report_dir).create
     end
 
     def create_metadat_part
       Metadata.new(report_dir: @report_dir, test_case: @test_case).create
-    end
-
-    def create_error_part(error_type)
-      Error.new(
-        report_dir: @report_dir,
-        error: error_type,
-        vulenv: @vulenv,
-        attack: @attack
-      ).create
     end
 
     def create_vulenrability_part
@@ -92,9 +65,10 @@ module Report
     end
 
     def create_attack_part
-      if @attack.attack_method.instance_of?(::Attack::Method::Metasploit::Core)
-        Attack::Metasploit.new(report_dir: @report_dir, attack: @attack).create
-      elsif @attack.attack_method.instance_of?(::Attack::Method::HTTP)
+      case @attack.attack_method
+      when 'metasploit'
+        Metasploit.new(report_dir: @report_dir, attack: @attack).create
+      when 'http'
         puts 'http'
       end
     end

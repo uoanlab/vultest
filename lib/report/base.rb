@@ -13,26 +13,23 @@
 # limitations under the License.
 
 module Report
-  class Metadata
+  class Base
     def initialize(args)
       @report_dir = args[:report_dir]
-      @test_case = args[:test_case]
+      @template_path = args[:template_path]
     end
 
     def create
-      erb = ERB.new(File.read(REPORT_METADATA_TEMPLATE_PATH), trim_mode: 2)
+      erb = ERB.new(File.read(@template_path), trim_mode: 2)
 
       data = create_data
-      File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
+      File.open("#{@report_dir}/report.md", 'w') { |f| f.puts(erb.result(binding)) }
     end
 
     private
 
     def create_data
-      {
-        vulenv_config: @test_case.file[:vulenv_config],
-        attack_config: @test_case.file[:attack_config]
-      }
+      rais NotImplementedError
     end
   end
 end

@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'net/ssh'
 
 module Vulenv
   module Data
@@ -32,7 +31,7 @@ module Vulenv
         {
           name: @env_config['os']['name'],
           version: @env_config['os']['version'],
-          major_version: major_version,
+          major_version: major_version
         }
       end
 
@@ -58,7 +57,7 @@ module Vulenv
             if s[:version] == 'The latest version of the repository'
               cmd = "sudo dpkg -l | grep #{s[:name]}"
 
-              v = ssh.exec!(cmd).split("\n").find do |stdout| 
+              v = ssh.exec!(cmd).split("\n").find do |stdout|
                 stdout.split(' ')[1] == s[:name]
               end
               s[:version] = v.split(' ')[2] unless v.nil?
