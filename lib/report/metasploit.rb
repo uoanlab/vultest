@@ -13,20 +13,10 @@
 # limitations under the License.
 
 module Report
-  class Metasploit
+  class Metasploit < Base
     def initialize(args)
-      @report_dir = args[:report_dir]
+      super(report_dir: args[:report_dir], template_path: "#{REPORT_ATTACK_TEMPLATE_DIR_PATH}/metasploit.md.erb")
       @attack = args[:attack]
-    end
-
-    def create
-      erb = ERB.new(
-        File.read("#{REPORT_ATTACK_TEMPLATE_DIR_PATH}/metasploit.md.erb"),
-        trim_mode: 2
-      )
-
-      data = create_data
-      File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
     end
 
     private
