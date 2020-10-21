@@ -13,17 +13,10 @@
 # limitations under the License.
 
 module Report
-  class Host
+  class Host < Base
     def initialize(args)
-      @report_dir = args[:report_dir]
+      super(report_dir: args[:report_dir], template_path: REPORT_HOST_TEMPLATE_PATH)
       @host = args[:host]
-    end
-
-    def create
-      erb = ERB.new(File.read(REPORT_HOST_TEMPLATE_PATH), trim_mode: 2)
-
-      data = create_data
-      File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
     end
 
     private
