@@ -23,7 +23,7 @@ module Report
       erb = ERB.new(File.read(@template_path), trim_mode: 2)
 
       data = create_data
-      File.open("#{@report_dir}/report.md", 'w') { |f| f.puts(erb.result(binding)) }
+      File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
     end
 
     private
