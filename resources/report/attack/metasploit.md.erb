@@ -1,0 +1,10 @@
+## Attack
+
+### Exploit Method : Metasplit
+<% data[:attack_methods].each do |attack_method| %>
+- <%= attack_method['module_name'] %>
+<% attack_method['options'].each do |option| %>
+    - <%= option['name'] %> : <%= option['value'] %>
+<% end %>
+<% end %>
+

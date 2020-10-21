@@ -18,7 +18,7 @@ require 'lib/print'
 
 module Attack
   class Core
-    attr_reader :env_dir, :test_case, :attack_method, :vagrant
+    attr_reader :env_dir, :test_case, :host, :attack_method, :vagrant
 
     def initialize(args)
       @host = args[:host]
@@ -39,7 +39,7 @@ module Attack
     def exec
       @attack_method =
         if test_case.attack_config.key?('metasploit')
-          Method::Metasploit::Core.new(host: @host, exploits: test_case.attack_config['metasploit'])
+          Method::Metasploit::Core.new(host: host, exploits: test_case.attack_config['metasploit'])
         elsif test_case.attack_config.key?('http')
           Method::HTTP.new(exploits: test_case.attack_config['http'])
         end

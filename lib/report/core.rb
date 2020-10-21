@@ -17,7 +17,7 @@ require 'tty-markdown'
 require 'lib/report/title'
 require 'lib/report/metadata'
 require 'lib/report/host'
-require 'lib/report/attack'
+require 'lib/report/attack/metasploit.rb'
 require 'lib/report/vulnerability'
 require 'lib/report/error'
 
@@ -27,7 +27,7 @@ module Report
   REPORT_TITLE_TEMPLATE_PATH = './resources/report/title.md.erb'.freeze
   REPORT_METADATA_TEMPLATE_PATH = './resources/report/metadata.md.erb'.freeze
   REPORT_HOST_TEMPLATE_PATH = './resources/report/host.md.erb'.freeze
-  REPORT_ATTACK_TEMPLATE_PATH = './resources/report/attack.md.erb'.freeze
+  REPORT_ATTACK_TEMPLATE_DIR_PATH = './resources/report/attack'.freeze
   REPORT_VULNERABILITY_TEMPLATE_PATH = './resources/report/vulnerability.md.erb'.freeze
   REPORT_ERROR_TEMPLATE_PATH = './resources/report/error.md.erb'.freeze
 
@@ -44,7 +44,7 @@ module Report
       create_metadat_part
       create_vulenrability_part
       create_vulenv_part
-      # create_attack_part unless @attack.nil?
+      create_attack_part unless @attack.nil?
     end
 
     def show
@@ -92,7 +92,11 @@ module Report
     end
 
     def create_attack_part
-      Attack.new(report_dir: @report_dir, attack: @attack).create
+      if @attack.attack_method.instance_of?(::Attack::Method::Metasploit::Core)
+        Attack::Metasploit.new(report_dir: @report_dir, attack: @attack).create
+      elsif @attack.attack_method.instance_of?(::Attack::Method::HTTP)
+        puts 'http'
+      end
     end
   end
 end
