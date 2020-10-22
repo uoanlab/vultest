@@ -45,6 +45,12 @@ Dir['./lib/ansible/roles/file/*.rb'].sort.each { |file| require file }
 Dir['./lib/ansible/roles/mysql/*.rb'].sort.each { |file| require file }
 Dir['./lib/ansible/roles/patch/*.rb'].sort.each { |file| require file }
 Dir['./lib/ansible/roles/software/*.rb'].sort.each { |file| require file }
+Dir['./lib/ansible/roles/software/gem/*.rb'].sort.each { |file| require file }
+Dir['./lib/ansible/roles/software/nodenv/*.rb'].sort.each { |file| require file }
+Dir['./lib/ansible/roles/software/npm/*.rb'].sort.each { |file| require file }
+Dir['./lib/ansible/roles/software/package/*.rb'].sort.each { |file| require file }
+Dir['./lib/ansible/roles/software/rbenv/*.rb'].sort.each { |file| require file }
+Dir['./lib/ansible/roles/software/source/*.rb'].sort.each { |file| require file }
 
 # lib/api
 Dir['./lib/api/*.rb'].sort.each { |file| require file }
