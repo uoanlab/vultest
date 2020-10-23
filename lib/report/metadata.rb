@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Command
-  module Destroy
-    class << self
-      def exec(args)
-        core = args[:core]
+module Report
+  class Metadata < Base
+    def initialize(args)
+      super(report_dir: args[:report_dir], template_path: REPORT_METADATA_TEMPLATE_PATH)
+      @test_case = args[:test_case]
+    end
 
-        if core.nil?
-          Print.error('Doesn\'t exist the environment')
-          return
-        end
+    private
 
-        core.destroy_env
-      end
+    def create_data
+      {
+        vulenv_config: @test_case.file[:vulenv_config],
+        attack_config: @test_case.file[:attack_config]
+      }
     end
   end
 end

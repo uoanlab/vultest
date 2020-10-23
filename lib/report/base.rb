@@ -1,4 +1,4 @@
-# Copyright [202] [University of Aizu]
+# Copyright [2020] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,26 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'erb'
 
 module Report
-  class Vulenv
+  class Base
     def initialize(args)
       @report_dir = args[:report_dir]
-      @vulenv_structure = args[:vulenv_structure]
+      @template_path = args[:template_path]
     end
 
     def create
-      erb = ERB.new(File.read(REPORT_VULENV_TEMPLATE_PATH), trim_mode: 2)
+      erb = ERB.new(File.read(@template_path), trim_mode: 2)
 
-      os = @vulenv_structure[:os]
-      vul_software = @vulenv_structure[:vul_software]
-      related_software = @vulenv_structure[:related_software]
-      ipadders = @vulenv_structure[:ipadders]
-      port_list = @vulenv_structure[:port_list]
-      services = @vulenv_structure[:services]
-
+      data = create_data
       File.open("#{@report_dir}/report.md", 'a+') { |f| f.puts(erb.result(binding)) }
+    end
+
+    private
+
+    def create_data
+      rais NotImplementedError
     end
   end
 end

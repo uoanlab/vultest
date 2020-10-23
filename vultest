@@ -13,19 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'bundler/setup'
-require 'pastel'
-require 'optparse'
-require 'tty-table'
-require 'tty-prompt'
-require 'yaml'
-require 'tty-font'
-
 $LOAD_PATH.unshift(File.join(File.expand_path(__dir__), '.'))
-require 'lib/core'
-require 'lib/msf_server'
-require 'lib/print'
+require 'require'
 
+VERSION = "1.0.0"
 BASE_CONFIG = YAML.load_file('./config.yml')
 
 Print.stdout(Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST')))
@@ -88,13 +79,13 @@ unless ARGV.size.zero?
 
   print "\n"
   Print.part('Attack')
-  if core.attack_config.key?('http')
+  if core.test_case.attack_config.key?('http')
     setting[:attack_host] = '127.0.0.1'
     setting[:attack_user] = nil
     setting[:attack_passwd] = nil
 
     flag[:startup_msf_server] = false
-  elsif core.vulnerability['attack_vector'] == 'local'
+  elsif core.test_case.vulnerability['attack_vector'] == 'local'
     setting[:attack_host] = '192.168.177.177'
   elsif !setting[:attack_dir].nil?
     setting[:attack_host] = '192.168.77.77'
@@ -148,11 +139,6 @@ prompt = TTY::Prompt.new(
 )
 prompt_name = 'vultest'
 
-require 'lib/command/destroy'
-require 'lib/command/exploit'
-require 'lib/command/report'
-require 'lib/command/set'
-require 'lib/command/test'
 loop do
   cmd = prompt.ask("#{prompt_name} >")
   cmd.nil? ? next : cmd = cmd.split(' ')

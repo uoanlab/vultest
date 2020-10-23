@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'lib/db'
-require 'lib/print'
-
 class SelectVultestCase
   CONFIG_VERSION = 1.0
 
@@ -41,19 +38,14 @@ class SelectVultestCase
 
     id = table[:index_info][select_test_case] - 1
 
-    vulnerability = YAML.load_file(
-      "#{BASE_CONFIG['vultest_db_path']}/#{@test_cases[id.to_i]['config_path']}"
-    )['vulnerability']
-    vulenv_config = YAML.load_file(
-      "#{BASE_CONFIG['vultest_db_path']}/#{@test_cases[id.to_i]['config_path']}"
-    )['host']
-    attack_config = YAML.load_file(
-      "#{BASE_CONFIG['vultest_db_path']}/#{@test_cases[id.to_i]['module_path']}"
-    )['attack']
+    test_case = DataObject::TestCase.new(
+      vulenv_config_file: @test_cases[id.to_i]['config_path'],
+      attack_config_file: @test_cases[id.to_i]['module_path']
+    )
 
-    return {} unless check_config_version?(vulenv_config)
+    return nil unless check_config_version?(test_case.version)
 
-    { vulnerability: vulnerability, vulenv_config: vulenv_config, attack_config: attack_config }
+    test_case
   end
 
   private
@@ -79,8 +71,7 @@ class SelectVultestCase
     { name_list: name_list, index_info: idx_info }
   end
 
-  def check_config_version?(vulenv_config)
-    version = vulenv_config.fetch('version', '1.0')
+  def check_config_version?(version)
     if version.to_i > CONFIG_VERSION || version.to_i < CONFIG_VERSION
       Print.error("Configfile is #{version}(support: #{CONFIG_VERSION})")
       return false

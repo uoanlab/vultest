@@ -1,4 +1,4 @@
-# Copyright [2020] [University of Aizu]
+# Copyright [202] [University of Aizu]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,19 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Command
-  module Destroy
-    class << self
-      def exec(args)
-        core = args[:core]
+module Report
+  REPORT_HTTP_TEMPLATE_PATH = './resources/report/http.md.erb'.freeze
 
-        if core.nil?
-          Print.error('Doesn\'t exist the environment')
-          return
-        end
+  class HTTP < Base
+    def initialize(args)
+      super(report_dir: args[:report_dir], template_path: REPORT_HTTP_TEMPLATE_PATH)
+      @attack = args[:attack]
+    end
 
-        core.destroy_env
-      end
+    private
+
+    def create_data
+      {
+        status: @attack.result[:status],
+        request: @attack.result[:request],
+        response: @attack.result[:response]
+      }
     end
   end
 end

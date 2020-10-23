@@ -11,11 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'open3'
-require 'tty-prompt'
-
-require 'lib/vagrant/create_vagrantfile'
-require 'lib/print'
 
 module Vagrant
   class Core

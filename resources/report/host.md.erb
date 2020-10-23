@@ -1,0 +1,49 @@
+## Host
+
+### Operating System
+- Name: <%= data[:os][:name] %>
+- Version: <%= data[:os][:version] %>
+<% if data[:os][:name] == 'windows' %>
+- Buid Version: <%= data[:os][:major_version] %>
+<% else %>
+- Kernel Version: <%= data[:os][:major_version] %>
+<% end %>
+
+<% unless data[:software].empty?%>
+### Software
+<% data[:software].each do |software| %>
+- <%= software[:name] %> : <%= software[:version] %>
+<% end %>
+<% end %>
+
+<% unless data[:ipadders].empty? %>
+### Network
+<% data[:ipadders].each do |ipadder| %>
+<% if data[:os][:name] == 'windows'%>
+- Network Adapter: <%= ipadder[:adapter] %>
+<% else %>
+- Interface: <%= ipadder[:interface] %>
+<% end %>
+    - IPv4: <%= ipadder[:inet] %>
+    - IPv6: <%= ipadder[:inet6] %>
+
+<% end %>
+<% unless data[:port_list].empty? %>
+- Port
+<% data[:port_list].each do |socket| %>
+<% if socket[:port] == socket[:service] %>
+    - <%= socket[:port] %>/<%= socket[:protocol] %>
+<% else %>
+    - <%= socket[:port] %>/<%= socket[:protocol]%>(<%= socket[:service] %>)
+<% end %>
+<% end %>
+<% end %>
+<% end %>
+
+<% unless data[:services].empty? %>
+### Services
+<% data[:services].each do |service| %>
+- <%= service %>
+<% end %>
+<% end %>
+

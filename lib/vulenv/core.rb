@@ -11,45 +11,35 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
-
-require 'lib/vulenv/structure/ubuntu'
-require 'lib/vulenv/structure/centos'
-require 'lib/vulenv/structure/windows'
-require 'lib/vulenv/create'
-require 'lib/vulenv/start'
-require 'lib/print'
 
 module Vulenv
   class Core
-    attr_reader :env_dir, :vulnerability, :env_config, :vagrant, :structure
+    attr_reader :env_dir, :test_case, :vagrant, :data
 
     def initialize(args)
       @env_dir = args[:vulenv_dir]
-      @vulnerability = args[:vulnerability]
-      @env_config = args[:vulenv_config]
-
+      @test_case = args[:test_case]
       @vagrant = nil
     end
 
     def create?
-      return unless @structure.nil?
+      return unless @data.nil?
 
       create = Create.new(
         env_dir: env_dir,
-        vulnerability: vulnerability,
-        env_config: env_config
+        vulnerability: test_case.vulnerability,
+        env_config: test_case.vulenv_config
       )
       create.exec
       @vagrant = create.vagrant
 
       flag = Start.exec?(
         env_dir: env_dir,
-        env_config: env_config,
+        env_config: test_case.vulenv_config,
         vagrant: vagrant
       )
 
-      @structure = set_structure
+      @data = create_data
       flag
     end
 
@@ -73,28 +63,28 @@ module Vulenv
 
     private
 
-    def set_structure
+    def create_data
       env_info = {
         host: '192.168.177.177',
         user: 'vagrant',
         password: 'vagrant',
-        env_config: env_config
+        env_config: test_case.vulenv_config
       }
 
-      s =
-        case env_config['os']['name']
-        when 'ubuntu' then Structure::Ubuntu.new(env_info)
-        when 'centos' then Structure::CentOS.new(env_info)
-        when 'windows' then Structure::Windows.new(env_info)
+      d =
+        case test_case.vulenv_config['os']['name']
+        when 'ubuntu' then Data::Ubuntu.new(env_info)
+        when 'centos' then Data::CentOS.new(env_info)
+        when 'windows' then Data::Windows.new(env_info)
         end
 
-      @structure = {
-        os: s.os,
-        vul_software: s.vul_software,
-        related_software: s.related_software,
-        ipadders: s.ipaddrs,
-        port_list: s.port_list,
-        services: s.services
+      {
+        os: d.os,
+        vulnerable_software: d.vulnerable_software,
+        software: d.related_software,
+        ipadders: d.ipaddrs,
+        port_list: d.port_list,
+        services: d.services
       }
     end
   end

@@ -11,11 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'net/ssh'
 
 module Vulenv
-  module Structure
-    class CentOS
+  module Data
+    class Ubuntu
       def initialize(args)
         @host = args[:host]
         @user = args[:user]
@@ -32,18 +31,18 @@ module Vulenv
         {
           name: @env_config['os']['name'],
           version: @env_config['os']['version'],
-          major_version: major_version,
-          vulnerability: @env_config['os']['vulnerability']
+          major_version: major_version
         }
       end
 
-      def vul_software
-        return { name: nil, version: nil } unless @env_config.key?('software')
+      def vulnerable_software
+        if @env_config['os'].key?('vulnerability') && @env_config['os']['vulnerability']
+          return { name: @env_config['os']['name'], version: @env_config['os']['version'] }
+        end
 
         v = @env_config['software'].find do |s|
           s.key?('vulnerability') && s['vulnerability']
         end
-
         { name: v['name'], version: v['version'] }
       end
 
@@ -56,9 +55,12 @@ module Vulenv
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
           related_software = software.map do |s|
             if s[:version] == 'The latest version of the repository'
-              cmd = "sudo yum list installed | grep \"^#{s[:name]}.\""
-              v = ssh.exec!(cmd).split(' ')[1]
-              s[:version] = v unless v.nil?
+              cmd = "sudo dpkg -l | grep #{s[:name]}"
+
+              v = ssh.exec!(cmd).split("\n").find do |stdout|
+                stdout.split(' ')[1] == s[:name]
+              end
+              s[:version] = v.split(' ')[2] unless v.nil?
             end
             { name: s[:name], version: s[:version] }
           end
@@ -86,17 +88,15 @@ module Vulenv
       def ipaddrs
         ipaddrs = []
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
-          cmd = ssh.exec!('sudo find / -name ip 2> /dev/null | grep bin/').split("\n")[0]
+          cmd = ssh.exec!('sudo find / -name ip  2> /dev/null | grep bin/').split("\n")[0]
           cmd += ' addr | grep inet'
 
           ssh.exec!(cmd).split("\n").each_slice(2) do |ip|
-            ipaddrs.push(
-              {
-                interface: ip[0].split(' ')[-1],
-                inet: ip[0].split(' ')[1],
-                inet6: ip[1].split(' ')[1]
-              }
-            )
+            ipaddrs.push({
+                           interface: ip[0].split(' ')[-1],
+                           inet: ip[0].split(' ')[1],
+                           inet6: ip[1].split(' ')[1]
+                         })
           end
         end
         ipaddrs
@@ -105,18 +105,19 @@ module Vulenv
       def services
         services = []
         Net::SSH.start(@host, @user, password: 'vagrant', verify_host_key: :never) do |ssh|
-          cmd = ssh.exec!('sudo find / -name service 2> /dev/null | grep bin/').split("\n")[0]
-          cmd = "sudo #{cmd} --status-all | grep running..."
-          services = ssh.exec!(cmd).split("\n").map { |stdout| stdout.split(' ')[0] }
+          cmd = ssh.exec!('sudo find / -name service  2> /dev/null | grep bin/').split("\n")[0]
+          cmd = "sudo #{cmd} --status-all | grep +"
+          services = ssh.exec!(cmd).gsub('[', '').gsub(']', '').split("\n").map do |stdout|
+            stdout.split(' ')[1] if stdout.split(' ')[0] == '+'
+          end
         end
-
         services
       end
 
       def port_list
         port_list = []
         Net::SSH.start(@host, @user, password: @password, verify_host_key: :never) do |ssh|
-          cmd = ssh.exec!('sudo find / -name ss 2> /dev/null | grep bin/').split("\n")[0]
+          cmd = ssh.exec!('sudo find / -name ss  2> /dev/null | grep bin/').split("\n")[0]
 
           socket_service_stdout = ssh.exec!("#{cmd} -atu").split("\n")
           ssh.exec!("#{cmd} -antu").split("\n").each_with_index do |stdout, index|

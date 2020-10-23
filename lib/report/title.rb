@@ -11,20 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'erb'
 
 module Report
-  class Title
+  class Title < Base
     def initialize(args)
-      @report_dir = args[:report_dir]
-      @error = args.fetch(:error, nil)
+      super(report_dir: args[:report_dir], template_path: REPORT_TITLE_TEMPLATE_PATH)
     end
 
     def create
-      erb = ERB.new(File.read(REPORT_TITLE_TEMPLATE_PATH), trim_mode: 2)
+      FileUtils.touch("#{@report_dir}/report.md")
+      super()
+    end
 
-      error_type = @error
-      File.open("#{@report_dir}/report.md", 'w') { |f| f.puts(erb.result(binding)) }
+    private
+
+    def create_data
+      {
+        title: '# Vulnerability Test Report',
+        date: Time.new,
+        version: VERSION
+      }
     end
   end
 end

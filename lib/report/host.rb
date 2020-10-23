@@ -12,19 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module Command
-  module Destroy
-    class << self
-      def exec(args)
-        core = args[:core]
+module Report
+  class Host < Base
+    def initialize(args)
+      super(report_dir: args[:report_dir], template_path: REPORT_HOST_TEMPLATE_PATH)
+      @host = args[:host]
+    end
 
-        if core.nil?
-          Print.error('Doesn\'t exist the environment')
-          return
-        end
+    private
 
-        core.destroy_env
-      end
+    def create_data
+      {
+        os: @host[:os],
+        software: @host[:software],
+        ipadders: @host[:ipadders],
+        port_list: @host[:port_list],
+        services: @host[:services]
+      }
     end
   end
 end

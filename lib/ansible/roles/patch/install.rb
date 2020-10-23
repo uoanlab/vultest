@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'yaml'
-
-require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
     module Patch
       class Install < Base
         def initialize(args)
-          @patch_version = 
+          @patch_version =
             case args[:patch_version].to_s.length
             when 1 then "00#{args[:patch_version]}"
             when 2 then "0#{args[:patch_version]}"
@@ -34,11 +31,12 @@ module Ansible
             data: args[:data]
           )
 
-            @data['software_dir'] = create_software_dir
-            @data['patch_name'] = create_patch_name
+          @data['software_dir'] = create_software_dir
+          @data['patch_name'] = create_patch_name
         end
 
         private
+
         def create_url
           url = metadata['software'][@data['name']]['patch']['url']
           url.sub!(

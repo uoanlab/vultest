@@ -11,38 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'fileutils'
-
-require 'lib/ansible/roles/attack_msf'
-
-require 'lib/ansible/roles/user'
-
-require 'lib/ansible/roles/mysql/database'
-require 'lib/ansible/roles/mysql/user'
-
-require 'lib/ansible/roles/file/add'
-require 'lib/ansible/roles/file/delete'
-require 'lib/ansible/roles/file/create'
-require 'lib/ansible/roles/file/copy'
-require 'lib/ansible/roles/file/replace'
-
-require 'lib/ansible/roles/command'
-require 'lib/ansible/roles/service'
-
-require 'lib/ansible/roles/patch/download'
-require 'lib/ansible/roles/patch/install'
-
-require 'lib/ansible/roles/software/source/build'
-require 'lib/ansible/roles/software/source/configure'
-require 'lib/ansible/roles/software/source/download'
-
-require 'lib/ansible/roles/software/package/install'
-
-require 'lib/ansible/roles/software/nodenv/install'
-require 'lib/ansible/roles/software/npm/install'
-
-require 'lib/ansible/roles/software/rbenv/install'
-require 'lib/ansible/roles/software/gem/install'
 
 module Ansible
   class Role

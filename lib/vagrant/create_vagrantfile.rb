@@ -12,13 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'erb'
-require 'fileutils'
-require 'tty-prompt'
-
-require 'lib/vagrant/select_vagrant_image'
-require 'lib/print'
-
 module Vagrant
   VAGRANTFILR_TEMPLATE_PATH = './resources/vagrant/Vagrantfile.erb'.freeze
 

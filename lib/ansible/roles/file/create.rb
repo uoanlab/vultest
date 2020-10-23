@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'lib/ansible/roles/base'
 
 module Ansible
   module Roles
@@ -19,7 +18,7 @@ module Ansible
       class Create < Base
         def initialize(args)
           super(
-            resource_path:"#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create",
+            resource_path: "#{ANSIBLE_ROLES_TEMPLATE_PATH}/file/create",
             role_path: "#{args[:role_dir]}/#{args[:data]['name']}.file.create",
             dir: "#{args[:data]['name']}.file.create",
             data: args[:data]['file_create']
@@ -42,4 +41,4 @@ module Ansible
       end
     end
   end
-end 
+end
