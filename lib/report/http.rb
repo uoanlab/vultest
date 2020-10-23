@@ -13,11 +13,11 @@
 # limitations under the License.
 
 module Report
-  REPORT_METASPLOIT_TEMPLATE_PATH = './resources/report/metasploit.md.erb'.freeze
+  REPORT_HTTP_TEMPLATE_PATH = './resources/report/http.md.erb'.freeze
 
-  class Metasploit < Base
+  class HTTP < Base
     def initialize(args)
-      super(report_dir: args[:report_dir], template_path: REPORT_METASPLOIT_TEMPLATE_PATH)
+      super(report_dir: args[:report_dir], template_path: REPORT_HTTP_TEMPLATE_PATH)
       @attack = args[:attack]
     end
 
@@ -26,7 +26,8 @@ module Report
     def create_data
       {
         status: @attack.result[:status],
-        method: @attack.result[:method]
+        request: @attack.result[:request],
+        response: @attack.result[:response]
       }
     end
   end

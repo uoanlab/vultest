@@ -16,7 +16,6 @@ module Report
   REPORT_TITLE_TEMPLATE_PATH = './resources/report/title.md.erb'.freeze
   REPORT_METADATA_TEMPLATE_PATH = './resources/report/metadata.md.erb'.freeze
   REPORT_HOST_TEMPLATE_PATH = './resources/report/host.md.erb'.freeze
-  REPORT_ATTACK_TEMPLATE_DIR_PATH = './resources/report/attack'.freeze
   REPORT_VULNERABILITY_TEMPLATE_PATH = './resources/report/vulnerability.md.erb'.freeze
   REPORT_ERROR_TEMPLATE_PATH = './resources/report/error.md.erb'.freeze
 
@@ -69,7 +68,7 @@ module Report
       when 'metasploit'
         Metasploit.new(report_dir: @report_dir, attack: @attack).create
       when 'http'
-        puts 'http'
+        HTTP.new(report_dir: @report_dir, attack: @attack).create
       end
     end
   end

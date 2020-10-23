@@ -1,0 +1,21 @@
+## Attack
+
+### Exploit Method : HTTP
+- Request
+  - Header
+<% data[:request]['headers'].each do |key, value| %>
+    - <%= key.split('-').map { |e| e.capitalize }.join('-')  %> : <%= value %>
+<% end %>
+  - Body : 
+  <%= data[:request]['body'] %>
+
+- Response
+  - Header
+<% data[:response]['headers'].each do |key, value| %>
+    - <%= key.split('-').map { |e| e.capitalize }.join('-')  %> : <%= value %>
+<% end %>
+  - Body : 
+    <%= data[:response]['body'] %>
+
+### Expoit Result : <%= data[:status] %>
+

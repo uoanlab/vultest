@@ -16,7 +16,6 @@ require 'bundler/setup'
 
 require 'erb'
 require 'fileutils'
-require 'json'
 require 'msgpack'
 require 'net/http'
 require 'net/ssh'

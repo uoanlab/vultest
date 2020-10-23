@@ -15,7 +15,7 @@
 module Attack
   module Method
     class HTTP
-      attr_reader :attack_request_setting, :request, :response, :error
+      attr_reader :attack_request_setting, :request, :response, :result
 
       def initialize(args)
         @attack_request_setting = {
@@ -27,6 +27,12 @@ module Attack
 
         @request = { header: {}, body: nil }
         @response = { header: {}, body: nil }
+
+        @result = {
+          status: 'unknown',
+          request: nil,
+          response: nil
+        }
       end
 
       def exec
@@ -38,21 +44,36 @@ module Attack
 
         req = create_req(url, uri)
         res = create_res(http, req)
+        create_result(uri, req, res)
 
         if res.msg == 'OK'
           Print.result('No Judement')
           return
         end
-
-        @error = {
-          code: res.code,
-          header: response[:header],
-          body: response[:body]
-        }
         Print.result('failure')
       end
 
       private
+
+      def create_result(uri, req, res)
+        @result[:request] = {
+          'headers' => {
+            'Host' => "#{uri.scheme}//#{uri.host}",
+            'Resource' => "#{uri.path}?#{uri.query}",
+            'Method' => req.method
+          },
+          'body' => req.body
+        }
+        req.each_header { |key, value| result[:request]['headers'][key] = value }
+
+        @result[:response] = {
+          'headers' => {
+            'Status' => "#{res.code} #{res.msg}"
+          },
+          'body' => res.body
+        }
+        res.each_header { |key, value| result[:response]['headers'][key] = value }
+      end
 
       def create_res(http, req)
         res = http.request(req)
