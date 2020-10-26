@@ -22,8 +22,8 @@ BASE_CONFIG = YAML.load_file('./config.yml')
 Print.stdout(Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST')))
 core = nil
 setting = {
-  test_dir: ENV.fetch('TESTDIR', './test_dir'),
-  attack_dir: ENV.fetch('ATTACKDIR', './attack_dir'),
+  test_dir: ENV.fetch('TESTDIR', "#{Dir.pwd}/test_dir"),
+  attack_dir: ENV.fetch('ATTACKDIR', "#{Dir.pwd}/attack_dir"),
   attack_host: ENV.fetch('ATTACKHOST', nil),
   attack_user: ENV.fetch('ATTACKERUSER', 'root'),
   attack_passwd: ENV.fetch('ATTACKPASSWD', 'toor')

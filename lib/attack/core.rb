@@ -62,9 +62,7 @@ module Attack
       return if vagrant.nil?
 
       Print.execute("Destroy attack_dir(#{env_dir})")
-      Dir.chdir(env_dir) do
-        return unless vagrant.destroy?
-      end
+      Dir.chdir(env_dir) { return unless vagrant.destroy? }
 
       FileUtils.rm_rf(env_dir)
       @vagrant = nil
