@@ -16,7 +16,7 @@
 $LOAD_PATH.unshift(File.join(File.expand_path(__dir__), '.'))
 require 'require'
 
-VERSION = "1.0.0"
+VERSION = '1.0.0'.freeze
 BASE_CONFIG = YAML.load_file('./config.yml')
 
 Print.stdout(Pastel.new.red(TTY::Font.new(:"3d").write('VULTEST')))
