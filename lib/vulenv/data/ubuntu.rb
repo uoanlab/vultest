@@ -58,7 +58,7 @@ module Vulenv
               cmd = "sudo dpkg -l | grep #{s[:name]}"
 
               v = ssh.exec!(cmd).split("\n").find do |stdout|
-                stdout.split(' ')[1] == s[:name]
+                stdout.split(' ')[1].split(':')[0] == s[:name]
               end
               s[:version] = v.split(' ')[2] unless v.nil?
             end
