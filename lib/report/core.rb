@@ -69,6 +69,8 @@ module Report
         Metasploit.new(report_dir: @report_dir, attack: @attack).create
       when 'http'
         HTTP.new(report_dir: @report_dir, attack: @attack).create
+      when 'script'
+        Script.new(report_dir: @report_dir, attack: @attack).create
       end
     end
   end

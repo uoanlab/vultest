@@ -43,6 +43,8 @@ module Attack
           )
         elsif @test_case.attack_config.key?('http')
           Method::HTTP.new(exploits: @test_case.attack_config['http'])
+        elsif @test_case.attack_config.key?('script')
+          Method::Script.new(exploits: @test_case.attack_config['script'])
         end
 
       @attack.exec
@@ -55,6 +57,7 @@ module Attack
     def attack_method
       if @attack.instance_of?(::Attack::Method::Metasploit::Core) then 'metasploit'
       elsif @attack.instance_of?(::Attack::Method::HTTP) then 'http'
+      elsif @attack.instance_of?(::Attack::Method::Script) then 'script'
       end
     end
 

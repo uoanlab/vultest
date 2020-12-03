@@ -28,7 +28,8 @@ module Vulenv
       create = Create.new(
         env_dir: env_dir,
         vulnerability: test_case.vulnerability,
-        env_config: test_case.vulenv_config
+        env_config: test_case.vulenv_config,
+        attack_config: test_case.attack_config
       )
       create.exec
       @vagrant = create.vagrant

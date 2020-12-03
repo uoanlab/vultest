@@ -19,6 +19,7 @@ module Vulenv
     def initialize(args)
       @env_dir = args[:env_dir]
       @attack_vector = args[:vulnerability]['attack_vector']
+      @attack_config = args[:attack_config]
 
       env_config = args[:env_config]
       @os = {
@@ -54,10 +55,7 @@ module Vulenv
     def prepare_ansible
       @software = @software.map { |software| software }
 
-      attack_method =
-        case @attack_vector
-        when 'local' then 'msf'
-        end
+      attack_method = 'msf' if @attack_vector == 'local' && @attack_config.key?('metasploit')
 
       Ansible::Core.new(
         env_dir: @env_dir,
